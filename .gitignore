@@ -1,0 +1,10 @@
+# Arquivo de configuração do banco de dados
+/persistence/dbconfig.php
+
+# Arquivos de configuração privados, contendo credenciais de FTP do dev
+/nbproject/private
+/nbproject/configs
+
+# Arquivos upados pelo sistema (exceto .php)
+/apps/common/arquivos/*
+!/apps/common/arquivos/*.php
