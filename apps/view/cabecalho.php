@@ -26,9 +26,11 @@ $iduser = $_SESSION["iduser"];
 $login = $_SESSION["login"];
 $nome_exibicao = $_SESSION["nome_exibicao"];
 $foto = $_SESSION["foto"];
+$admin = $_SESSION["admin"];
 $ambiente = funcoes::getAmbienteDesenvolvimento();
 if(!$ajax){
 	$endereco = funcoes::getEnderecoPagina();
+	$endereco_anterior = funcoes::getEnderecoPaginaAnterior();
 	?>
 	<!DOCTYPE html>
 	<html>

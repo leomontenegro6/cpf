@@ -1,5 +1,5 @@
 <?php
-class modal{	
+class aviso{	
 	public static function retornar($texto, $retorno, $tipo='', $ajax=false){
 		if($ajax === true){
 			if($tipo != 'aviso' && $tipo != 'erro' && (preg_match("/^Erro/", $texto) || preg_match("/^Já existe um/", $texto) || preg_match("/está sendo usad/", $texto))){
@@ -23,33 +23,34 @@ class modal{
 			
 			$_SESSION['crud'] = array(
 				'texto' => $texto,
-				'tipo' => $tipo
+				'tipo' => self::converteTipoParaSufixoNomeClasse($tipo)
 			);
+			if(empty($retorno)) $retorno = 'index.php';
 			header("Location: $retorno");
 		}
 	}
-    
-    public static function notificar($texto,$tipo=""){
-		switch($tipo){
-			case "aviso":
-				echo "<script language='javascript'>$(function(){ jAlert('$texto', 'Aviso'); } ) </script>";
-				break;
-			case "erro":
-				echo "<script language='javascript'>$(function(){ jError('$texto', 'Erro'); } )</script>";
-				break;
-			default:
-				echo "<script language='javascript'>$(function(){ jInfo('$texto', 'Informação'); } )</script>";
-				break;
-			}
-	}
-
-	public static function confirmar($id,$retorno){
-		echo "<script language=\"javascript\">$(function(){ confirma('$retorno','id=".$id."') })</script>";
-		exit;
+	
+	private static function converteTipoParaSufixoNomeClasse($tipo){
+		if($tipo == 'aviso'){
+			$nome_classe = 'warning';
+		} elseif($tipo == 'erro'){
+			$nome_classe = 'danger';
+		} elseif($tipo == 'sucesso'){
+			$nome_classe = 'success';
+		} else {
+			$nome_classe = 'info';
+		}
+		
+		return $nome_classe;
 	}
 	
-	public static function sessaoExpirada(){
-		echo "<script language=\"javascript\">$(function(){ modal.sessaoExpirada() })</script>";
-		exit;
+	public static function exibir($texto, $tipo, $titulo=''){
+		?>
+		<script type="text/javascript">
+			$(function(){
+				exibirAvisoNotify('<?php echo $texto ?>', '<?php echo $tipo ?>');
+			})
+		</script>
+		<?php
 	}
 }

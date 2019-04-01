@@ -22,6 +22,14 @@ class usuarioDao extends abstractDao{
 				'tipo'=>'string',
 				'normalize'=>false
 			),
+			'indice_produtividade'=>array(
+				'tipo'=>'decimal',
+				'required'=>true
+			),
+			'admin'=>array(
+				'tipo'=>'bolean',
+				'default'=>'false'
+			)
 		);
 		
 		parent::__construct('cpf', 'usuarios');

@@ -51,6 +51,7 @@
 		<script src="../common/js/cpf.js?<?php echo filemtime('../common/js/cpf.js') ?>"></script>
 		<script type="text/javascript">
 			var data_servidor = new Date(<?php echo strtotime('now') * 1000 ?>);
+			var ambiente = '<?php echo $ambiente ?>';
 			var dispositivo = '';
 			$(function(){
 				dispositivo = getDispositivo(true);
@@ -58,6 +59,16 @@
 				instanciarComponentes();
 			})
 		</script>
+		<?php
+		if(isset($_SESSION['crud'])){
+			$texto = $_SESSION['crud']['texto'];
+			$tipo = $_SESSION['crud']['tipo'];
+			
+			unset($_SESSION['crud']);
+			
+			aviso::exibir($texto, $tipo);
+		}
+		?>
 	</body>
 </html>
 <?php } ?>

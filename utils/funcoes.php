@@ -774,6 +774,17 @@ class funcoes{
 		return $endereco[$barra];
 	}
 	
+	public static function getEnderecoPaginaAnterior(){
+		if(!isset($_SERVER['HTTP_REFERER'])){
+			return self::getEnderecoPagina();
+		}
+		
+		$endereco = $_SERVER['HTTP_REFERER'];
+		$barra = substr_count($endereco, '/');
+		$endereco = explode('/', $endereco);
+		return $endereco[$barra];
+	}
+	
 	public static function ajustaParametro($valor, $tipo, $normalizar=true) {
 		// Se valor for nulo, retornar "NULL" imediatamente (exceto para tipos numéricos)
 		if (empty($valor) && (!in_array($tipo, array('int', 'decimal')))) {

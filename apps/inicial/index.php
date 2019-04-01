@@ -1,10 +1,21 @@
 <?php
+session_start();
+
 include('cabecalho.php');
+
+$mostrarAviso = (isset($_GET['erro']) && ($_GET['erro'] == 'true'));
 ?>
 <div class="login-box">
 	<div class="login-logo">
 		CPF - Contador de Pontos de Função
 	</div>
+	<?php if($mostrarAviso){ ?>
+		<div class="alert alert-warning alert-dismissible">
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+			<h5><i class="icon fa fa-exclamation-triangle"></i> Aviso!</h5>
+			Usuário e/ou senha incorreta!
+		</div>
+	<?php } ?>
 	<!-- /.login-logo -->
 	<div class="card">
 		<div class="card-body login-card-body">
@@ -12,7 +23,7 @@ include('cabecalho.php');
 
 			<form action="login.php" method="post">
 				<div class="input-group mb-3">
-					<input type="text" class="form-control"name="login" placeholder="Usuário" autofocus />
+					<input type="text" class="form-control" name="login" placeholder="Usuário" autofocus />
 					<div class="input-group-append">
 						<span class="fas fa-user-circle input-group-text"></span>
 					</div>

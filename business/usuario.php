@@ -25,7 +25,7 @@ class usuario extends abstractBusiness{
 	public function getByListagem($busca, $ordenacao='nome', $filtragem='ASC', $limit=15, $offset=0){
 		$sql_where = $this->formataSQLByListagem($busca);
 		
-		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, id", "WHERE $sql_where ORDER BY $ordenacao $filtragem LIMIT $limit OFFSET $offset");
+		$usuario_rs = $this->getFieldsByParameter("nome, login, indice_produtividade, admin, foto, id", "WHERE $sql_where ORDER BY $ordenacao $filtragem LIMIT $limit OFFSET $offset");
 		foreach($usuario_rs as $i=>$usuario_row){
 			$foto = $usuario_row['foto'];
 			
@@ -33,7 +33,9 @@ class usuario extends abstractBusiness{
 				$foto = '../common/img/user.png';
 			}
 			$img_foto = "<img src='$foto' class='img-circle' style='width: 2.1rem' />";
-			$usuario_rs[$i]['nome'] = $img_foto . ' ' . funcoes::capitaliza( $usuario_row['nome'] );
+			$usuario_rs[$i]['nome'] = $img_foto . ' ' . funcoes::capitaliza($usuario_row['nome']);
+			$usuario_rs[$i]['indice_produtividade'] = funcoes::encodeMonetario($usuario_row['indice_produtividade'], 1);
+			$usuario_rs[$i]['admin'] = ($usuario_row['admin'] == '1') ? ('Sim') : ('Não');
 		}
 		return $usuario_rs;
 	}
@@ -41,7 +43,7 @@ class usuario extends abstractBusiness{
 	public function getLogin($login, $senha){
 		$senha_sha1 = sha1($senha);
 		
-		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, id", "WHERE login = '$login' AND senha_sha1 = '$senha_sha1' LIMIT 1");
+		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, admin, id", "WHERE login = '$login' AND senha_sha1 = '$senha_sha1' LIMIT 1");
 		if(count($usuario_rs) > 0){
 			return $usuario_rs[0];
 		} else {
@@ -50,7 +52,7 @@ class usuario extends abstractBusiness{
 	}
 	
 	public function getByEdicao($id){
-		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, id", "WHERE id = $id LIMIT 1");
+		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, indice_produtividade, id", "WHERE id = $id LIMIT 1");
 		if(count($usuario_rs) > 0){
 			return $usuario_rs[0];
 		} else {
@@ -61,8 +63,39 @@ class usuario extends abstractBusiness{
 	// Métodos de escrita de dados
 	public function set($post, $commit=true){
 		$post['senha_sha1'] = sha1('123456');
+		$post['indice_produtividade'] = (float)$post['indice_produtividade'];
+		$post['admin'] = (isset($post['admin']) && ($post['admin'] == 'true')) ? ('1') : ('0');
+		
+		if($post['indice_produtividade'] < 0.4 || $post['indice_produtividade'] > 1){
+			return 'Digite um índice de produtividade entre 0,4 e 1.';
+		}
 		
 		return parent::set($post, $commit);
+	}
+	
+	public function update($post, $id, $commit=true){
+		$post['indice_produtividade'] = (float)$post['indice_produtividade'];
+		$post['admin'] = (isset($post['admin']) && ($post['admin'] == 'true')) ? ('1') : ('0');
+		
+		if($post['indice_produtividade'] < 0.4 || $post['indice_produtividade'] > 1){
+			return 'Digite um índice de produtividade entre 0,4 e 1.';
+		}
+		
+		return parent::update($post, $id, $commit);
+	}
+	
+	public function updateDadosPessoais($post, $id, $commit=true){
+		$post['indice_produtividade'] = (float)$post['indice_produtividade'];
+		
+		if($post['indice_produtividade'] < 0.4 || $post['indice_produtividade'] > 1){
+			return 'Digite um índice de produtividade entre 0,4 e 1.';
+		}
+		
+		$post_editar = array(
+			'nome' => $post['nome'],
+			'indice_produtividade' => $post['indice_produtividade']
+		);
+		return parent::update($post_editar, $id, $commit);
 	}
 	
 	public function updateFoto($post, $id, $commit=true){
@@ -104,7 +137,7 @@ class usuario extends abstractBusiness{
             $caminhoFoto = '';
         }
 
-        // Editando registro na tabela "pessoas"
+        // Editando registro na tabela "usuarios"
         $retorno = $this->setFoto($caminhoFoto, $id, false);
         if ($retorno !== true) {
             return $retorno;

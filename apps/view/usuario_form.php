@@ -13,10 +13,13 @@ if(isset($_POST['id'])){
 
 	$nome = $usuario_row['nome'];
 	$login = $usuario_row['login'];
+	$indice_produtividade = $usuario_row['indice_produtividade'];
+	$admin = ($usuario_row['admin'] == '1');
 } else {
 	$acao = 'cadastrar';
 	
-	$id = $nome = $login = '';
+	$id = $nome = $login = $indice_produtividade = '';
+	$admin = false;
 }
 ?>
 <div class="card <?php if($acao == 'editar') echo 'card-success'; else echo 'card-primary'; ?>">
@@ -36,6 +39,19 @@ if(isset($_POST['id'])){
 				<input class="form-control" id="login" name="login" type="text" required autocapitalize="off"
 					placeholder="Digite o login" value="<?php echo $login ?>">
 				<label for="login">Login</label>
+			</div>
+			<div class="form-group has-float-label">
+				<input class="form-control" id="indice_produtividade" name="indice_produtividade" type="number"
+					min="0.4" max="1.0" step="0.1" required placeholder="Digite um valor entre 0.4 e 1"
+					value="<?php echo $indice_produtividade ?>">
+				<label for="indice_produtividade">Índice Médio de Produtividade</label>
+			</div>
+			<div class="form-group">
+				<div class="custom-control custom-checkbox">
+					<input type="checkbox" class="custom-control-input" id="admin"
+						name="admin" value="true" <?php if($admin) echo 'checked' ?> />
+					<label class="custom-control-label" for="admin">Administrador</label>
+				</div>
 			</div>
 		</div>
 

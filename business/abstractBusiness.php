@@ -82,14 +82,18 @@ abstract class abstractBusiness{
 					return '';
 				}
 			}elseif(($metodo == 'set') && (count($parametros) > 1)){
-				$valor = funcoes::ajustaParametro($parametros[0], $this->campos[$campo]['tipo']);
+				$valor = $parametros[0];
+				$tipo = $this->campos[$campo]['tipo'];
+				$normalizar = (isset($this->campos[$campo]['normalize'])) ? ($this->campos[$campo]['normalize']) : (true);
+				
+				$valor_ajustado = funcoes::ajustaParametro($valor, $tipo, $normalizar);
 				$id = $parametros[1];
 				if(isset($parametros[2])){
 					$commit = $parametros[2];
 				} else {
 					$commit = true;
 				}
-				$retorno = $this->dao->setCampo("$campo = $valor", $id, $commit);
+				$retorno = $this->dao->setCampo("$campo = $valor_ajustado", $id, $commit);
 				if ($retorno === true){
 					return true;
 				} else {

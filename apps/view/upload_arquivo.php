@@ -1,6 +1,6 @@
 <?php
 session_start();
-if(isset($_SESSION['cpf'])){
+if(isset($_SESSION['iduser'])){
 	if(isset($_POST['name']) && isset($_POST['tamanho_limite'])){
 		if(isset($_FILES[$_POST['name']])){
 			$tamanho_arquivo_transferido = $_FILES[$_POST['name']]['size'];

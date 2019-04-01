@@ -28,9 +28,11 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 			<button type="button" class="btn btn-warning float-left" onclick="history.back()">
 				<i class="fas fa-arrow-left"></i> Voltar
 			</button>
-			<button type="button" class="btn btn-primary float-right" onclick="jForm('usuario_form.php')">
-				<i class="fas fa-plus-circle"></i> Novo
-			</button>
+			<?php if($_SESSION['admin']){ ?>
+				<button type="button" class="btn btn-primary float-right" onclick="jForm('usuario_form.php')">
+					<i class="fas fa-plus-circle"></i> Novo
+				</button>
+			<?php } ?>
 		</div>
 		<div class="card-body">
 			<div <?php echo $atributo_id ?> class="<?php echo $classe_tabela ?>" data-pagina="<?php echo $pagina ?>"
@@ -39,27 +41,37 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 				<table>
 					<thead>
 						<tr>
-							<th>Nome</th>
-							<th>Login</th>
-							<th width="75" class="acoes">Ações</th>
+							<th class="align-middle">Nome</th>
+							<th class="align-middle">Login</th>
+							<th class="align-middle">Índice Médio de<br />Produtividade (PF)</th>
+							<th class="align-middle">Administrador</th>
+							<?php if($_SESSION['admin']){ ?>
+								<th width="75" class="acoes align-middle">Ações</th>
+							<?php } ?>
 						</tr>
 					</thead>
 					<tbody></tbody>
 					<tfoot>
 						<tr>							
-							<th>Nome</th>
-							<th>Login</th>
-							<th width="75" class="acoes">Ações</th>
+							<th class="align-middle">Nome</th>
+							<th class="align-middle">Login</th>
+							<th class="align-middle">Índice Médio de<br />Produtividade (PF)</th>
+							<th class="align-middle">Administrador</th>
+							<?php if($_SESSION['admin']){ ?>
+								<th width="75" class="acoes align-middle">Ações</th>
+							<?php } ?>
 						</tr>
 					</tfoot>
 				</table>
 				<div class="acoes">
-					<button type="button" title="Editar" data-onclick="jForm('usuario_form.php', 'id={id}')" class="btn-success btn-sm">
-						<i class="fa fa-edit"></i>
-					</button>
-					<button type="button" title="Excluir" data-onclick="apagaRegistro('usuario_crud.php', {id})" class="btn-danger btn-sm">
-						<i class="fa fa-trash-alt"></i>
-					</button>
+					<?php if($_SESSION['admin']){ ?>
+						<button type="button" title="Editar" data-onclick="jForm('usuario_form.php', 'id={id}')" class="btn-success btn-sm">
+							<i class="fa fa-edit"></i>
+						</button>
+						<button type="button" title="Excluir" data-onclick="apagaRegistro('usuario_crud.php', {id})" class="btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button>
+					<?php } ?>
 				</div>
 			</div>
 		</div>

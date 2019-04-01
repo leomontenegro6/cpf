@@ -118,7 +118,7 @@ fileUploader.instanciar = function(seletor_campo, escopo){
 			);
 			$conteiner.find(".titulo").html(
 				$("<button />", {'type': 'button'}).addClass("btn btn-default escolher_arquivo").html(
-					$("<span />").addClass("glyphicon glyphicon-plus")
+					$("<span />").addClass("fas fa-plus")
 				).append(
 					$("<span />").addClass("rotulo").html("Escolher Arquivo" + ((upl.campos[id].multiplos_arquivos) ? ("s") : ("")))
 				).on({

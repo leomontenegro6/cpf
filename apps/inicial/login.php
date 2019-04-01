@@ -17,13 +17,14 @@ if($usuario_row != false){
 	$_SESSION['nome'] = $usuario_row['nome'];
 	$_SESSION['nome_exibicao'] = funcoes::formataNomeExibicao($usuario_row['nome']);
 	$_SESSION['foto'] = $usuario_row['foto'];
+	$_SESSION['admin'] = ($usuario_row['admin'] == '1');
 	$_SESSION['menu'] = menu::carregar();
 	
 	setcookie('auth', $usuario_row['login']);
 	session_regenerate_id();
 	header("Location: ../view/");
 } else {
-	modal::retornar('Usuário e/ou senha incorreta!', 'index.php', 'aviso');
+	header('Location: index.php?erro=true');
 }
 
 require_once 'rodape.php';

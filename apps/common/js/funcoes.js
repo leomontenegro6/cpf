@@ -743,6 +743,31 @@ function abortarPaginaChamada(ajax){
 	}
 }
 
+function validaFormAlterarSenha(form){
+	return validaForm(form, undefined, undefined, undefined, function(){
+		jInfo('Senha redefinida com sucesso!<br />Realize o login com a nova senha!', undefined, function(){
+			location.href='logoff.php';
+		})
+	});
+}
+
+// Se for ambiente de desenvolvimento ou homologação, exibir consultas salvas na sessão
+// Útil para depuração
+function obterConsultasSessao(callback) {
+    if ((typeof ambiente != 'undefined') && (ambiente == 'D' || ambiente == 'H')) {
+        chamarPagina('../common/obterConsultasSessao.php', '', function (r) {
+            if (callback)
+                callback(r);
+        });
+    }
+}
+
+function mostrarConsultasSessao() {
+    obterConsultasSessao(function (r) {
+        jInfo(r);
+    });
+}
+
 function adicionarModuloSistema(botao){
 	var $botao = $(botao);
 	var $tabela = $botao.closest('table');
