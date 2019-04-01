@@ -239,7 +239,7 @@ class database{
                 $j=0;
                 while ($obj = $result->fetch(PDO::FETCH_ASSOC)) {
                     $texto[$j] = '';
-                    while($item = each($obj)){			
+                    while(@$item = each($obj)){			
                         //Correção para escapar o tipo de dado BYTEA (utilizado para imagem na biblioteca)
                         if(gettype($item['value']) != 'resource'){
                             $texto[$j] = $texto[$j] . '{{' . $item['key'] .' = ' . addslashes($item['value']) . '}}, ';

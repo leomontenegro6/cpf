@@ -146,7 +146,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 			<div class="row">
 				<div class="col-6">
 					<label class="form-group">
-						<div class="campo_multiplo" data-aceita-valores-duplicados='true' data-onadd="calcularComplexidadeEValorComponente(this)">
+						<div id="campos_campos" class="campo_multiplo" data-aceita-valores-duplicados='true'>
 							<table class="conteiner">
 								<thead>
 									<tr>
@@ -161,7 +161,8 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 											<button type="button" class="btn btn-default adicionar" title="Adicionar">
 												<i class="fas fa-plus"></i>
 											</button>
-											<button type="button" class="btn btn-danger remover" title="Remover">
+											<button type="button" class="btn btn-danger remover" title="Remover"
+												onclick="setTimeout(function(){ calcularComplexidadeEValorComponente( gE('campos_campos') ) }, 25)">
 												<i class="fas fa-minus"></i>
 											</button>
 										</td>
@@ -170,7 +171,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 							</table>
 							<div class="template">
 								<input type="text" data-nome="campo" id="campo_{iterador}"
-									name="campos[]" class="form-control" />
+									name="campos[]" class="form-control" onchange="calcularComplexidadeEValorComponente(this)" />
 							</div>
 							<div class="valores">
 								<?php
@@ -188,7 +189,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 				</div>
 				<div class="col-6">
 					<label class="form-group has-float-label">
-						<div class="campo_multiplo" data-aceita-valores-duplicados='true' data-onadd="calcularComplexidadeEValorComponente(this)">
+						<div id="campos_arquivos_referenciados" class="campo_multiplo" data-aceita-valores-duplicados='true'>
 							<table class="conteiner">
 								<thead>
 									<tr>
@@ -203,7 +204,8 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 											<button type="button" class="btn btn-default adicionar" title="Adicionar">
 												<i class="fas fa-plus"></i>
 											</button>
-											<button type="button" class="btn btn-danger remover" title="Remover">
+											<button type="button" class="btn btn-danger remover" title="Remover"
+												onclick="setTimeout(function(){ calcularComplexidadeEValorComponente( gE('campos_arquivos_referenciados') ) }, 25)">
 												<i class="fas fa-minus"></i>
 											</button>
 										</td>
@@ -212,7 +214,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 							</table>
 							<div class="template">
 								<input type="text" data-nome="arquivo_referenciado" id="arquivo_referenciado_{iterador}"
-									name="arquivos_referenciados[]" class="form-control" />
+									name="arquivos_referenciados[]" class="form-control" onchange="calcularComplexidadeEValorComponente(this)" />
 							</div>
 							<div class="valores">
 								<?php

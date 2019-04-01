@@ -40,7 +40,7 @@ class menu{
 				'filhos' => array(
 					array(
 						'nome' => 'Contagem de Pontos',
-						'icone' => 'fa-paste',
+						'icone' => 'fa-dice',
 						'pagina' => 'rel_contagem_pontos_lista.php',
 					)
 				)

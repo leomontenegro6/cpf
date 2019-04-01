@@ -104,38 +104,51 @@ class componente extends abstractBusiness{
 		}
 	}
 	
-	public function getByPlanilhaContagemPontos($id_sistema, $id_modulo){
+	public function getByPlanilhaContagemPontos($id_sistema, $id_modulo, $detalhar_campos_arquivos=false){
+		$campo = new campo();
+		$arquivoReferenciado = new arquivoReferenciado();
+		
 		$sql_where = 'TRUE';
 		
+		// Filtro por sistema
 		if(is_numeric($id_sistema)){
 			$sql_where .= " AND s.id = $id_sistema";
 		}
 		
+		// Filtro por módulo
 		if(is_numeric($id_modulo)){
 			$sql_where .= " AND m.id = $id_modulo";
 		}
 		
+		// Executando consulta de obtenção dos dados da planilha
 		$componente_rs = $this->getFieldsByParameter("CONCAT(f.ordem, '. ', co.ordem, '.') AS ordem,
 			s.nome AS sistema, m.nome AS modulo, f.nome AS funcionalidade,
 			tco.descricao AS componente, td.descricao AS tipo_funcional,
 			(CASE WHEN td.id = 1 THEN 'e' WHEN td.id = 2 THEN 's' WHEN td.id = 3 THEN 'c' ELSE '' END) AS letra_tipo_funcional,
-			COUNT(DISTINCT c.id) AS total_campos, COUNT(DISTINCT ar.id) AS total_arquivos_referenciados,
-			co.possui_acoes, co.possui_mensagens", "co
+			co.possui_acoes, co.possui_mensagens, f.id AS id_funcionalidade, co.id AS id_componente, tco.id AS id_tipo_componente", "co
 				JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
 				JOIN tipos_dados td ON (tco.tipo_dado = td.id)
 				JOIN funcionalidades f ON (co.funcionalidade = f.id)
 				JOIN modulos m ON (f.modulo = m.id)
 				JOIN sistemas s ON (m.sistema = s.id)
-				LEFT JOIN campos c ON (c.componente = co.id)
-				LEFT JOIN arquivos_referenciados ar ON (ar.componente = co.id)
 			WHERE $sql_where
-			GROUP BY f.ordem, co.ordem, s.nome, m.nome, f.nome, tco.descricao, td.descricao, td.id, co.possui_acoes, co.possui_mensagens
 			ORDER BY 2, 3, 1");
+		
+		// Iterando pelos resultados uma vez, para obter os campos, arquivo referenciados
+		// e calcular os valores para posterior união vertical de linhas (rowspan)
+		$rowspans = array(
+			'funcionalidades' => array(),
+			'componentes' => array()
+		);
 		foreach($componente_rs as $i=>$componente_row){
-			$tipo_funcional = $componente_row['letra_tipo_funcional'];
-			$quantidade_tipos_dados =  $componente_row['total_campos'];
-			$quantidade_arquivos_referenciados =  $componente_row['total_arquivos_referenciados'];
+			$id_funcionalidade = $componente_row['id_funcionalidade'];
+			$id_componente = $componente_row['id_componente'];
 			
+			$campo_rs = $campo->getByComponente($id_componente);
+			$arquivoReferenciado_rs = $arquivoReferenciado->getByComponente($id_componente);
+			
+			$quantidade_tipos_dados = count($campo_rs);
+			$quantidade_arquivos_referenciados = count($arquivoReferenciado_rs);
 			if($componente_row['possui_acoes'] == '1'){
 				$quantidade_tipos_dados++;
 			}
@@ -143,15 +156,54 @@ class componente extends abstractBusiness{
 				$quantidade_tipos_dados++;
 			}
 			
+			$componente_rs[$i]['campos'] = $campo_rs;
+			$componente_rs[$i]['arquivos_referenciados'] = $arquivoReferenciado_rs;
+			$componente_rs[$i]['quantidade_tipos_dados'] = $quantidade_tipos_dados;
+			$componente_rs[$i]['quantidade_arquivos_referenciados'] = $quantidade_arquivos_referenciados;
+			
+			if($detalhar_campos_arquivos){
+				if($quantidade_tipos_dados >= $quantidade_arquivos_referenciados){
+					$rowspans['componentes'][$id_componente] = $quantidade_tipos_dados;
+				} else {
+					$rowspans['componentes'][$id_componente] = $quantidade_arquivos_referenciados;
+				}
+			} else {
+				$rowspans['componentes'][$id_componente] = 1;
+			}
+			
+			if(isset($rowspans['funcionalidades'][$id_funcionalidade])){
+				if($i > 0){
+					$componenteAnterior_row = $componente_rs[$i - 1];
+
+					if($componente_row['id_funcionalidade'] == $componenteAnterior_row['id_funcionalidade']){
+						$rowspans['funcionalidades'][$id_funcionalidade] += $rowspans['componentes'][$id_componente];
+					}
+				}
+			} else {
+				$rowspans['funcionalidades'][$id_funcionalidade] = $rowspans['componentes'][$id_componente];
+			}
+		}
+		
+		// Iterando pelos resultados outra vez, para formatar valores e calcular
+		// complexidade e valor de cada componente, em pontos de função
+		foreach($componente_rs as $i=>$componente_row){
+			$id_funcionalidade = $componente_row['id_funcionalidade'];
+			$id_componente = $componente_row['id_componente'];
+			$tipo_funcional = $componente_row['letra_tipo_funcional'];
+			
+			$quantidade_tipos_dados = $componente_row['quantidade_tipos_dados'];
+			$quantidade_arquivos_referenciados = $componente_row['quantidade_arquivos_referenciados'];
+			
 			$complexidade = cpf::calcularComplexidade($tipo_funcional, $quantidade_tipos_dados, $quantidade_arquivos_referenciados);
 			$valor_pf = cpf::calcularValor($tipo_funcional, $complexidade);
 			
-			$componente_rs[$i]['quantidade_tipos_dados'] = $quantidade_tipos_dados;
-			$componente_rs[$i]['quantidade_arquivos_referenciados'] = $quantidade_arquivos_referenciados;
+			$componente_rs[$i]['rowspan_funcionalidade_modulo'] = $rowspans['funcionalidades'][$id_funcionalidade];
+			$componente_rs[$i]['rowspan_componente'] = $rowspans['componentes'][$id_componente];
 			$componente_rs[$i]['complexidade'] = funcoes::capitaliza($complexidade);
 			$componente_rs[$i]['valor_pf'] = $valor_pf;
 		}
 		
+		// Retornando resultados ao fim do processo
 		return $componente_rs;
 	}
 	
@@ -345,5 +397,9 @@ class componente extends abstractBusiness{
 		} else {
 			return true;
 		}
+	}
+	
+	public function setByFuncionalidade($post, $commit=true){
+		return parent::set($post, $commit);
 	}
 }

@@ -76,6 +76,16 @@ $componente_rs = $componente->getByFuncionalidade($id);
 					foreach($componente_rs as $componente_row){
 						$campo_rs = $campo->getByComponente($componente_row['id']);
 						$arquivoReferenciado_rs = $arquivoReferenciado->getByComponente($componente_row['id']);
+						
+						$total_tipos_dados = count($campo_rs);
+						$total_arquivos_referenciados = count($arquivoReferenciado_rs);
+						if($componente_row['possui_acoes'] == '1'){
+							$total_tipos_dados++;
+						}
+						if($componente_row['possui_mensagens'] == '1'){
+							$total_tipos_dados++;
+						}
+						
 						$complexidade_valor_pf = $componente->calcularComplexidadeValorPF($componente_row['id']);
 						$complexidade = funcoes::capitaliza($complexidade_valor_pf['complexidade']);
 						$valor_pf = $complexidade_valor_pf['valor'];
@@ -92,13 +102,17 @@ $componente_rs = $componente->getByFuncionalidade($id);
 								<?php foreach($campo_rs as $campo_row){ ?>
 									<span class="badge badge-info"><?php echo $campo_row['nome'] ?></span>
 								<?php } ?>
-								<span class="badge badge-warning float-right"><?php echo count($campo_rs) ?></span>
+								<span class="badge badge-warning float-right" title="<?php echo $total_tipos_dados ?> tipo(s) de dado(s)">
+									<?php echo $total_tipos_dados ?> TD
+								</span>
 							</td>
 							<td>
 								<?php foreach($arquivoReferenciado_rs as $arquivoReferenciado_row){ ?>
 									<span class="badge badge-info"><?php echo $arquivoReferenciado_row['nome'] ?></span>
 								<?php } ?>
-								<span class="badge badge-warning float-right"><?php echo count($arquivoReferenciado_rs) ?></span>
+								<span class="badge badge-warning float-right" title="<?php echo $total_arquivos_referenciados ?> arquivo(s) referenciado(s)">
+									<?php echo $total_arquivos_referenciados ?> AR
+								</span>
 							</td>
 							<td><?php echo $complexidade ?></td>
 							<td><?php echo $valor_pf ?></td>

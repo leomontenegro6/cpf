@@ -1134,4 +1134,16 @@ class funcoes{
             return false;
         }
     }
+	
+	public static function converteNumeroParaLetra($num){
+		return chr(64 + $num);
+	}
+	
+	public static function converteLetraParaNumero($letra){
+		if($letra){
+			return ord(strtolower($letra)) - 96;
+		} else {
+			return 0;
+		}
+	}
 }

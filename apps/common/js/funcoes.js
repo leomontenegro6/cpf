@@ -920,8 +920,8 @@ function calcularComplexidadeEValorComponente(elemento){
 	var $selectTipoComponente = $divCardBody.find("[name='tipo_componente']");
 	var $checkboxPossuiAcoes = $divCardBody.find("[name='possui_acoes']");
 	var $checkboxPossuiMensagens = $divCardBody.find("[name='possui_mensagens']");
-	var $inputsCampos = $divCardBody.find("[name^='campos']");
-	var $inputsArquivosReferenciados = $divCardBody.find("[name^='arquivos_referenciados']");
+	var $inputsCampos = $divCardBody.find("[name^='campos']").not('[disabled]');
+	var $inputsArquivosReferenciados = $divCardBody.find("[name^='arquivos_referenciados']").not('[disabled]');
 	var $inputComplexidade = $divCardBody.find("[name='complexidade']");
 	var $inputValor = $divCardBody.find("[name='valor_pf']");
 	
@@ -930,36 +930,29 @@ function calcularComplexidadeEValorComponente(elemento){
 	var tipo_funcional = $opcaoSelecionada.attr('data-alias');
 	var quantidade_total_tipos_dados = 0, quantidade_total_arquivos_referenciados = 0;
 	
+	// Obtendo total de campos, contabilizando apenas campos de texto não-vazios
+	$inputsCampos.each(function(){
+		var $input = $(this);
+		
+		var texto = $.trim( $input.val() );
+		
+		if(texto != '') quantidade_total_tipos_dados++;
+	});
+	
+	// Obtendo total de arquivos referenciados, contabilizando apenas
+	// campos de texto não-vazios
+	$inputsArquivosReferenciados.each(function(){
+		var $input = $(this);
+		
+		var texto = $.trim( $input.val() );
+		
+		if(texto != '') quantidade_total_arquivos_referenciados++;
+	});
+	
 	// Caso algum dos checkboxes "possui ações" ou "possui mensagens" estiver
 	// marcado, incrementar em um a quantidade total de tipos de dados
 	if($checkboxPossuiAcoes.is(':checked')) quantidade_total_tipos_dados++;
 	if($checkboxPossuiMensagens.is(':checked')) quantidade_total_tipos_dados++;
-	
-	// Obter o total de nomes adicionados, com base no componente
-	// "Bootstrap Tags Input"
-	var quantidade_campos = $inputsCampos.length;
-	if(quantidade_campos > 0){
-		// Pelo menos um nome foi digitado, logo somar o total de nomes
-		// à variável da quantidade total de tipos de dados.
-		quantidade_total_tipos_dados += quantidade_campos;
-	} else {
-		// Nenhum nome digitado, logo zerar a variável da
-		// quantidade total de tipos de dados
-		quantidade_total_tipos_dados = 0;
-	}
-	
-	// Obter o total de nomes adicionados, com base no componente
-	// "Bootstrap Tags Input"
-	var quantidade_arquivos_referenciados = $inputsArquivosReferenciados.length;
-	if(quantidade_arquivos_referenciados > 0){
-		// Pelo menos um nome foi digitado, logo somar o total de nomes
-		// à variável da quantidade total de tipos de dados.
-		quantidade_total_arquivos_referenciados += quantidade_arquivos_referenciados;
-	} else {
-		// Nenhum nome digitado, logo zerar a variável da
-		// quantidade total de tipos de dados
-		quantidade_total_arquivos_referenciados = 0;
-	}
 	
 	// Calculando complexidade e valor do componente (em pontos de função)
 	var complexidade, valor, complexidade_formatada;

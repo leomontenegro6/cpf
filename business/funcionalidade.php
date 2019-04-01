@@ -169,7 +169,7 @@ class funcionalidade extends abstractBusiness{
 			$post_componente['ordem'] = $ordem;
 			
 			// Inserindo registro na tabela "componentes"
-			$retorno = $componente->set($post_componente, false);
+			$retorno = $componente->setByFuncionalidade($post_componente, false);
 			if($retorno !== true){
 				return $retorno;
 			}
