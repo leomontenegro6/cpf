@@ -40,6 +40,35 @@ class usuario extends abstractBusiness{
 		return $usuario_rs;
 	}
 	
+	private function formataSQLAutocomplete($busca) {
+		$sql_where = 'WHERE TRUE';
+
+		if (!empty($busca)) {
+			$nome = str_replace(' ', '%', $busca);
+            $sql_where .= " AND nome LIKE '%$nome%'";
+		}
+
+		return $sql_where;
+	}
+
+	public function getTotalByAutocomplete($busca) {
+
+		$sql_where = $this->formataSQLAutocomplete($busca);
+
+		$retorno = $this->getFieldsByParameter("COUNT(id) AS total_consulta", "$sql_where LIMIT 1");
+		if (count($retorno) > 0) {
+			return $retorno[0]['total_consulta'];
+		} else {
+			return 0;
+		}
+	}
+
+	public function getByAutocomplete($busca, $limit = 30, $offset = 0) {
+		$sql_where = $this->formataSQLAutocomplete($busca);
+
+		return $this->getFieldsByParameter('*', "$sql_where ORDER BY nome LIMIT $limit OFFSET $offset");
+	}
+	
 	public function getLogin($login, $senha){
 		$senha_sha1 = sha1($senha);
 		

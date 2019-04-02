@@ -1,0 +1,314 @@
+<?php
+include('cabecalho.php');
+include('menu.php');
+
+$sistema = new sistema();
+$modulo = new modulo();
+$componente = new componente();
+$usuario = new usuario();
+
+$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
+$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
+$usuario_lista = (isset($_GET['usuario_lista'])) ? ($_GET['usuario_lista']) : ('');
+$recursos_lista = (isset($_GET['recursos_lista'])) ? ($_GET['recursos_lista']) : ('1');
+$produtividade_lista = (isset($_GET['produtividade_lista'])) ? ($_GET['produtividade_lista']) : ('4');
+
+if(is_numeric($sistema_lista)){
+	$nome_sistema = $sistema->getNome($sistema_lista, 'n');
+	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
+} else {
+	$nome_sistema = '';
+	$moduloSistema_rs = array();
+}
+if(is_numeric($modulo_lista)){
+	$nome_modulo = $modulo->getNome($modulo_lista, 'n');
+	$checkModuloUnico = true;
+} else {
+	$nome_modulo = '';
+	if(is_numeric($sistema_lista)){
+		$checkModuloUnico = (count( $modulo->getBySistema($sistema_lista) ) == 1);
+	} else {
+		$checkModuloUnico = false;
+	}
+}
+if(is_numeric($usuario_lista)){
+	$nome_usuario = $usuario->getNome($usuario_lista);
+} else {
+	$nome_usuario = '';
+}
+?>
+<section class="content-header">
+	<div class="container-fluid">
+        <div class="row mb-2">
+			<div class="col-sm-6">
+				<h1>Prazos de Desenvolvimento</h1>
+			</div>
+			<div class="col-sm-6">
+				<ol class="breadcrumb float-sm-right">
+					<li class="breadcrumb-item"><a href="#">Relatórios</a></li>
+					<li class="breadcrumb-item active">Prazos de Desenvolvimento</li>
+				</ol>
+			</div>
+        </div>
+	</div>
+</section>
+
+<section id="corpo" class="content">
+	<div id="filtros" class="row">
+		<div class="col-10 mx-auto">
+			<div class="card card-info">
+				<div class="card-header">
+					<h3 class="card-title">Filtros de Busca</h3>
+				</div>
+
+				<form method="GET" id="form_lista" name="form_lista" onsubmit="return validaForm(this)" novalidate>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-md-6">
+								<label class="form-group has-float-label">
+									<select id="sistema_lista" name="sistema_lista" class="select form-control"
+										data-pagina="sistema_autocomplete.php" data-limite-caracteres="0" required
+										onchange="select.limpar( gE('modulo_lista') )">
+										<option value="">Escolha um sistema</option>
+										<?php if(is_numeric($sistema_lista)){ ?>
+											<option value="<?php echo $sistema_lista ?>" selected><?php echo $nome_sistema ?></option>
+										<?php } ?>
+									</select>
+									<span>Sistema</span>
+								</label>
+							</div>
+							<div class="col-md-6">
+								<label class="form-group has-float-label">
+									<select id="modulo_lista" name="modulo_lista" class="select form-control"
+										data-pagina="modulo_autocomplete.php?sistema={sistema_lista}" data-limite-caracteres="0"
+										onchange="definirModuloSistema(this, 'modulo_lista', 'sistema_lista')">
+										<option value="">Todos</option>
+										<?php if(is_numeric($modulo_lista)){ ?>
+											<option value="<?php echo $modulo_lista ?>" selected><?php echo $nome_modulo ?></option>
+										<?php } ?>
+									</select>
+									<span>Módulo</span>
+								</label>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label class="form-group has-float-label">
+									<select id="usuario_lista" name="usuario_lista" class="select form-control"
+										data-pagina="usuario_autocomplete.php" data-limite-caracteres="0">
+										<option value="">Todos</option>
+										<?php if(is_numeric($usuario_lista)){ ?>
+											<option value="<?php echo $usuario_lista ?>" selected><?php echo $nome_usuario ?></option>
+										<?php } ?>
+									</select>
+									<span>Usuário</span>
+								</label>
+							</div>
+							<div class="col-md-5">
+								<div class="form-group input-group">
+									<label class="has-float-label">
+										<input class="form-control" id="indice_produtividade_lista" name="indice_produtividade_lista"
+											type="text" disabled />
+										<span>Índice de Produtividade</span>
+									</label>
+									<div class="input-group-append" style="margin-left: 0">
+										<span class="input-group-text" style="height: 38px;">Horas / PF</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-5">
+								<div class="form-group input-group">
+									<label class="has-float-label">
+										<input class="form-control" id="produtividade_lista" name="produtividade_lista" type="number"
+											min="1" placeholder="Horas por dia" value="<?php echo $produtividade_lista ?>" />
+										<span>Produtividade</span>
+									</label>
+									<div class="input-group-append" style="margin-left: 0">
+										<span class="input-group-text" style="height: 38px;">Horas / Dia</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="card-footer text-center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-warning" onclick="history.back()">
+								<i class="fas fa-arrow-left"></i> Voltar
+							</button>
+							<button type="submit" name="Submit" class="btn btn-info">
+								<i class="fas fa-search"></i>
+								Pesquisar
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<?php if(isset($_GET['Submit'])){
+		$componente_rs = $componente->getByPlanilhaPrazosDesenvolvimento($sistema_lista, $modulo_lista, $usuario_lista, $recursos_lista, $produtividade_lista);
+		?>
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title" style="font-weight: bold">
+					<?php
+					if($checkModuloUnico){
+						if(empty($nome_modulo)) $nome_modulo = $moduloSistema_rs['0']['nome'];
+						echo $nome_sistema . ' - Módulo ' . $nome_modulo;
+					} else {
+						echo $nome_sistema;
+					}
+					?>
+					<br />
+					Prazos de Desenvolvimento de Funcionalidades
+				</h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-success float-right"
+						onclick="abrirPagina('rel_prazos_desenvolvimento_xls.php?sistema=<?php echo $sistema_lista ?>&modulo=<?php echo $modulo_lista ?>&usuario=<?php echo $usuario_lista ?>&recursos_lista=<?php echo $recursos_lista ?>&produtividade_lista=<?php echo $produtividade_lista ?>', '', '_blank');">
+						<i class="fas fa-file-excel"></i> Gerar Planilha
+					</button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-bordered table-sm">
+						<thead>
+							<tr>
+								<?php if(!$checkModuloUnico){ ?>
+									<th class="align-middle" style="background-color: #fafafa">Módulo</th>
+								<?php } ?>
+								<th class="align-middle" style="background-color: #fafafa">Funcionalidade</th>
+								<th class="align-middle" style="background-color: #fafafa">Componente</th>
+								<th class="align-middle" style="background-color: #fafafa">Complexidade</th>
+								<th class="align-middle" style="background-color: #fafafa">Valor (PF)</th>
+								<th class="align-middle" style="background-color: #fafafa">Tempo (Dias Úteis)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							$valor_total_pf = 0;
+							$linhas_esconder = array(
+								'modulo' => 0,
+								'funcionalidade' => 0
+							);
+							$colspan_rodape_branco = ($checkModuloUnico) ? (3) : (4);
+							foreach($componente_rs as $componente_row){
+								$id_tipo_componente = $componente_row['id_tipo_componente'];
+								$rowspan_funcionalidade_modulo = $componente_row['rowspan_funcionalidade_modulo'];
+								$rowspan_componente = $componente_row['rowspan_componente'];
+								$valor_total_pf += $componente_row['valor_pf'];
+								
+								$campo_rs = $componente_row['campos'];
+								$arquivoReferenciado_rs = $componente_row['arquivos_referenciados'];
+								
+								$quantidade_tipos_dados = $componente_row['quantidade_tipos_dados'];
+								$quantidade_arquivos_referenciados = $componente_row['quantidade_arquivos_referenciados'];
+								
+								if($detalhar_campos_arquivos){
+									if($quantidade_tipos_dados >= $quantidade_arquivos_referenciados){
+										$rowspan_campos_arquivos = $quantidade_tipos_dados;
+									} else {
+										$rowspan_campos_arquivos = $quantidade_arquivos_referenciados;
+									}
+								} else {
+									$rowspan_campos_arquivos = 1;
+								}
+								
+								if($id_tipo_componente == 2){
+									$categoria_tipo_dado = 'Coluna';
+								} else {
+									$categoria_tipo_dado = 'Campo';
+								}
+								?>
+								<tr>
+									<?php if(!$checkModuloUnico){ ?>
+										<?php
+										if($linhas_esconder['modulo'] > 0){
+											$linhas_esconder['modulo'] -= $rowspan_componente;
+										} elseif($rowspan_funcionalidade_modulo > 1){
+											$linhas_esconder['modulo'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+											$rowspan = $rowspan_funcionalidade_modulo;
+											?>
+											<td rowspan="<?php echo $rowspan ?>"><?php echo $componente_row['modulo'] ?></td>
+										<?php } ?>
+									<?php } ?>
+									<?php
+									if($linhas_esconder['funcionalidade'] > 0){
+										$linhas_esconder['funcionalidade'] -= $rowspan_componente;
+									} elseif($rowspan_funcionalidade_modulo > 1){
+										$linhas_esconder['funcionalidade'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+										$rowspan = $rowspan_funcionalidade_modulo;
+										?>
+										<td rowspan="<?php echo $rowspan ?>"><?php echo $componente_row['funcionalidade'] ?></td>
+									<?php } ?>
+									<td rowspan="<?php echo $rowspan_campos_arquivos ?>"><?php echo $componente_row['componente'] ?></td>
+									<td rowspan="<?php echo $rowspan_campos_arquivos ?>"><?php echo $componente_row['tipo_funcional'] ?></td>
+									<?php if($detalhar_campos_arquivos){ ?>
+										<td>
+											<?php
+											$nome_campo = $campo_rs[0]['nome'];
+											if(substr($nome_campo, 0, 5) == 'Campo'){
+												$nome_campo = trim( substr($nome_campo, 5) );
+												echo "$categoria_tipo_dado $nome_campo";
+											} else {
+												echo "$categoria_tipo_dado \"$nome_campo\"";
+											}
+											?>
+										</td>
+										<td><?php echo $arquivoReferenciado_rs[0]['nome'] ?></td>
+									<?php } else { ?>
+										<td rowspan="<?php echo $rowspan_campos_arquivos ?>"><?php echo $componente_row['quantidade_tipos_dados'] ?></td>
+										<td rowspan="<?php echo $rowspan_campos_arquivos ?>"><?php echo $componente_row['quantidade_arquivos_referenciados'] ?></td>
+									<?php } ?>
+									<td rowspan="<?php echo $rowspan_campos_arquivos ?>"><?php echo $componente_row['complexidade'] ?></td>
+									<td rowspan="<?php echo $rowspan_campos_arquivos ?>"><?php echo $componente_row['valor_pf'] ?></td>
+								</tr>
+								<?php if($detalhar_campos_arquivos){ ?>
+									<?php
+									$checkPossuiAcoesInserido = $checkPossuiMensagensInserido = false;
+									for($i=1; $i<$rowspan_campos_arquivos; $i++){
+										if(isset($campo_rs[$i]['nome'])){
+											$nome_campo = $campo_rs[$i]['nome'];
+											if(substr($nome_campo, 0, 5) == 'Campo'){
+												$nome_campo = trim( substr($nome_campo, 5) );
+												$nome_campo = "$categoria_tipo_dado $nome_campo";
+											} else {
+												$nome_campo = "$categoria_tipo_dado \"$nome_campo\"";
+											}
+										} elseif($componente_row['possui_acoes'] == '1' && !$checkPossuiAcoesInserido){
+											$nome_campo = 'Possui Ações';
+											$checkPossuiAcoesInserido = true;
+										} elseif($componente_row['possui_mensagens'] == '1' && !$checkPossuiMensagensInserido){
+											$nome_campo = 'Possui Mensagens';
+											$checkPossuiMensagensInserido = true;
+										} else {
+											$nome_campo = '';
+										}
+										
+										$nome_arquivo = (isset($arquivoReferenciado_rs[$i]['nome'])) ? ($arquivoReferenciado_rs[$i]['nome']) : ('&nbsp;');
+										?>
+										<tr>
+											<td><?php echo $nome_campo ?></td>
+											<td><?php echo $nome_arquivo ?></td>
+										</tr>
+									<?php } ?>
+								<?php } ?>
+							<?php } ?>
+						</tbody>
+						<tfoot>
+							<tr>							
+								<th colspan="<?php echo $colspan_rodape_branco ?>">&nbsp;</th>
+								<th>Total:</th>
+								<th><?php echo $valor_total_pf ?></th>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	<?php } ?>
+</section>
+<?php
+include('rodape.php');
+?>

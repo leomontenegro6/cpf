@@ -8,6 +8,12 @@
 	color: #777;
 	background-color: transparent;
 }
+.nav-sidebar .nav-item>.nav-link{
+	padding: .5rem 0.5rem;
+}
+.nav-sidebar>.nav-item .nav-icon{
+	margin-right: 0;
+}
 .sidebar-mini .nav-sidebar{
 	border-bottom: 0;
 }

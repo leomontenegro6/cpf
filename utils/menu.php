@@ -42,6 +42,11 @@ class menu{
 						'nome' => 'Contagem de Pontos',
 						'icone' => 'fa-dice',
 						'pagina' => 'rel_contagem_pontos_lista.php',
+					),
+					array(
+						'nome' => 'Prazos de Desenvolvimento',
+						'icone' => 'fa-history',
+						'pagina' => 'rel_prazos_desenvolvimento_lista.php',
 					)
 				)
 			)
