@@ -79,8 +79,8 @@ class modulo extends abstractBusiness{
 	public function getByAutocomplete($busca, $id_sistema, $limit = 30, $offset = 0) {
 		$sql_where = $this->formataSQLAutocomplete($busca, $id_sistema);
 
-		return $this->getFieldsByParameter('m.nome, s.nome AS sistema,
-			m.sistema AS id_sistema, m.id', "m
+		return $this->getFieldsByParameter("m.nome, s.nome AS sistema,
+			s.sigla AS sigla_sistema, m.sistema AS id_sistema, m.id", "m
 				JOIN sistemas s ON (m.sistema = s.id)
 			$sql_where
 			ORDER BY s.nome, m.nome

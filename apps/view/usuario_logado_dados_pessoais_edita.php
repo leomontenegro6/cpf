@@ -42,11 +42,16 @@ $indice_produtividade = $usuario_row['indice_produtividade'];
 								placeholder="Digite o nome" value="<?php echo $nome ?>">
 							<label for="nome">Nome</label>
 						</div>
-						<div class="form-group has-float-label">
-							<input class="form-control" id="indice_produtividade" name="indice_produtividade" type="number"
-								min="0.4" max="1.0" step="0.1" required placeholder="Digite um valor entre 0.4 e 1"
-								value="<?php echo $indice_produtividade ?>">
-							<label for="indice_produtividade">Índice Médio de Produtividade</label>
+						<div class="form-group input-group with-float-label">
+							<label class="has-float-label">
+								<input class="form-control" id="indice_produtividade" name="indice_produtividade"
+									type="number" value="<?php echo $indice_produtividade ?>" min="0.4" max="1" step="0.1"
+									placeholder="Digite um valor entre 0,4 e 1" />
+								<span>Índice de Médio Produtividade</span>
+							</label>
+							<div class="input-group-append">
+								<span class="input-group-text">Horas / PF</span>
+							</div>
 						</div>
 					</div>
 					

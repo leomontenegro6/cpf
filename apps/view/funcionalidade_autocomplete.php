@@ -25,8 +25,8 @@ $array_sistemas_optgroups = array();
 $i = 0;
 foreach($funcionalidade_rs as $funcionalidade_row) {
 	$id_modulo = $funcionalidade_row['id_modulo'];
-	$nome_modulo = funcoes::capitaliza($funcionalidade_row['modulo']);
-	$nome_sistema = funcoes::capitaliza($funcionalidade_row['sistema']);
+	$nome_modulo = $funcionalidade_row['modulo'];
+	$nome_sistema = $funcionalidade_row['sistema'];
 	
 	if(!in_array($id_modulo, $array_sistemas_optgroups)){
 		array_push($json, array(
@@ -45,9 +45,9 @@ foreach($funcionalidade_rs as $funcionalidade_row) {
 	$id_sistema = $funcionalidade_row['id_sistema'];
 	$chave_optgroup = array_search($id_modulo, $array_sistemas_optgroups);
 	
-	$nome_funcionalidade = funcoes::capitaliza($funcionalidade_row['nome']);
-	$nome_modulo = funcoes::capitaliza($funcionalidade_row['modulo']);
-	$nome_sistema = funcoes::capitaliza($funcionalidade_row['sistema']);
+	$nome_funcionalidade = $funcionalidade_row['nome'];
+	$nome_modulo = $funcionalidade_row['modulo'];
+	$nome_sistema = $funcionalidade_row['sistema'];
 	
 	array_push($json[$chave_optgroup]['children'], array(
 		'value'=>$nome_funcionalidade,

@@ -34,7 +34,7 @@ class usuario extends abstractBusiness{
 			}
 			$img_foto = "<img src='$foto' class='img-circle' style='width: 2.1rem' />";
 			$usuario_rs[$i]['nome'] = $img_foto . ' ' . funcoes::capitaliza($usuario_row['nome']);
-			$usuario_rs[$i]['indice_produtividade'] = funcoes::encodeMonetario($usuario_row['indice_produtividade'], 1);
+			$usuario_rs[$i]['indice_produtividade'] = funcoes::encodeMonetario($usuario_row['indice_produtividade'], 1) . ' Horas / PF';
 			$usuario_rs[$i]['admin'] = ($usuario_row['admin'] == '1') ? ('Sim') : ('Não');
 		}
 		return $usuario_rs;

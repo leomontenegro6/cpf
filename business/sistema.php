@@ -59,8 +59,8 @@ class sistema extends abstractBusiness{
 		$sql_where = 'WHERE TRUE';
 
 		if (!empty($busca)) {
-			$nome = str_replace(' ', '%', $busca);
-            $sql_where .= " AND nome LIKE '%$nome%'";
+			$busca = str_replace(' ', '%', $busca);
+            $sql_where .= " AND (nome LIKE '%$busca%' OR sigla LIKE '%$busca%')";
 		}
 
 		return $sql_where;

@@ -42,10 +42,10 @@ aba.instanciar = function(seletor, escopo){
 		}
 		
 		// Percorrendo botões de abas para adicionar ações de clique
-		var $itens_abas = $menu_aba.children('li').not('.nao_aba, .acoes_abas');
+		var $itens_abas = $menu_aba.children('li.nav-item').not('.nao_aba, .acoes_abas');
 		$itens_abas.each(function(i){
 			var $item_aba = $(this);
-			var $link_aba = $item_aba.find('a').not('.nao_aba, .botao_aba').first();
+			var $link_aba = $item_aba.find('a.nav-link').not('.nao_aba, .botao_aba').first();
 			
 			// Parametros de cada aba, obtido a partir dos atributos customizados
 			var checkTemPaginaAjaxAbaAtual = ($item_aba.is('[data-pagina]'));
@@ -71,8 +71,9 @@ aba.instanciar = function(seletor, escopo){
 			
 			// Definindo ação ao clicar em cada item de aba
 			$link_aba.click(function(e){
-				if(!$item_aba.hasClass('active')){
-					$item_aba.addClass("active").siblings().removeClass("active");
+				if(!$link_aba.hasClass('active')){
+					$link_aba.addClass("active");
+					$item_aba.siblings().children('a.nav-link').removeClass("active");
 					$aba.addClass('active').siblings().removeClass('active');
 					if (checkTemPaginaAjaxGeral || checkTemPaginaAjaxAbaAtual) {
 						// Conteúdo carregado via ajax
@@ -114,7 +115,7 @@ aba.instanciar = function(seletor, escopo){
 		});
 		
 		// Exibir primeira aba
-		$itens_abas.first().removeClass('active').children('a').trigger('click');
+		$itens_abas.first().children('a').removeClass('active').trigger('click');
 		
 		// Adicionando classe 'instanciado', para sinalizar que o componente já foi instanciado.
 		$menu_aba.attr('data-instanciado', 'true');

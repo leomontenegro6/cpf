@@ -125,7 +125,7 @@ class componente extends abstractBusiness{
 			s.nome AS sistema, m.nome AS modulo, f.nome AS funcionalidade,
 			tco.descricao AS componente, td.descricao AS tipo_funcional,
 			(CASE WHEN td.id = 1 THEN 'e' WHEN td.id = 2 THEN 's' WHEN td.id = 3 THEN 'c' ELSE '' END) AS letra_tipo_funcional,
-			co.possui_acoes, co.possui_mensagens, f.id AS id_funcionalidade, co.id AS id_componente, tco.id AS id_tipo_componente", "co
+			co.possui_acoes, co.possui_mensagens, f.id AS id_funcionalidade, co.id, tco.id AS id_tipo_componente", "co
 				JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
 				JOIN tipos_dados td ON (tco.tipo_dado = td.id)
 				JOIN funcionalidades f ON (co.funcionalidade = f.id)
@@ -142,7 +142,7 @@ class componente extends abstractBusiness{
 		);
 		foreach($componente_rs as $i=>$componente_row){
 			$id_funcionalidade = $componente_row['id_funcionalidade'];
-			$id_componente = $componente_row['id_componente'];
+			$id_componente = $componente_row['id'];
 			
 			$campo_rs = $campo->getByComponente($id_componente);
 			$arquivoReferenciado_rs = $arquivoReferenciado->getByComponente($id_componente);
@@ -188,7 +188,7 @@ class componente extends abstractBusiness{
 		// complexidade e valor de cada componente, em pontos de função
 		foreach($componente_rs as $i=>$componente_row){
 			$id_funcionalidade = $componente_row['id_funcionalidade'];
-			$id_componente = $componente_row['id_componente'];
+			$id_componente = $componente_row['id'];
 			$tipo_funcional = $componente_row['letra_tipo_funcional'];
 			
 			$quantidade_tipos_dados = $componente_row['quantidade_tipos_dados'];
@@ -201,6 +201,92 @@ class componente extends abstractBusiness{
 			$componente_rs[$i]['rowspan_componente'] = $rowspans['componentes'][$id_componente];
 			$componente_rs[$i]['complexidade'] = funcoes::capitaliza($complexidade);
 			$componente_rs[$i]['valor_pf'] = $valor_pf;
+		}
+		
+		// Retornando resultados ao fim do processo
+		return $componente_rs;
+	}
+	
+	public function getByPlanilhaPrazosDesenvolvimento($id_sistema, $id_modulo, $id_funcionalidade, $recursos, $tempo_dedicacao, $indice_produtividade, $modo_exibicao_tempo, $percentual_reducao_unico, $esforco_disciplinas){
+		$sql_where = 'TRUE';
+		
+		// Filtro por sistema
+		if(is_numeric($id_sistema)){
+			$sql_where .= " AND s.id = $id_sistema";
+		}
+		
+		// Filtro por módulo
+		if(is_numeric($id_modulo)){
+			$sql_where .= " AND m.id = $id_modulo";
+		}
+		
+		// Filtro por funcionalidade
+		if(is_numeric($id_funcionalidade)){
+			$sql_where .= " AND f.id = $id_funcionalidade";
+		}
+		
+		$recursos = (int)$recursos;
+		$tempo_dedicacao = (float)$tempo_dedicacao;
+		$indice_produtividade = (float)$indice_produtividade;
+		
+		// Executando consulta de obtenção dos dados da planilha
+		$componente_rs = $this->getFieldsByParameter("CONCAT(f.ordem, '. ', co.ordem, '.') AS ordem,
+			s.nome AS sistema, m.nome AS modulo, f.nome AS funcionalidade,
+			tco.descricao AS componente, co.id, f.id AS id_funcionalidade", "co
+				JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
+				JOIN funcionalidades f ON (co.funcionalidade = f.id)
+				JOIN modulos m ON (f.modulo = m.id)
+				JOIN sistemas s ON (m.sistema = s.id)
+			WHERE $sql_where
+			ORDER BY 2, 3, 1");
+		
+		// Iterando pelos resultados uma vez, para calcular os valores para
+		// posterior união vertical de linhas (rowspan)
+		$rowspans = array();
+		foreach($componente_rs as $i=>$componente_row){
+			$id_funcionalidade = $componente_row['id_funcionalidade'];
+			
+			if(isset($rowspans[$id_funcionalidade])){
+				if($i > 0){
+					$componenteAnterior_row = $componente_rs[$i - 1];
+
+					if($componente_row['id_funcionalidade'] == $componenteAnterior_row['id_funcionalidade']){
+						$rowspans[$id_funcionalidade]++;
+					}
+				}
+			} else {
+				$rowspans[$id_funcionalidade] = 1;
+			}
+		}
+		
+		// Iterando pelos resultados outra vez, para formatar valores e calcular
+		// complexidade e valor de cada componente, em pontos de função
+		foreach($componente_rs as $i=>$componente_row){
+			$id_componente = $componente_row['id'];
+			$id_funcionalidade = $componente_row['id_funcionalidade'];
+			
+			$complexidade_valor = $this->calcularComplexidadeValorPF($id_componente);
+			
+			$complexidade = $complexidade_valor['complexidade'];
+			$valor_pf = $complexidade_valor['valor'];
+			$tempo_total = ($valor_pf * $indice_produtividade / ($recursos * $tempo_dedicacao)) * 24;
+			
+			if($modo_exibicao_tempo == 'u'){
+				if($percentual_reducao_unico > 100) $percentual_reducao_unico = 100;
+				$tempo = ($tempo_total * $percentual_reducao_unico) / 100;
+			} else {
+				$tempo = array(
+					'analise' => ($tempo_total * $esforco_disciplinas['analise']['percentual']) / 100,
+					'desenvolvimento' => ($tempo_total * $esforco_disciplinas['desenvolvimento']['percentual']) / 100,
+					'testes' => ($tempo_total * $esforco_disciplinas['testes']['percentual']) / 100,
+					'implantacao' => ($tempo_total * $esforco_disciplinas['implantacao']['percentual']) / 100
+				);
+			}
+			
+			$componente_rs[$i]['rowspan'] = $rowspans[$id_funcionalidade];
+			$componente_rs[$i]['complexidade'] = funcoes::capitaliza($complexidade);
+			$componente_rs[$i]['valor_pf'] = $valor_pf;
+			$componente_rs[$i]['tempo'] = $tempo;
 		}
 		
 		// Retornando resultados ao fim do processo

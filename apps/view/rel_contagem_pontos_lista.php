@@ -281,7 +281,7 @@ if(is_numeric($modulo_lista)){
 						<tfoot>
 							<tr>							
 								<th colspan="<?php echo $colspan_rodape_branco ?>">&nbsp;</th>
-								<th>Total:</th>
+								<th>TOTAL:</th>
 								<th><?php echo $valor_total_pf ?></th>
 							</tr>
 						</tfoot>

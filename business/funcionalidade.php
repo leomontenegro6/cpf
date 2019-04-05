@@ -5,6 +5,13 @@ class funcionalidade extends abstractBusiness{
     }
 	
 	// Métodos de listagem de dados
+	public function getByModulo($id_modulo){
+		return $this->getFieldsByParameter("f.nome, m.nome AS modulo, f.id", "f
+				JOIN sistemas m ON (f.modulo = m.id)
+			WHERE f.modulo = $id_modulo
+			ORDER BY f.nome");
+	}
+	
 	private function formataSQLByListagem($busca, $id_sistema, $id_modulo, $id_tipo_funcionalidade){
 		$sql_where = 'TRUE';
 		
@@ -122,7 +129,7 @@ class funcionalidade extends abstractBusiness{
 				JOIN modulos m ON (f.modulo = m.id)
 				JOIN sistemas s ON (m.sistema = s.id)
 			$sql_where
-			ORDER BY s.nome, m.nome, f.nome
+			ORDER BY s.nome, m.nome, f.ordem, f.nome
 			LIMIT $limit OFFSET $offset");
 	}
 	

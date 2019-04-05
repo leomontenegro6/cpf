@@ -19,11 +19,14 @@ $sistema_rs = $sistema->getByAutocomplete($busca, $limit, $offset);
 
 $json = array();	
 foreach($sistema_rs as $sistema_row) {
-	$nome = funcoes::capitaliza($sistema_row['nome']);
+	$nome = $sistema_row['nome'];
+	$sigla = $sistema_row['sigla'];
+	
+	$label = "$sigla - $nome";
 	
 	array_push($json, array(
 		'value'=>$nome,
-		'label'=>$nome,
+		'label'=>$label,
 		'id'=>$sistema_row['id']
 	));
 }

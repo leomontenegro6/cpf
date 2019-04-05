@@ -48,18 +48,29 @@ label.has-float-label>select ~ span:not(.select2) {
 	top: .3em;
 }
 
-.input-group .has-float-label {
+.input-group.with-float-label{
+	display: table;
+}
+.input-group.with-float-label .has-float-label {
 	display: table-cell;
 }
-.input-group .has-float-label .form-control {
+.input-group.with-float-label .has-float-label .form-control {
 	border-radius: 0.25rem;
 }
-.input-group .has-float-label:not(:last-child), .input-group .has-float-label:not(:last-child) .form-control {
+.input-group.with-float-label .has-float-label:not(:last-child), .input-group.with-float-label .has-float-label:not(:last-child) .form-control {
 	border-bottom-right-radius: 0;
 	border-top-right-radius: 0;
 	border-right: 0;
 }
-.input-group .has-float-label:not(:first-child), .input-group .has-float-label:not(:first-child) .form-control {
+.input-group.with-float-label .has-float-label:not(:first-child), .input-group.with-float-label .has-float-label:not(:first-child) .form-control {
 	border-bottom-left-radius: 0;
 	border-top-left-radius: 0;
+}
+.input-group.with-float-label div.input-group-append{
+	display: table-cell;
+	width: 1px;
+	margin-left: 0;
+}
+.input-group.with-float-label span.input-group-text{
+	height: 38px;
 }

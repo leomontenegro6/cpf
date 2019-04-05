@@ -53,6 +53,8 @@ if(!$ajax){
 			<link rel="stylesheet" href="../common/css/hullabaloo.min.css">
 			<!-- Tagsinput -->
 			<link href="../common/css/tagsinput.css" rel="stylesheet">
+			<!-- Bootstrap Slider -->
+			<link rel="stylesheet" href="../common/css/slider.css">
 			<!-- Datatables -->
 			<link href="../common/css/dataTables.bootstrap4.min.css" rel="stylesheet">
 			<link href="../common/css/dataTables.responsive.css" rel="stylesheet">

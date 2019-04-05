@@ -33,6 +33,8 @@
 		<script src="../common/js/tagsinput.js"></script>
 		<!-- bootstrap-daterangepicker -->
 		<script src="../common/js/moment.min.js"></script>
+		<!-- Bootstrap Slider -->
+		<script src="../common/js/bootstrap-slider.js?<?php echo filemtime('../common/js/bootstrap-slider.js') ?>"></script>
 		<!-- jQuery DataTables -->
 		<script src="../common/js/jquery.dataTables.min.js"></script>
 		<script src="../common/js/dataTables.bootstrap4.min.js"></script>

@@ -526,6 +526,13 @@ ul.nav-pills + div.tab-content{
 label.has-float-label div.bootstrap-tagsinput{
 	padding-top: 8px;
 }
+/* Estilizações adicionais do componente Bootstrap Slider */
+div.slider-handle.custom{
+	width: 26px;
+	height: 16px;
+	background: transparent url('../img/caret-slider.png');
+	margin-top: 2px !important;
+}
 /* Estilizações da validação de formulários */
 .was-validated .form-control:valid{
 	border: 1px solid #ced4da;
@@ -555,6 +562,17 @@ label.has-float-label div.bootstrap-tagsinput{
 }
 .was-validated select[data-role='tagsinput']:invalid~div.bootstrap-tagsinput{
 	border-color: #dc3545;
+}
+
+/* Estilizações de pseudo-tabelas feitas com grid layout */
+div.grid-table.header{
+	margin-bottom: -1px;
+}
+div.grid-table.header>div[class^='col']{
+	font-weight: bold;
+}
+div.grid-table>div[class^='col']{
+	border: 1px solid #dee2e6;
 }
 
 /* Componentes de funcionalidades, no formulário de cadastro de funcionalidades */

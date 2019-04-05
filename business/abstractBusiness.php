@@ -57,7 +57,8 @@ abstract class abstractBusiness{
 	public function __call($funcao, $parametros){
 		if(isset($parametros) && !empty($parametros) && (count($parametros) > 0)){
 			$metodo  = substr($funcao, 0, 3);
-			$campo = strtolower(substr($funcao, 3));
+			$campo = substr($funcao, 3);
+			$campo = funcoes::camelCaseToUnderscore($campo);
 			if($metodo == 'get'){
 				$id = $parametros[0];
 				$formatoTexto = (isset($parametros[1])) ? ($parametros[1]) : ('');

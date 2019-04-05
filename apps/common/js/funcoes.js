@@ -114,6 +114,7 @@ function instanciarComponentes(campo, escopo){
 	select.instanciar(campo, escopo);
 	fileUploader.instanciar(campo, escopo);
 	instanciarComponenteBootstrapTagsinput(campo, escopo);
+	instanciarComponenteBootstrapSlider(campo, escopo);
 }
 
 function instanciarBuscaMenu(){
@@ -377,12 +378,15 @@ function mostrarAvisosValidaForm(camposAlvo){
 	for (var a = 0; a < camposAlvo.length; a++) {
 		var alvo = camposAlvo[a];
 		var mensagem = alvo['mensagem'];
-		//var posicao = alvo['posicao'];
+		var posicao = alvo['posicao'];
 		
 		var $elemento = $('#' + alvo.id);
 		$elemento.siblings('div.invalid-feedback').remove();
 		
-		if($elemento.is("[data-role='tagsinput']")){
+		if($elemento.is("li.nav-item")){
+			// Abas
+			aviso($elemento, mensagem, 8, posicao);
+		} else if($elemento.is("[data-role='tagsinput']")){
 			$elemento.siblings('div.bootstrap-tagsinput').after(
 				$('<div />').addClass('invalid-feedback').html(mensagem)
 			);
@@ -392,7 +396,7 @@ function mostrarAvisosValidaForm(camposAlvo){
 			);
 		}
 		
-		if(!setouFoco){
+		if(!setouFoco && !$elemento.is("[li]")){
 			$elemento.focus();
 			setouFoco = true;
 		}
@@ -532,9 +536,11 @@ function exibirAvisoNotify(mensagem, tipo){
 	$.hulla.send(mensagem, tipo);
 }
 
-function validaFormAbas(form){
+function validaFormAbas(form, mostra_modal, mostra_aviso){
+	mostra_modal = (typeof mostra_modal !== 'undefined') ? (mostra_modal) : (true);
+	mostra_aviso = (typeof mostra_aviso !== 'undefined') ? (mostra_aviso) : (true);
 	var $form = $(form);
-	var $listasAbas = $form.find('ul.nav-tabs');
+	var $listasAbas = $form.find('ul.nav-pills');
 	var retorno = true;
 	var camposAbas = camposAlvoAbaVisivel = [];
 	$listasAbas.each(function(){
@@ -545,13 +551,14 @@ function validaFormAbas(form){
 		$divs.each(function(i){
 			var $div = $(this);
 			var $li = $lis.eq(i);
+			var $a = $li.children('a');
 			if(!$li.is("[id]") || $.trim( $li.attr('id') ) == ''){
 				$li.attr('id', gerarIdAleatorio($li));
 			}
 			
 			if(!validaElementos($div)){
 				retorno = false;
-				if($li.hasClass('active')){
+				if($a.hasClass('active')){
 					$.merge(camposAlvoAbaVisivel, camposAlvo);
 				} else {
 					camposAbas.push({
@@ -565,11 +572,15 @@ function validaFormAbas(form){
 	});
 	
 	if(retorno){
-		mostraCarregando();
+		if(mostra_aviso) $form.removeClass('was-validated');
+		if(mostra_modal) mostraCarregando();
 		return true;
 	} else {
-		$.merge(camposAlvoAbaVisivel, camposAbas);
-		mostrarAvisosValidaForm(camposAlvoAbaVisivel);
+		if(mostra_aviso){
+			$form.addClass('was-validated');
+			$.merge(camposAlvoAbaVisivel, camposAbas);
+			mostrarAvisosValidaForm(camposAlvoAbaVisivel);
+		}
 		return false;
 	}
 }
@@ -768,6 +779,21 @@ function mostrarConsultasSessao() {
     });
 }
 
+function encodeMonetario(n, c, d, t, casas_decimais){
+	if(typeof casas_decimais == 'undefined') casas_decimais = 2;
+    c = isNaN(c = Math.abs(c)) ? casas_decimais : c, d = d == undefined ? "," : d, t = t == undefined ? "." : t, s = n < 0 ? "-" : "", i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "", j = (j = i.length) > 3 ? j % 3 : 0;
+    return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(casas_decimais) : "");
+}
+
+function decodeMonetario(valor){
+	valor = valor.replace('R$', '');
+	valor = valor.replace('.', '');
+	valor = valor.replace(',', '.');
+	valor = $.trim(valor);
+	
+	return parseFloat(valor);
+}
+
 function adicionarModuloSistema(botao){
 	var $botao = $(botao);
 	var $tabela = $botao.closest('table');
@@ -897,6 +923,54 @@ function toggleQuantidadeOuNomeCamposArquivosComponente(radio){
 			instanciarComponenteBootstrapTagsinput($selectNomesCamposArquivos);
 		}
 	}
+}
+
+function instanciarComponenteBootstrapSlider(campo, escopo){
+	var busca;
+	if(!escopo) escopo = 'body';
+	if(campo){
+		busca = $(escopo).find(campo).filter(':visible').not("[data-instanciado='true']");
+	} else {
+		busca = $(escopo).find("input.slider").filter(':visible').not("[data-instanciado='true']");
+	}
+	busca.each(function(){
+		var $input = $(this);
+		
+		var min, max, step;
+		
+		if($input.is('[data-min]')){
+			min = parseFloat($input.attr('data-min'));
+		} else {
+			min = 0;
+		}
+		
+		if($input.is('[data-max]')){
+			max = parseFloat($input.attr('data-max'));
+		} else {
+			max = 10;
+		}
+		
+		if($input.is('[data-step]')){
+			step = parseFloat($input.attr('data-step'));
+		} else {
+			step = 1;
+		}
+		
+		var value = parseFloat($input.val());
+		if(isNaN(value)) value = min;
+		
+		$input.attr('data-slider-id', 'blue');
+		
+		$input.slider({
+			min: min,
+			max: max,
+			step: step,
+			value: value,
+			tooltip: 'hide'
+		});
+		
+		$input.attr('data-instanciado', 'true');
+	});
 }
 
 function instanciarComponenteBootstrapTagsinput(campo, escopo){
@@ -1105,4 +1179,88 @@ function calcularComplexidadeEValorComponenteFuncionalidade(elemento){
 		valor_total += valor;
 	});
 	$bValorTotal.html(valor_total);
+}
+
+function toggleCamposModoExibicao(selectModoExibicao){
+	var $selectModoExibicao = $(selectModoExibicao);
+	var $divModoExibicaoTempoUnico = $('#modo_exibicao_tempo_unico');
+	var $divModoExibicaoTemposDivididos = $('#modo_exibicao_tempos_divididos');
+	
+	var modo_exibicao = $selectModoExibicao.val();
+	
+	if(modo_exibicao == 'u'){
+		$divModoExibicaoTempoUnico.show();
+		$divModoExibicaoTemposDivididos.hide();
+	} else {
+		$divModoExibicaoTempoUnico.hide();
+		$divModoExibicaoTemposDivididos.show();
+		
+		instanciarComponenteBootstrapSlider(null, $divModoExibicaoTemposDivididos);
+	}
+}
+
+function balancearPercentuaisEsforcoDisciplinas(inputAtual, evento){
+	var $inputAtual = $(inputAtual);
+	var $divGridTableAtual = $inputAtual.closest('div.grid-table');
+	var $spanRotuloPercentualAtual = $divGridTableAtual.find('span.badge');
+	var $inputPercentualEsforcoAnalise = $('#esforco_disciplinas_analise_percentual');
+	var $inputPercentualEsforcoDesenvolvimento = $('#esforco_disciplinas_desenvolvimento_percentual');
+	var $inputPercentualEsforcoTestes = $('#esforco_disciplinas_testes_percentual');
+	var $inputPercentualEsforcoImplantacao = $('#esforco_disciplinas_implantacao_percentual');
+	var $inputsPercentuaisEsforco = $inputPercentualEsforcoAnalise.add($inputPercentualEsforcoDesenvolvimento).add($inputPercentualEsforcoTestes).add($inputPercentualEsforcoImplantacao);
+	
+	var percentual_anterior = evento.value.oldValue;
+	var percentual_atual = evento.value.newValue;
+	var percentual_dividir = (percentual_atual - percentual_anterior) / 3;
+	
+	$spanRotuloPercentualAtual.html(Math.round(percentual_atual) + '%');
+	
+	$inputsPercentuaisEsforco.not($inputAtual).each(function(){
+		var $input = $(this);
+		var $divGridTable = $input.closest('div.grid-table');
+		var $spanRotuloPercentual = $divGridTable.find('span.badge');
+
+		var percentual = $input.slider('getValue');
+		if(percentual_dividir > 0){
+			percentual -= Math.abs(percentual_dividir);
+		} else {
+			percentual += Math.abs(percentual_dividir);
+		}
+		if(percentual < 0){
+			var $inputPercentualMaior = $inputsPercentuaisEsforco.not($inputAtual).sort(function(a, b){
+				return b.value - a.value;
+			}).first();
+			var $divGridTablePercentualMaior = $inputPercentualMaior.closest('div.grid-table');
+			var $spanRotuloPercentualMaior = $divGridTablePercentualMaior.find('span.badge');
+			
+			var percentual_maior = $inputPercentualMaior.slider('getValue') - Math.abs(percentual);
+			if(percentual_maior < 0) percentual_maior = 0;
+			
+			$inputPercentualMaior.slider('setValue', percentual_maior);
+			$spanRotuloPercentualMaior.html(Math.round(percentual_maior) + '%');
+			
+			percentual = 0;
+		}
+
+		$input.slider('setValue', percentual);
+		$spanRotuloPercentual.html(Math.round(percentual) + '%');
+	});
+}
+
+function validaFormPrazosDesenvolvimento(form){
+	if(validaFormAbas(form, false)){
+		var $form = $(form);
+		var $divTabelaPrazosDesenvolvimento = $('#tabela_prazos_desenvolvimento');
+		
+		mostraCarregando(true, false);
+		
+		var parametros = $form.serialize();
+		parametros += '&ajax=true';
+		chamarPagina('rel_prazos_desenvolvimento_tabela.php?' + parametros, '', function(r){
+			ocultaCarregando();
+			$divTabelaPrazosDesenvolvimento.html(r);
+		})
+	}
+	
+	return false;
 }

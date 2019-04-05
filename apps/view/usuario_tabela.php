@@ -43,7 +43,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 						<tr>
 							<th class="align-middle">Nome</th>
 							<th class="align-middle">Login</th>
-							<th class="align-middle">Índice Médio de<br />Produtividade (PF)</th>
+							<th class="align-middle">Índice Médio de<br />Produtividade</th>
 							<th class="align-middle">Administrador</th>
 							<?php if($_SESSION['admin']){ ?>
 								<th width="75" class="acoes align-middle">Ações</th>
@@ -55,7 +55,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 						<tr>							
 							<th class="align-middle">Nome</th>
 							<th class="align-middle">Login</th>
-							<th class="align-middle">Índice Médio de<br />Produtividade (PF)</th>
+							<th class="align-middle">Índice Médio de<br />Produtividade</th>
 							<th class="align-middle">Administrador</th>
 							<?php if($_SESSION['admin']){ ?>
 								<th width="75" class="acoes align-middle">Ações</th>
