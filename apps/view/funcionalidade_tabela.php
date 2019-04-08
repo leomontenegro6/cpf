@@ -46,24 +46,24 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 				<table>
 					<thead>
 						<tr>
-							<th>Ordem</th>
-							<th>Sistema</th>
-							<th>Módulo</th>
-							<th>Nome</th>
-							<th>Tipo de Funcionalidade</th>
-							<th>Componentes</th>
+							<th class="align-middle">Ordem</th>
+							<th class="align-middle">Sistema</th>
+							<th class="align-middle">Módulo</th>
+							<th class="align-middle">Nome</th>
+							<th class="align-middle">Tipo de Funcionalidade</th>
+							<th class="align-middle">Componentes</th>
 							<th width="75" class="acoes">Ações</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
 					<tfoot>
 						<tr>							
-							<th>Ordem</th>
-							<th>Sistema</th>
-							<th>Módulo</th>
-							<th>Nome</th>
-							<th>Tipo de Funcionalidade</th>
-							<th>Componentes</th>
+							<th class="align-middle">Ordem</th>
+							<th class="align-middle">Sistema</th>
+							<th class="align-middle">Módulo</th>
+							<th class="align-middle">Nome</th>
+							<th class="align-middle">Tipo de Funcionalidade</th>
+							<th class="align-middle">Componentes</th>
 							<th width="75" class="acoes">Ações</th>
 						</tr>
 					</tfoot>

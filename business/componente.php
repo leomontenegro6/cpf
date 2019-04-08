@@ -20,7 +20,13 @@ class componente extends abstractBusiness{
 		// Busca comum
 		if(!empty($busca)){
 			$busca = str_replace(' ', '%', $busca);
-            $sql_where .= " AND co.nome LIKE '%$busca%'";
+            $sql_where .= " AND (";
+            $sql_where .= "CONCAT(f.ordem, '.', co.ordem, '.') LIKE '%$busca%'";
+            $sql_where .= " OR s.nome LIKE '%$busca%'";
+            $sql_where .= " OR m.nome LIKE '%$busca%'";
+            $sql_where .= " OR f.nome LIKE '%$busca%'";
+            $sql_where .= " OR tco.descricao LIKE '%$busca%'";
+            $sql_where .= ")";
 		}
 		
 		// Busca por filtros avançados: sistema
@@ -48,6 +54,7 @@ class componente extends abstractBusiness{
 				JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
 				JOIN funcionalidades f ON (co.funcionalidade = f.id)
 				JOIN modulos m ON (f.modulo = m.id)
+				JOIN sistemas s ON (m.sistema = s.id)
 			WHERE $sql_where
 			LIMIT 1");
 		if(count($componente_rs) > 0){

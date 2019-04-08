@@ -88,7 +88,7 @@ $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormulario
 				placeholder="Digite a quantidade de campos" min="0"
 				onchange="calcularComplexidadeEValorComponenteFuncionalidade(this)" />
 			<select id="nomes_campos<?php echo $i ?>" name="componentes[<?php echo $i ?>][nomes_campos][]"
-				multiple data-role="tagsinput" placeholder="Digite o nome dos campos" class="d-none"
+				multiple placeholder="Digite o nome dos campos" class="tagsinput d-none"
 				onchange="calcularComplexidadeEValorComponenteFuncionalidade(this)"></select>
 		</div>
 		<div class="col-3">
@@ -117,7 +117,7 @@ $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormulario
 				placeholder="Digite a quantidade de arquivos" min="0"
 				onchange="calcularComplexidadeEValorComponenteFuncionalidade(this)" />
 			<select id="nomes_arquivos<?php echo $i ?>" name="componentes[<?php echo $i ?>][nomes_arquivos_referenciados][]"
-				multiple data-role="tagsinput" placeholder="Digite o nome dos arquivos" class="d-none"
+				multiple placeholder="Digite o nome dos arquivos" class="tagsinput d-none"
 				onchange="calcularComplexidadeEValorComponenteFuncionalidade(this)"></select>
 		</div>
 		<div class="col complexidade">---</div>

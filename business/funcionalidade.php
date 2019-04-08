@@ -18,7 +18,13 @@ class funcionalidade extends abstractBusiness{
 		// Busca comum
 		if(!empty($busca)){
 			$busca = str_replace(' ', '%', $busca);
-            $sql_where .= " AND f.nome LIKE '%$busca%'";
+            $sql_where .= " AND (";
+            $sql_where .= "f.ordem LIKE '%$busca%'";
+            $sql_where .= " OR s.nome LIKE '%$busca%'";
+            $sql_where .= " OR m.nome LIKE '%$busca%'";
+            $sql_where .= " OR f.nome LIKE '%$busca%'";
+            $sql_where .= " OR tf.descricao LIKE '%$busca%'";
+            $sql_where .= ")";
 		}
 		
 		// Busca por filtros avançados: sistema
@@ -43,7 +49,9 @@ class funcionalidade extends abstractBusiness{
 		$sql_where = $this->formataSQLByListagem($busca, $id_sistema, $id_modulo, $id_tipo_funcionalidade);
 		
 		$funcionalidade_rs = $this->getFieldsByParameter("COUNT(f.id) AS total", "f
+			JOIN tipos_funcionalidades tf ON (f.tipo_funcionalidade = tf.id)
 				JOIN modulos m ON (f.modulo = m.id)
+				JOIN sistemas s ON (m.sistema = s.id)
 			WHERE $sql_where
 			LIMIT 1");
 		if(count($funcionalidade_rs) > 0){
@@ -125,7 +133,8 @@ class funcionalidade extends abstractBusiness{
 		$sql_where = $this->formataSQLAutocomplete($busca, $id_sistema, $id_modulo);
 
 		return $this->getFieldsByParameter('f.nome, m.nome AS modulo, s.nome AS sistema,
-			f.modulo AS id_modulo, m.sistema AS id_sistema, f.id', "f
+			s.sigla AS sigla_sistema, f.modulo AS id_modulo, m.sistema AS id_sistema,
+			f.id', "f
 				JOIN modulos m ON (f.modulo = m.id)
 				JOIN sistemas s ON (m.sistema = s.id)
 			$sql_where
@@ -183,6 +192,10 @@ class funcionalidade extends abstractBusiness{
 			
 			// Inserindo registros na tabela "campos", para esse componente
 			if($modo_preenchimento_campos == 'q'){
+				if($quantidade_campos == 0){
+					return 'Pelo menos um campo deve ser fornecido!';
+				}
+				
 				for($j=0; $j<$quantidade_campos; $j++){
 					$ordem = ($j + 1);
 					$post_campo = array(
@@ -195,6 +208,10 @@ class funcionalidade extends abstractBusiness{
 					}
 				}
 			} else {
+				if(count($nomes_campos) == 0){
+					return 'Pelo menos um campo deve ser fornecido!';
+				}
+				
 				foreach($nomes_campos as $nome){
 					$post_campo = array(
 						'nome' => $nome,
@@ -209,6 +226,10 @@ class funcionalidade extends abstractBusiness{
 			
 			// Inserindo registros na tabela "arquivos_referenciados", para esse componente
 			if($modo_preenchimento_arquivos_referenciados == 'q'){
+				if($quantidade_arquivos_referenciados == 0){
+					return 'Pelo menos um arquivo referenciado deve ser fornecido!';
+				}
+				
 				for($j=0; $j<$quantidade_arquivos_referenciados; $j++){
 					$ordem = $j;
 					$post_campo = array(
@@ -221,6 +242,10 @@ class funcionalidade extends abstractBusiness{
 					}
 				}
 			} else {
+				if(count($nomes_arquivos_referenciados) == 0){
+					return 'Pelo menos um arquivo referenciado deve ser fornecido!';
+				}
+				
 				foreach($nomes_arquivos_referenciados as $nome){
 					$post_arquivo_referenciado = array(
 						'nome' => $nome,
@@ -233,6 +258,8 @@ class funcionalidade extends abstractBusiness{
 				}
 			}
 		}
+		
+		return 'ok';
 		
 		// Commitando alterações via transação
 		if($commit){

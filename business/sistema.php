@@ -22,7 +22,6 @@ class sistema extends abstractBusiness{
 		$sistema_rs = $this->getFieldsByParameter("COUNT(s.id) AS total", "s
 				LEFT JOIN modulos m ON (m.sistema = s.id)
 			WHERE $sql_where
-			GROUP BY s.nome, s.sigla, s.id
 			LIMIT 1");
 		if(count($sistema_rs) > 0){
 			return $sistema_rs[0]['total'];

@@ -1190,7 +1190,9 @@ class funcoes{
 			return self::encodeFloatToTime($tempo, true);
 		} elseif($formato == 'ni'){
 			// Números inteiros (arredondados)
-			return round($tempo);
+			$tempo = round($tempo);
+			if($tempo == 0) $tempo = 1;
+			return $tempo;
 		} else {
 			// Números reais (2 casas decimais)
 			$tempo = round($tempo, 2);

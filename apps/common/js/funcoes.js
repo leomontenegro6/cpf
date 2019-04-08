@@ -880,6 +880,7 @@ function carregarComponentesByTipoFuncionalidade(campoTipoFuncionalidade){
 	parametros += '&nome_funcionalidade=' + nome_funcionalidade;
 	chamarPagina('funcionalidade_componente_preenche.php?' + parametros, '', function(r){
 		$divRowComponentes.html(r);
+		
 		instanciarComponentes(null, $divRowComponentes);
 		
 		$divRowComponentes.find('select.select').trigger('change');
@@ -906,7 +907,7 @@ function toggleQuantidadeOuNomeCamposArquivosComponente(radio){
 	var $divCol = $radio.closest("div[class^='col']");
 	var $inputQuantidadeCamposArquivos = $divCol.find("input[name$='[quantidade_campos]'], input[name$='[quantidade_arquivos_referenciados]']");
 	var $selectNomesCamposArquivos = $divCol.find("select[name$='[nomes_campos][]'], select[name$='[nomes_arquivos_referenciados][]']");
-	var $divTagsinputNomesCamposArquivos = $selectNomesCamposArquivos.prev();
+	var $divTagsinputNomesCamposArquivos = $selectNomesCamposArquivos.next();
 	
 	var modo_preenchimento = $radio.val();
 	if(modo_preenchimento == 'q'){
@@ -918,7 +919,7 @@ function toggleQuantidadeOuNomeCamposArquivosComponente(radio){
 		if($selectNomesCamposArquivos.is("[data-instanciado='true']")){
 			$divTagsinputNomesCamposArquivos.show();
 		} else {
-			$selectNomesCamposArquivos.removeClass('d-input');
+			$selectNomesCamposArquivos.removeClass('d-none');
 			
 			instanciarComponenteBootstrapTagsinput($selectNomesCamposArquivos);
 		}
@@ -981,6 +982,7 @@ function instanciarComponenteBootstrapTagsinput(campo, escopo){
 	} else {
 		busca = $(escopo).find("select.tagsinput").filter(':visible').not("[data-instanciado='true']");
 	}
+	
 	busca.each(function(){
 		var $select = $(this);
 		
@@ -995,7 +997,7 @@ function instanciarComponenteBootstrapTagsinput(campo, escopo){
 		}
 		
 		var placeholder = $select.attr('placeholder');
-
+		
 		$select.tagsinput();
 		$select.on({
 			'itemAdded': function(){

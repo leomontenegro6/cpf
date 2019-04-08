@@ -24,12 +24,13 @@ $array_sistemas_optgroups = array();
 $i = 0;
 foreach($modulo_rs as $modulo_row) {
 	$id_sistema = $modulo_row['id_sistema'];
-	$nome_sistema = funcoes::capitaliza($modulo_row['sistema']);
+	$nome_sistema = $modulo_row['sistema'];
+	$sigla_sistema = $modulo_row['sigla_sistema'];
 	
 	if(!in_array($id_sistema, $array_sistemas_optgroups)){
 		array_push($json, array(
 			'id'=>$id_sistema,
-			'value'=>$nome_sistema,
+			'value'=>($sigla_sistema . ' - ' . $nome_sistema),
 			'children'=>array()
 		));
 		
@@ -42,8 +43,8 @@ foreach($modulo_rs as $modulo_row) {
 	$id_sistema = $modulo_row['id_sistema'];
 	$chave_optgroup = array_search($id_sistema, $array_sistemas_optgroups);
 	
-	$nome_modulo = funcoes::capitaliza($modulo_row['nome']);
-	$nome_sistema = funcoes::capitaliza($modulo_row['sistema']);
+	$nome_modulo = $modulo_row['nome'];
+	$nome_sistema = $modulo_row['sistema'];
 	
 	array_push($json[$chave_optgroup]['children'], array(
 		'value'=>$nome_modulo,

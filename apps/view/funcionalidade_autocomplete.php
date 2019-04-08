@@ -25,13 +25,14 @@ $array_sistemas_optgroups = array();
 $i = 0;
 foreach($funcionalidade_rs as $funcionalidade_row) {
 	$id_modulo = $funcionalidade_row['id_modulo'];
-	$nome_modulo = $funcionalidade_row['modulo'];
 	$nome_sistema = $funcionalidade_row['sistema'];
+	$sigla_sistema = $funcionalidade_row['sigla_sistema'];
+	$nome_modulo = $funcionalidade_row['modulo'];
 	
 	if(!in_array($id_modulo, $array_sistemas_optgroups)){
 		array_push($json, array(
 			'id'=>$id_modulo,
-			'value'=>($nome_sistema . ' - ' . $nome_modulo),
+			'value'=>($sigla_sistema . ' - ' . $nome_sistema . ' - Módulo "' . $nome_modulo . '"'),
 			'children'=>array()
 		));
 		

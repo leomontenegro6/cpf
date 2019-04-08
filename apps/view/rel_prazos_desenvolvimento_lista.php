@@ -243,7 +243,7 @@ if(is_numeric($funcionalidade_lista)){
 													Horas / Minutos
 												</option>
 												<option value="ni" <?php if($formato_tempo == 'ni') echo 'selected' ?>>
-													Números Inteiros (Arredondados)
+													Números Inteiros (Arredondados para Cima)
 												</option>
 												<option value="nr" <?php if($formato_tempo == 'nr') echo 'selected' ?>>
 													Números Reais (2 Casas Decimais)

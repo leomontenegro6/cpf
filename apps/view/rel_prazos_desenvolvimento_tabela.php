@@ -14,13 +14,8 @@ $recursos_lista = (isset($_GET['recursos_lista'])) ? ($_GET['recursos_lista']) :
 $tempo_dedicacao_lista = (isset($_GET['tempo_dedicacao_lista'])) ? ($_GET['tempo_dedicacao_lista']) : ('4');
 $indice_produtividade_lista = (isset($_GET['indice_produtividade_lista'])) ? ($_GET['indice_produtividade_lista']) : ($usuario->getIndiceProdutividade($_SESSION['iduser']));
 
-if(isset($_GET['Submit'])){
-	$mostrarComplexidade = (isset($_GET['mostrar_complexidade']) && ($_GET['mostrar_complexidade'] == 'true'));
-	$mostrarValorPF = (isset($_GET['mostrar_valor_pf']) && ($_GET['mostrar_valor_pf'] == 'true'));
-} else {
-	$mostrarComplexidade = (isset($_GET['mostrar_complexidade'])) ? ($_GET['mostrar_complexidade'] == 'true') : (true);
-	$mostrarValorPF = (isset($_GET['mostrar_valor_pf'])) ? ($_GET['mostrar_valor_pf'] == 'true') : (true);
-}
+$mostrarComplexidade = (isset($_GET['mostrar_complexidade']) && ($_GET['mostrar_complexidade'] == 'true'));
+$mostrarValorPF = (isset($_GET['mostrar_valor_pf']) && ($_GET['mostrar_valor_pf'] == 'true'));
 $modo_exibicao_tempo = (isset($_GET['modo_exibicao_tempo'])) ? ($_GET['modo_exibicao_tempo']) : ('u');
 $formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hm');
 $percentual_reducao_unico = (isset($_GET['percentual_reducao_unico'])) ? ($_GET['percentual_reducao_unico']) : ('45');
@@ -267,8 +262,10 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 							<?php
 							if($linhas_esconder['modulo'] > 0){
 								$linhas_esconder['modulo']--;
-							} elseif($rowspan > 1){
-								$linhas_esconder['modulo'] = ($rowspan - 1);
+							} elseif($rowspan > 0){
+								if($rowspan > 1){
+									$linhas_esconder['modulo'] = ($rowspan - 1);
+								}
 								?>
 								<td rowspan="<?php echo $componente_row['rowspan'] ?>"><?php echo $componente_row['modulo'] ?></td>
 							<?php } ?>
@@ -277,8 +274,10 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 							<?php
 							if($linhas_esconder['funcionalidade'] > 0){
 								$linhas_esconder['funcionalidade']--;
-							} elseif($rowspan > 1){
-								$linhas_esconder['funcionalidade'] = ($rowspan - 1);
+							} elseif($rowspan > 0){
+								if($rowspan > 1){
+									$linhas_esconder['funcionalidade'] = ($rowspan - 1);
+								}
 								?>
 								<td rowspan="<?php echo $componente_row['rowspan'] ?>"><?php echo $componente_row['funcionalidade'] ?></td>
 							<?php } ?>

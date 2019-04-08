@@ -208,8 +208,10 @@ if(is_numeric($modulo_lista)){
 										<?php
 										if($linhas_esconder['modulo'] > 0){
 											$linhas_esconder['modulo'] -= $rowspan_componente;
-										} elseif($rowspan_funcionalidade_modulo > 1){
-											$linhas_esconder['modulo'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+										} elseif($rowspan_funcionalidade_modulo > 0){
+											if($rowspan_funcionalidade_modulo > 1){
+												$linhas_esconder['modulo'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+											}
 											$rowspan = $rowspan_funcionalidade_modulo;
 											?>
 											<td rowspan="<?php echo $rowspan ?>"><?php echo $componente_row['modulo'] ?></td>
@@ -218,8 +220,10 @@ if(is_numeric($modulo_lista)){
 									<?php
 									if($linhas_esconder['funcionalidade'] > 0){
 										$linhas_esconder['funcionalidade'] -= $rowspan_componente;
-									} elseif($rowspan_funcionalidade_modulo > 1){
-										$linhas_esconder['funcionalidade'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+									} elseif($rowspan_funcionalidade_modulo > 0){
+										if($rowspan_funcionalidade_modulo > 1){
+											$linhas_esconder['funcionalidade'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+										}
 										$rowspan = $rowspan_funcionalidade_modulo;
 										?>
 										<td rowspan="<?php echo $rowspan ?>"><?php echo $componente_row['funcionalidade'] ?></td>

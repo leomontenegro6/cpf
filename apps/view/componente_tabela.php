@@ -46,26 +46,26 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 				<table>
 					<thead>
 						<tr>
-							<th>Ordem</th>
-							<th>Sistema</th>
-							<th>Módulo</th>
-							<th>Funcionalidade</th>
-							<th>Tipo de Componente</th>
-							<th data-ordenavel="false">Complexidade</th>
-							<th data-ordenavel="false">Valor (PF)</th>
+							<th class="align-middle">Ordem</th>
+							<th class="align-middle">Sistema</th>
+							<th class="align-middle">Módulo</th>
+							<th class="align-middle">Funcionalidade</th>
+							<th class="align-middle">Tipo de Componente</th>
+							<th class="align-middle" data-ordenavel="false">Complexidade</th>
+							<th class="align-middle" data-ordenavel="false">Valor (PF)</th>
 							<th width="75" class="acoes">Ações</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
 					<tfoot>
 						<tr>							
-							<th>Ordem</th>
-							<th>Sistema</th>
-							<th>Módulo</th>
-							<th>Funcionalidade</th>
-							<th>Tipo de Componente</th>
-							<th>Complexidade</th>
-							<th>Valor (PF)</th>
+							<th class="align-middle">Ordem</th>
+							<th class="align-middle">Sistema</th>
+							<th class="align-middle">Módulo</th>
+							<th class="align-middle">Funcionalidade</th>
+							<th class="align-middle">Tipo de Componente</th>
+							<th class="align-middle">Complexidade</th>
+							<th class="align-middle">Valor (PF)</th>
 							<th width="75" class="acoes">Ações</th>
 						</tr>
 					</tfoot>

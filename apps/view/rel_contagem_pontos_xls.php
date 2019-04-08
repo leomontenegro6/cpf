@@ -203,8 +203,10 @@ foreach($componente_rs as $j=>$componente_row){
 	if(!$checkModuloUnico){
 		if($linhas_esconder['modulo'] > 0){
 			$linhas_esconder['modulo'] -= $rowspan_componente;
-		} elseif($rowspan_funcionalidade_modulo > 1){
-			$linhas_esconder['modulo'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+		} elseif($rowspan_funcionalidade_modulo > 0){
+			if($rowspan_funcionalidade_modulo > 1){
+				$linhas_esconder['modulo'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+			}
 			$planilha_ativa->SetCellValue("{$coluna}{$linha}", $componente_row['modulo']);
 			$planilha_ativa->mergeCells("{$coluna}{$linha}:{$coluna}" . ($linha + $rowspan_funcionalidade_modulo - 1));
 		}
@@ -213,8 +215,10 @@ foreach($componente_rs as $j=>$componente_row){
 	
 	if($linhas_esconder['funcionalidade'] > 0){
 		$linhas_esconder['funcionalidade'] -= $rowspan_componente;
-	} elseif($rowspan_funcionalidade_modulo > 1){
-		$linhas_esconder['funcionalidade'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+	} elseif($rowspan_funcionalidade_modulo > 0){
+		if($rowspan_funcionalidade_modulo > 1){
+			$linhas_esconder['funcionalidade'] = ($rowspan_funcionalidade_modulo - $rowspan_componente);
+		}
 		$planilha_ativa->SetCellValue("{$coluna}{$linha}", $componente_row['funcionalidade']);
 		$planilha_ativa->mergeCells("{$coluna}{$linha}:{$coluna}" . ($linha + $rowspan_funcionalidade_modulo - 1));
 	}
