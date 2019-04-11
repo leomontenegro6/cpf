@@ -3,6 +3,7 @@ $_GET['ajax'] = true;
 require_once('cabecalho.php');
 
 $usuario = new usuario();
+$funcaoUsuario = new funcaoUsuario();
 
 if(isset($_POST['id'])){
 	$acao = 'editar';
@@ -13,14 +14,17 @@ if(isset($_POST['id'])){
 
 	$nome = $usuario_row['nome'];
 	$login = $usuario_row['login'];
-	$indice_produtividade = $usuario_row['indice_produtividade'];
+	$id_funcao_usuario = $usuario_row['funcao'];
+	$valor_hora_trabalhada = funcoes::encodeMonetario($usuario_row['valor_hora_trabalhada'], 1);
 	$admin = ($usuario_row['admin'] == '1');
 } else {
 	$acao = 'cadastrar';
 	
-	$id = $nome = $login = $indice_produtividade = '';
+	$id = $nome = $login = $id_funcao_usuario = $valor_hora_trabalhada = '';
 	$admin = false;
 }
+
+$funcaoUsuario_rs = $funcaoUsuario->getAll();
 ?>
 <div class="card <?php if($acao == 'editar') echo 'card-success'; else echo 'card-primary'; ?>">
 	<div class="card-header">
@@ -40,16 +44,31 @@ if(isset($_POST['id'])){
 					placeholder="Digite o login" value="<?php echo $login ?>">
 				<label for="login">Login</label>
 			</div>
+			<label class="form-group has-float-label">
+				<select id="funcao" name="funcao" class="select form-control" required>
+					<option value="">Escolha uma função</option>
+					<?php foreach($funcaoUsuario_rs as $funcaoUsuario_row){
+						if($funcaoUsuario_row['id'] == $id_funcao_usuario){
+							$selected = 'selected';
+						} else {
+							$selected = '';
+						}
+						?>
+						<option value="<?php echo $funcaoUsuario_row['id'] ?>" <?php echo $selected ?>><?php echo $funcaoUsuario_row['descricao'] ?></option>
+					<?php } ?>
+				</select>
+				<span>Função</span>
+			</label>
 			<div class="form-group input-group with-float-label">
-				<label class="has-float-label">
-					<input class="form-control" id="indice_produtividade" name="indice_produtividade"
-						type="number" value="<?php echo $indice_produtividade ?>" min="0.4" max="1" step="0.1"
-						placeholder="Digite um valor entre 0,4 e 1" />
-					<span>Índice de Médio Produtividade</span>
-				</label>
-				<div class="input-group-append">
-					<span class="input-group-text">Horas / PF</span>
+				<div class="input-group-prepend" style="margin-right: -21px">
+					<span class="input-group-text">R$</span>
 				</div>
+				<label class="has-float-label">
+					<input class="form-control" id="valor_hora_trabalhada" name="valor_hora_trabalhada" required
+						type="tel" value="<?php echo $valor_hora_trabalhada ?>" placeholder="Digite o valor"
+						data-mascara="#.##0,00" data-reverso="true" data-minimo="0" data-maximo="1000" />
+					<span>Valor da Hora Trabalhada</span>
+				</label>
 			</div>
 			<div class="form-group">
 				<div class="custom-control custom-checkbox">

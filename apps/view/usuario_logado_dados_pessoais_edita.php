@@ -3,13 +3,17 @@ require_once('cabecalho.php');
 require_once('menu.php');
 
 $usuario = new usuario();
+$funcaoUsuario = new funcaoUsuario();
 
 $id_usuario_sessao = $_SESSION['iduser'];
 
 $usuario_row = $usuario->getByEdicao($id_usuario_sessao);
 
 $nome = $usuario_row['nome'];
-$indice_produtividade = $usuario_row['indice_produtividade'];
+$id_funcao_usuario = $usuario_row['funcao'];
+$valor_hora_trabalhada = funcoes::encodeMonetario($usuario_row['valor_hora_trabalhada'], 1);
+
+$funcaoUsuario_rs = $funcaoUsuario->getAll();
 ?>
 <section class="content-header">
 	<div class="container-fluid">
@@ -42,16 +46,31 @@ $indice_produtividade = $usuario_row['indice_produtividade'];
 								placeholder="Digite o nome" value="<?php echo $nome ?>">
 							<label for="nome">Nome</label>
 						</div>
+						<label class="form-group has-float-label">
+							<select id="funcao" name="funcao" class="select form-control" required>
+								<option value="">Escolha uma função</option>
+								<?php foreach($funcaoUsuario_rs as $funcaoUsuario_row){
+									if($funcaoUsuario_row['id'] == $id_funcao_usuario){
+										$selected = 'selected';
+									} else {
+										$selected = '';
+									}
+									?>
+									<option value="<?php echo $funcaoUsuario_row['id'] ?>" <?php echo $selected ?>><?php echo $funcaoUsuario_row['descricao'] ?></option>
+								<?php } ?>
+							</select>
+							<span>Função</span>
+						</label>
 						<div class="form-group input-group with-float-label">
-							<label class="has-float-label">
-								<input class="form-control" id="indice_produtividade" name="indice_produtividade"
-									type="number" value="<?php echo $indice_produtividade ?>" min="0.4" max="1" step="0.1"
-									placeholder="Digite um valor entre 0,4 e 1" />
-								<span>Índice de Médio Produtividade</span>
-							</label>
-							<div class="input-group-append">
-								<span class="input-group-text">Horas / PF</span>
+							<div class="input-group-prepend" style="margin-right: -27px">
+								<span class="input-group-text">R$</span>
 							</div>
+							<label class="has-float-label">
+								<input class="form-control" id="valor_hora_trabalhada" name="valor_hora_trabalhada" required
+									type="tel" value="<?php echo $valor_hora_trabalhada ?>" placeholder="Digite o valor"
+									data-mascara="#.##0,00" data-reverso="true" data-minimo="0" data-maximo="1000" />
+								<span>Valor da Hora Trabalhada</span>
+							</label>
 						</div>
 					</div>
 					

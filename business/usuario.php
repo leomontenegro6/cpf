@@ -10,7 +10,7 @@ class usuario extends abstractBusiness{
 		
 		if(!empty($busca)){
 			$busca = str_replace(' ', '%', $busca);
-            $sql_where .= " AND (nome LIKE '%$busca%' OR login LIKE '%$busca%')";
+            $sql_where .= " AND (u.nome LIKE '%$busca%' OR u.login LIKE '%$busca%')";
 		}
 		
 		return $sql_where;
@@ -19,13 +19,18 @@ class usuario extends abstractBusiness{
 	public function getTotalByListagem($busca){
 		$sql_where = $this->formataSQLByListagem($busca);
 		
-		return $this->getTotal("WHERE $sql_where");
+		return $this->getTotal("u WHERE $sql_where");
 	}
 	
 	public function getByListagem($busca, $ordenacao='nome', $filtragem='ASC', $limit=15, $offset=0){
 		$sql_where = $this->formataSQLByListagem($busca);
 		
-		$usuario_rs = $this->getFieldsByParameter("nome, login, indice_produtividade, admin, foto, id", "WHERE $sql_where ORDER BY $ordenacao $filtragem LIMIT $limit OFFSET $offset");
+		$usuario_rs = $this->getFieldsByParameter("u.nome, u.login, fu.descricao AS funcao,
+			u.valor_hora_trabalhada, u.admin, u.foto, u.id", "u
+				JOIN funcoes_usuarios fu ON (u.funcao = fu.id)
+			WHERE $sql_where
+			ORDER BY $ordenacao $filtragem
+			LIMIT $limit OFFSET $offset");
 		foreach($usuario_rs as $i=>$usuario_row){
 			$foto = $usuario_row['foto'];
 			
@@ -34,7 +39,7 @@ class usuario extends abstractBusiness{
 			}
 			$img_foto = "<img src='$foto' class='img-circle' style='width: 2.1rem' />";
 			$usuario_rs[$i]['nome'] = $img_foto . ' ' . funcoes::capitaliza($usuario_row['nome']);
-			$usuario_rs[$i]['indice_produtividade'] = funcoes::encodeMonetario($usuario_row['indice_produtividade'], 1) . ' Horas / PF';
+			$usuario_rs[$i]['valor_hora_trabalhada'] = 'R$ ' . funcoes::encodeMonetario($usuario_row['valor_hora_trabalhada'], 1);
 			$usuario_rs[$i]['admin'] = ($usuario_row['admin'] == '1') ? ('Sim') : ('Não');
 		}
 		return $usuario_rs;
@@ -81,7 +86,7 @@ class usuario extends abstractBusiness{
 	}
 	
 	public function getByEdicao($id){
-		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, indice_produtividade, id", "WHERE id = $id LIMIT 1");
+		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, funcao, valor_hora_trabalhada, id", "WHERE id = $id LIMIT 1");
 		if(count($usuario_rs) > 0){
 			return $usuario_rs[0];
 		} else {
@@ -92,37 +97,47 @@ class usuario extends abstractBusiness{
 	// Métodos de escrita de dados
 	public function set($post, $commit=true){
 		$post['senha_sha1'] = sha1('123456');
-		$post['indice_produtividade'] = (float)$post['indice_produtividade'];
+		$post['valor_hora_trabalhada'] = (float)funcoes::decodeMonetario($post['valor_hora_trabalhada']);
 		$post['admin'] = (isset($post['admin']) && ($post['admin'] == 'true')) ? ('1') : ('0');
 		
-		if($post['indice_produtividade'] < 0.4 || $post['indice_produtividade'] > 1){
-			return 'Digite um índice de produtividade entre 0,4 e 1.';
+		if($post['valor_hora_trabalhada'] < 0){
+			return 'O valor mínima da hora trabalhada deve ser maior que zero!';
+		}
+		if($post['valor_hora_trabalhada'] > 1000){
+			return 'O valor máximo da hora trabalhada é R$ 1.000,00!';
 		}
 		
 		return parent::set($post, $commit);
 	}
 	
 	public function update($post, $id, $commit=true){
-		$post['indice_produtividade'] = (float)$post['indice_produtividade'];
+		$post['valor_hora_trabalhada'] = (float)funcoes::decodeMonetario($post['valor_hora_trabalhada']);
 		$post['admin'] = (isset($post['admin']) && ($post['admin'] == 'true')) ? ('1') : ('0');
 		
-		if($post['indice_produtividade'] < 0.4 || $post['indice_produtividade'] > 1){
-			return 'Digite um índice de produtividade entre 0,4 e 1.';
+		if($post['valor_hora_trabalhada'] < 0){
+			return 'O valor mínima da hora trabalhada deve ser maior que zero!';
+		}
+		if($post['valor_hora_trabalhada'] > 1000){
+			return 'O valor máximo da hora trabalhada é R$ 1.000,00!';
 		}
 		
 		return parent::update($post, $id, $commit);
 	}
 	
 	public function updateDadosPessoais($post, $id, $commit=true){
-		$post['indice_produtividade'] = (float)$post['indice_produtividade'];
+		$post['valor_hora_trabalhada'] = (float)funcoes::decodeMonetario($post['valor_hora_trabalhada']);
 		
-		if($post['indice_produtividade'] < 0.4 || $post['indice_produtividade'] > 1){
-			return 'Digite um índice de produtividade entre 0,4 e 1.';
+		if($post['valor_hora_trabalhada'] < 0){
+			return 'O valor mínima da hora trabalhada deve ser maior que zero!';
+		}
+		if($post['valor_hora_trabalhada'] > 1000){
+			return 'O valor máximo da hora trabalhada é R$ 1.000,00!';
 		}
 		
 		$post_editar = array(
 			'nome' => $post['nome'],
-			'indice_produtividade' => $post['indice_produtividade']
+			'funcao' => $post['funcao'],
+			'valor_hora_trabalhada' => $post['valor_hora_trabalhada']
 		);
 		return parent::update($post_editar, $id, $commit);
 	}

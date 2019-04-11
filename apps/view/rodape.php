@@ -33,6 +33,8 @@
 		<script src="../common/js/tagsinput.js"></script>
 		<!-- bootstrap-daterangepicker -->
 		<script src="../common/js/moment.min.js"></script>
+		<!-- jQuery Mask -->
+		<script src="../common/js/jquery.mask.min.js"></script>
 		<!-- Bootstrap Slider -->
 		<script src="../common/js/bootstrap-slider.js?<?php echo filemtime('../common/js/bootstrap-slider.js') ?>"></script>
 		<!-- jQuery DataTables -->
@@ -49,6 +51,7 @@
 		<script src="../common/js/aba.js?<?php echo filemtime('../common/js/aba.js') ?>"></script>
 		<script src="../common/js/select.js?<?php echo filemtime('../common/js/select.js') ?>"></script>
 		<script src="../common/js/fileUploader.js?<?php echo filemtime('../common/js/fileUploader.js') ?>"></script>
+		<script src="../common/js/mascara.js?<?php echo filemtime('../common/js/mascara.js') ?>"></script>
 		<script src="../common/js/campoMultiplo.js?<?php echo filemtime('../common/js/campoMultiplo.js') ?>"></script>
 		<script src="../common/js/cpf.js?<?php echo filemtime('../common/js/cpf.js') ?>"></script>
 		<script type="text/javascript">

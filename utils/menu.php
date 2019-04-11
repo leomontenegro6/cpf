@@ -47,6 +47,11 @@ class menu{
 						'nome' => 'Prazos de Desenvolvimento',
 						'icone' => 'fa-history',
 						'pagina' => 'rel_prazos_desenvolvimento_lista.php',
+					),
+					array(
+						'nome' => 'Orçamento',
+						'icone' => 'fa-dollar-sign',
+						'pagina' => 'rel_orcamento_desenvolvimento_lista.php',
 					)
 				)
 			)

@@ -361,6 +361,11 @@ class funcoes{
 		return $moeda;
 	}
 	
+	public static function encodeValoresFloat($input){
+		$input = str_replace('.', ',', $input);
+		return $input;
+	}
+	
 	public static function decodeMonetario($input='0.00'){
 		$input = str_replace(".", "", $input);
 		$input = str_replace(",", ".", $input);
@@ -1184,14 +1189,14 @@ class funcoes{
 		}
 	}
 	
-	public static function encodarTempoPrazosDesenvolvimentoByFormato($tempo, $formato){
+	public static function encodarTempoPrazosDesenvolvimentoByFormato($tempo, $formato, $arredondarZeros=false){
 		if($formato == 'hm'){
 			// Horas / Minutos
 			return self::encodeFloatToTime($tempo, true);
 		} elseif($formato == 'ni'){
-			// Números inteiros (arredondados)
+			// Números inteiros
 			$tempo = round($tempo);
-			if($tempo == 0) $tempo = 1;
+			if($arredondarZeros && $tempo == 0) $tempo = 1;
 			return $tempo;
 		} else {
 			// Números reais (2 casas decimais)

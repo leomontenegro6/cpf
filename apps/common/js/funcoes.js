@@ -77,6 +77,14 @@ function gerarIdAleatorio(el){
 	return id;
 }
 
+function isInt(n){
+	return Number(n) === n && n % 1 === 0;
+}
+
+function isFloat(n){
+	return Number(n) === n && n % 1 !== 0;
+}
+
 /* Função que retorna o dispositivo utilizado pelo usuário, para acessar o sistema
  * Valores possíveis de retorno:
  *	- xs: Extra small (Celulares, com largura de tela menor que 768px);
@@ -108,13 +116,14 @@ function getDispositivo(onresize) {
 }
 
 function instanciarComponentes(campo, escopo){
-	aba.instanciar(campo, escopo);
 	campoMultiplo.instanciar(campo, escopo);
 	tabela.instanciar(campo, escopo);
 	select.instanciar(campo, escopo);
 	fileUploader.instanciar(campo, escopo);
+	mascara.instanciar(campo, escopo);
 	instanciarComponenteBootstrapTagsinput(campo, escopo);
 	instanciarComponenteBootstrapSlider(campo, escopo);
+	aba.instanciar(campo, escopo);
 }
 
 function instanciarBuscaMenu(){
@@ -262,19 +271,23 @@ function validaElementos(id_pai) {
 		 * Valida elementos required
 		 */
 		var $campo = $(this);
+		var checkCampoNumerico = ($campo.is("input[type='number']"));
 		var checkCampoObrigatorio = ((($campo.is('[required]')) || ($campo.is('[data-required]'))) && (!$campo.is("[data-desativar-validacao='true']")) );
+		
+		if (!gE($campo.attr("id"))) {
+			$campo.attr('id', gerarIdAleatorio(this));
+		}
+		
 		if(checkCampoObrigatorio){
-			if (!gE($campo.attr("id"))) {
-				$campo.attr('id', gerarIdAleatorio(this));
-			}
-
-			if ($campo.is("input.spinner[data-aceita-valores-nulos='false']") && parseFloat($campo.val()) == 0) {
-				camposAlvo[i] = {
-					'id': $campo.attr("id"),
-					'mensagem': 'O valor deste campo tem que ser superior a 0.'
-				};
-				i++;
-				status = false;
+			if ($campo.is("input[type='number']")) {
+				if($.trim( $campo.val() ) == ''){
+					camposAlvo[i] = {
+						'id': $campo.attr("id"),
+						'mensagem': 'Este campo é requerido.'
+					};
+					i++;
+					status = false;
+				}
 			} else if ((window.tinyMCE) && ($campo.is("textarea.editor"))) {
 				var editorContent = (tinyMCE.get($campo.attr("id")).getContent()).replace(/[(&nbsp;)(<p>)(</p>)(\n)(\r)( )]/g, "");
 				if (editorContent == '') {
@@ -364,6 +377,44 @@ function validaElementos(id_pai) {
 				status = false;
 			}
 		}
+		if(checkCampoNumerico){
+			var valor = parseFloat($campo.val());
+			var minimo = parseFloat($campo.attr('min'));
+			var maximo = parseFloat($campo.attr('max'));
+			if(isNaN(minimo)) minimo = valor;
+			if(isNaN(maximo)) maximo = valor;
+			
+			var checkValorInvalido = (true && (isNaN(valor)));
+			var checkValorMenorQueMinimo = (($campo.is("[min]")) && (valor < minimo));
+			var checkValorMaiorQueMaximo = (($campo.is("[max]")) && (valor > maximo));
+
+			if(checkValorInvalido){
+				camposAlvo[i] = {
+					'id': $campo.attr("id"),
+					'mensagem': 'O valor digitado é inválido.'
+				};
+				i++;
+				status = false;
+			} else if(checkValorMenorQueMinimo || checkValorMaiorQueMaximo){
+				if(isFloat(minimo)) minimo = minimo.toString().replace('.', ',');
+				if(isFloat(maximo)) maximo = maximo.toString().replace('.', ',');
+				var mensagem;
+				if($campo.is("[min]") && $campo.is("[max]")){
+					mensagem = 'O valor deste campo deve estar entre ' + minimo + ' e ' + maximo + '.';
+				} else if(checkValorMenorQueMinimo){
+					mensagem = 'O valor deste campo não pode ser menor que ' + minimo + '.';
+				} else {
+					mensagem = 'O valor deste campo não pode ser maior que ' + maximo + '.';
+				}
+
+				camposAlvo[i] = {
+					'id': $campo.attr("id"),
+					'mensagem': mensagem
+				};
+				i++;
+				status = false;
+			}
+		}
 	})
 
 	if (status) {
@@ -374,31 +425,37 @@ function validaElementos(id_pai) {
 }
 
 function mostrarAvisosValidaForm(camposAlvo){
+	var elementos_adicionados = [];
 	var setouFoco = false;
 	for (var a = 0; a < camposAlvo.length; a++) {
 		var alvo = camposAlvo[a];
 		var mensagem = alvo['mensagem'];
 		var posicao = alvo['posicao'];
+		var id_alvo = alvo.id;
 		
-		var $elemento = $('#' + alvo.id);
-		$elemento.siblings('div.invalid-feedback').remove();
+		if($.inArray(id_alvo, elementos_adicionados) === -1){
+			elementos_adicionados.push(id_alvo);
 		
-		if($elemento.is("li.nav-item")){
-			// Abas
-			aviso($elemento, mensagem, 8, posicao);
-		} else if($elemento.is("[data-role='tagsinput']")){
-			$elemento.siblings('div.bootstrap-tagsinput').after(
-				$('<div />').addClass('invalid-feedback').html(mensagem)
-			);
-		} else {
-			$elemento.after(
-				$('<div />').addClass('invalid-feedback').html(mensagem)
-			);
-		}
-		
-		if(!setouFoco && !$elemento.is("[li]")){
-			$elemento.focus();
-			setouFoco = true;
+			var $elemento = $('#' + id_alvo);
+			$elemento.siblings('div.invalid-feedback').remove();
+
+			if($elemento.is("li.nav-item")){
+				// Abas
+				aviso($elemento, mensagem, 8, posicao);
+			} else if($elemento.is("[data-role='tagsinput']")){
+				$elemento.siblings('div.bootstrap-tagsinput').after(
+					$('<div />').addClass('invalid-feedback').html(mensagem)
+				);
+			} else {
+				$elemento.after(
+					$('<div />').addClass('invalid-feedback').html(mensagem)
+				);
+			}
+
+			if(!setouFoco && !$elemento.is("[li]")){
+				$elemento.focus();
+				setouFoco = true;
+			}
 		}
 	}
 }
@@ -563,7 +620,7 @@ function validaFormAbas(form, mostra_modal, mostra_aviso){
 				} else {
 					camposAbas.push({
 						'id': $li.attr('id'),
-						'mensagem': 'Há campos em branco<br />nesta aba!',
+						'mensagem': 'Há campos em branco /<br />inválidos nesta aba!',
 						'posicao': 't'
 					});
 				}
@@ -840,18 +897,18 @@ function removerModuloSistema(botao){
 
 function definirModuloSistema(campo, id_campo_modulo, id_campo_sistema, callback_modulo, callback_sistema) {
     var $campo = $(campo);
-    var selected_item = $campo.select2('data')[0];
+    var item_selecionado = $campo.select2('data')[0];
 	if(typeof id_campo_modulo == 'undefined') id_campo_modulo = 'modulo';
 	if(typeof id_campo_sistema == 'undefined') id_campo_sistema = 'sistema';
 
     var $campoModulo = $('#' + id_campo_modulo);
     var $campoSistema = $('#' + id_campo_sistema);
 
-    var id_modulo = selected_item['id_modulo'];
-    var id_sistema = selected_item['id_sistema'];
+    var id_modulo = item_selecionado['id_modulo'];
+    var id_sistema = item_selecionado['id_sistema'];
 
-    var nome_modulo = selected_item['nome_modulo'];
-    var nome_sistema = selected_item['nome_sistema'];
+    var nome_modulo = item_selecionado['nome_modulo'];
+    var nome_sistema = item_selecionado['nome_sistema'];
 
     if (typeof id_modulo != 'undefined') {
         select.setarValor($campoModulo, id_modulo, nome_modulo);
@@ -1183,6 +1240,81 @@ function calcularComplexidadeEValorComponenteFuncionalidade(elemento){
 	$bValorTotal.html(valor_total);
 }
 
+function toggleCamposEstimativaPrazo(selectMetodoEstimativaPrazo){
+	var $selectMetodoEstimativaPrazo = $(selectMetodoEstimativaPrazo);
+	var $inputRecursos = $('#recursos_lista');
+	var $inputTempoDedicacao = $('#tempo_dedicacao_lista');
+	var $inputIndiceProdutividade = $('#indice_produtividade_lista');
+	var $selectTipoSistema = $('#tipo_sistema_lista');
+	var $inputExpoenteCapersJones = $('#expoente_capers_jones_lista');
+	var $divColRecursos = $inputRecursos.closest("div[class^='col']");
+	var $divColTempoDedicacao = $inputTempoDedicacao.closest("div[class^='col']");
+	var $divColIndiceProdutividade = $inputIndiceProdutividade.closest("div[class^='col']");
+	var $divColTipoSistema = $selectTipoSistema.closest("div[class^='col']");
+	var $divColExpoenteCapersJones = $inputExpoenteCapersJones.closest("div[class^='col']");
+	
+	var metodo_estimativa_prazo = $selectMetodoEstimativaPrazo.val();
+	
+	if(metodo_estimativa_prazo == 'e'){
+		// Estimativa de Esforço
+		$inputRecursos.add($inputTempoDedicacao).add($inputIndiceProdutividade).attr('required', 'required');
+		$selectTipoSistema.add($inputExpoenteCapersJones).removeAttr('required');
+		$divColRecursos.add($divColTempoDedicacao).add($divColIndiceProdutividade).show();
+		$divColTipoSistema.add($divColExpoenteCapersJones).hide();
+	} else {
+		// Fórmula de Capers Jones
+		$inputRecursos.add($inputTempoDedicacao).add($inputIndiceProdutividade).removeAttr('required');
+		$selectTipoSistema.add($inputExpoenteCapersJones).attr('required', 'required');
+		$divColRecursos.add($divColTempoDedicacao).add($divColIndiceProdutividade).hide();
+		$divColTipoSistema.add($divColExpoenteCapersJones).show();
+		
+		select.instanciar($selectTipoSistema);
+		select.limpar($selectTipoSistema);
+	}
+}
+
+function toggleCampoExpoenteCapersJones(selectTipoSistema){
+	var $selectTipoSistema = $(selectTipoSistema);
+	var $inputExpoenteCapersJones = $('#expoente_capers_jones_lista');
+	
+	var tipo_sistema = $selectTipoSistema.val();
+	if(tipo_sistema != ''){
+		var item_selecionado = $selectTipoSistema.select2('data')[0];
+		var expoente_minimo = item_selecionado['expoente_minimo'];
+		var expoente_maximo = item_selecionado['expoente_maximo'];
+		
+		if(expoente_minimo == expoente_maximo){
+			$inputExpoenteCapersJones.removeAttr('disabled min max').val(expoente_minimo).attr('readonly', 'readonly');
+		} else {
+			$inputExpoenteCapersJones.removeAttr('disabled readonly').val(expoente_minimo).attr({
+				'min': expoente_minimo,
+				'max': expoente_maximo,
+				'placeholder': 'Digite um valor entre ' + expoente_minimo.replace('.', ',') + ' e ' + expoente_maximo.replace('.', ',')
+			});
+		}
+	} else {
+		$inputExpoenteCapersJones.removeAttr('readonly').val('').attr({
+			'min': '0.36',
+			'max': '0.45',
+			'placeholder': 'Digite um valor entre 0,36 e 0,45',
+			'disabled': 'disabled'
+		});
+	}
+}
+
+function toggleCheckboxArredondarZeros(selectFormatoTempo){
+	var $selectFormatoTempo = $(selectFormatoTempo);
+	var $checkboxArredondarZeros = $('#arredondar_zeros');
+	
+	var formato_tempo = $selectFormatoTempo.val();
+	
+	if(formato_tempo == 'ni'){
+		$checkboxArredondarZeros.removeAttr('disabled');
+	} else {
+		$checkboxArredondarZeros.prop('checked', false).attr('disabled', 'disabled');
+	}
+}
+
 function toggleCamposModoExibicao(selectModoExibicao){
 	var $selectModoExibicao = $(selectModoExibicao);
 	var $divModoExibicaoTempoUnico = $('#modo_exibicao_tempo_unico');
@@ -1256,12 +1388,67 @@ function validaFormPrazosDesenvolvimento(form){
 		
 		mostraCarregando(true, false);
 		
-		var parametros = $form.serialize();
-		parametros += '&ajax=true';
-		chamarPagina('rel_prazos_desenvolvimento_tabela.php?' + parametros, '', function(r){
+		var parametros_formulario = $form.serialize();
+		var parametros_historico = parametros_formulario;
+		parametros_formulario += '&ajax=true';
+		parametros_historico += '&Submit=true';
+		chamarPagina('rel_prazos_desenvolvimento_tabela.php?' + parametros_formulario, '', function(r){
 			ocultaCarregando();
 			$divTabelaPrazosDesenvolvimento.html(r);
-		})
+			history.pushState(parametros_historico, '', '?' + parametros_historico);
+		});
+	}
+	
+	return false;
+}
+
+function toggleCamposValorOrcamento(selectMetodoCalculoOrcamento){
+	var $selectMetodoCalculoOrcamento = $(selectMetodoCalculoOrcamento);
+	var $inputValorPontoFuncao = $('#valor_ponto_funcao_lista');
+	var $inputValorHoraTrabalhada = $('#valor_hora_trabalhada_lista');
+	var $divColValorPontoFuncao = $inputValorPontoFuncao.closest("div[class^='col-']");
+	var $divColValorHoraTrabalhada = $inputValorHoraTrabalhada.closest("div[class^='col-']");
+	var $divColBotaoDetalhesCalculoVPF = $divColValorPontoFuncao.next();
+	var $divColBotaoDetalhesCalculoVHT = $divColValorHoraTrabalhada.next();
+	
+	var metodo_calculo_orcamento = $selectMetodoCalculoOrcamento.val();
+	
+	if(metodo_calculo_orcamento == 'vpf'){
+		// Valor do Ponto de Função
+		$inputValorPontoFuncao.removeAttr('disabled');
+		$inputValorHoraTrabalhada.attr('disabled', 'disabled');
+		
+		$divColValorPontoFuncao.add($divColBotaoDetalhesCalculoVPF).show();
+		$divColValorHoraTrabalhada.add($divColBotaoDetalhesCalculoVHT).hide();
+	} else if(metodo_calculo_orcamento == 'vht'){
+		// Valor da Hora Trabalhada
+		$inputValorPontoFuncao.attr('disabled', 'disabled');
+		$inputValorHoraTrabalhada.removeAttr('disabled');
+		
+		$divColValorPontoFuncao.add($divColBotaoDetalhesCalculoVPF).hide();
+		$divColValorHoraTrabalhada.add($divColBotaoDetalhesCalculoVHT).show();
+	} else {
+		// TODO: Capers-jones
+		
+	}
+}
+
+function validaFormOrcamentoDesenvolvimento(form){
+	if(validaFormAbas(form, false)){
+		var $form = $(form);
+		var $divTabelaOrcamentoDesenvolvimento = $('#tabela_orcamento_desenvolvimento');
+		
+		mostraCarregando(true, false);
+		
+		var parametros_formulario = $form.serialize();
+		var parametros_historico = parametros_formulario;
+		parametros_formulario += '&ajax=true';
+		parametros_historico += '&Submit=true';
+		chamarPagina('rel_orcamento_desenvolvimento_tabela.php?' + parametros_formulario, '', function(r){
+			ocultaCarregando();
+			$divTabelaOrcamentoDesenvolvimento.html(r);
+			history.pushState(parametros_historico, '', '?' + parametros_historico);
+		});
 	}
 	
 	return false;

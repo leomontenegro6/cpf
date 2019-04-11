@@ -22,7 +22,11 @@ class usuarioDao extends abstractDao{
 				'tipo'=>'string',
 				'normalize'=>false
 			),
-			'indice_produtividade'=>array(
+			'funcao'=>array(
+				'tipo'=>'int',
+				'required'=>true
+			),
+			'valor_hora_trabalhada'=>array(
 				'tipo'=>'decimal',
 				'required'=>true
 			),

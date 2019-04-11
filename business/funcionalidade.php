@@ -259,8 +259,6 @@ class funcionalidade extends abstractBusiness{
 			}
 		}
 		
-		return 'ok';
-		
 		// Commitando alterações via transação
 		if($commit){
 			return $this->commit();
