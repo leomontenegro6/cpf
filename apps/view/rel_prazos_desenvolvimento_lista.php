@@ -18,6 +18,18 @@ $indice_produtividade_lista = (isset($_GET['indice_produtividade_lista'])) ? ($_
 $tipo_sistema_lista = (isset($_GET['tipo_sistema_lista'])) ? ($_GET['tipo_sistema_lista']) : ('');
 $expoente_capers_jones_lista = (isset($_GET['expoente_capers_jones_lista'])) ? ($_GET['expoente_capers_jones_lista']) : ('');
 
+if(isset($_GET['ordenacao'])){
+	$ordenacao = array();
+	foreach($_GET['ordenacao'] as $o){
+		array_push($ordenacao, array('ordenacao' => $o));
+	}
+} else {
+	$ordenacao = array(
+		array('ordenacao' => 'm.id'),
+		array('ordenacao' => 'f.ordem'),
+		array('ordenacao' => 'co.ordem'),
+	);
+}
 if(isset($_GET['Submit'])){
 	$mostrarOrdem = (isset($_GET['mostrar_ordem']) && ($_GET['mostrar_ordem'] == 'true'));
 	$mostrarComplexidade = (isset($_GET['mostrar_complexidade']) && ($_GET['mostrar_complexidade'] == 'true'));
@@ -30,7 +42,7 @@ if(isset($_GET['Submit'])){
 	$arredondarZeros = (isset($_GET['arredondar_zeros'])) ? ($_GET['arredondar_zeros'] == 'true') : (false);
 }
 $modo_exibicao_tempo = (isset($_GET['modo_exibicao_tempo'])) ? ($_GET['modo_exibicao_tempo']) : ('u');
-$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hm');
+$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hhm');
 $percentual_reducao_unico = (isset($_GET['percentual_reducao_unico'])) ? ($_GET['percentual_reducao_unico']) : ('45');
 if(isset($_GET['esforco_disciplinas'])){
 	$esforco_disciplinas = $_GET['esforco_disciplinas'];
@@ -135,7 +147,7 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 									<i class="fas fa-filter"></i> Filtros
 								</a>
 							</li>
-							<li class="nav-item">
+							<li class="nav-item" data-callback="concatenarLabelOptgroupParaTemplateSelection(gE('formato_tempo'), true)">
 								<a class="nav-link" href="#">
 									<i class="fas fa-cog"></i> Personalização
 								</a>
@@ -269,33 +281,8 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 							<div class="tab-pane" role="tabpanel">
 								<div class="row">
 									<div class="col-md-4">
-										<div class="custom-control custom-checkbox" style="margin-bottom: 10px">
-											<input type="checkbox" class="custom-control-input" id="mostrar_ordem"
-												name="mostrar_ordem" value="true"
-												<?php if($mostrarOrdem) echo 'checked' ?> />
-											<label class="custom-control-label" for="mostrar_ordem">Mostrar Ordem</label>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="custom-control custom-checkbox" style="margin-bottom: 10px">
-											<input type="checkbox" class="custom-control-input" id="mostrar_complexidade"
-												name="mostrar_complexidade" value="true"
-												<?php if($mostrarComplexidade) echo 'checked' ?> />
-											<label class="custom-control-label" for="mostrar_complexidade">Mostrar Complexidade</label>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="custom-control custom-checkbox" style="margin-bottom: 10px">
-											<input type="checkbox" class="custom-control-input" id="mostrar_valor_pf"
-												name="mostrar_valor_pf" value="true"
-												<?php if($mostrarValorPF) echo 'checked' ?> />
-											<label class="custom-control-label" for="mostrar_valor_pf">Mostrar Valor (Pontos de Função)</label>
-										</div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-4">
-										<label class="form-group has-float-label">
+										<label for="modo_exibicao_tempo"><b>Tempo</b></label>
+										<label class="form-group has-float-label" style="margin-bottom: 6px">
 											<select id="modo_exibicao_tempo" name="modo_exibicao_tempo" class="select form-control"
 												onchange="toggleCamposModoExibicao(this)">
 												<option value="u" <?php if($modo_exibicao_tempo == 'u') echo 'selected' ?>>Tempo Único</option>
@@ -303,30 +290,95 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 											</select>
 											<span>Modo de Exibição do Tempo</span>
 										</label>
-									</div>
-									<div class="col-md-4">
-										<label class="form-group has-float-label">
+										<label class="form-group has-float-label" style="margin-bottom: 3px">
 											<select id="formato_tempo" name="formato_tempo" class="select form-control"
-												onchange="toggleCheckboxArredondarZeros(this)">
-												<option value="hm" <?php if($formato_tempo == 'hm') echo 'selected' ?>>Horas / Minutos</option>
-												<option value="ni" <?php if($formato_tempo == 'ni') echo 'selected' ?>>Números Inteiros</option>
-												<option value="nr" <?php if($formato_tempo == 'nr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												onchange="concatenarLabelOptgroupParaTemplateSelection(this, true); toggleCheckboxArredondarZeros(this)">
+												<optgroup label="Horas / Minutos">
+													<option value="hhm" <?php if($formato_tempo == 'hhm') echo 'selected' ?>>HH:MM</option>
+													<option value="hni" <?php if($formato_tempo == 'hni') echo 'selected' ?>>Números Inteiros</option>
+													<option value="hnr" <?php if($formato_tempo == 'hnr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												</optgroup>
+												<optgroup label="Dias">
+													<option value="dni" <?php if($formato_tempo == 'dni') echo 'selected' ?>>Números Inteiros</option>
+													<option value="dnr" <?php if($formato_tempo == 'dnr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												</optgroup>
+												<optgroup label="Meses">
+													<option value="mnr" <?php if($formato_tempo == 'mnr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												</optgroup>
 											</select>
 											<span>Formato de Tempo</span>
 										</label>
-									</div>
-									<div class="col-md-4">
-										<div class="custom-control custom-checkbox" style="margin-bottom: 10px">
+										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input"
 												id="arredondar_zeros" name="arredondar_zeros" value="true"
-												<?php if($formato_tempo != 'ni') echo 'disabled'; elseif($arredondarZeros) echo 'checked'; ?> />
+												<?php if(!in_array($formato_tempo, array('hni', 'dni'))) echo 'disabled'; elseif($arredondarZeros) echo 'checked'; ?> />
 											<label class="custom-control-label" for="arredondar_zeros">Arredondar Zeros para Cima</label>
 										</div>
 									</div>
+									<div class="col-md-4">
+										<label for="ordenacao_0"><b>Ordenação</b></label>
+										<div id="campos_campos" class="campo_multiplo" data-aceita-valores-duplicados='true'>
+											<table class="conteiner">
+												<tbody>
+													<tr>
+														<td class="corpo"></td>
+														<td class="acoes" valign="top" style="width: 5%">
+															<button type="button" class="btn btn-default adicionar" title="Adicionar">
+																<i class="fas fa-plus"></i>
+															</button>
+															<button type="button" class="btn btn-danger remover" title="Remover">
+																<i class="fas fa-minus"></i>
+															</button>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+											<div class="template">
+												<div style="margin-bottom: 3px">
+													<select id="ordenacao_{iterador}" name="ordenacao[]" data-nome="ordenacao" class="select form-control">
+														<option value="">Escolha uma coluna</option>
+														<optgroup label="Módulo">
+															<option value="m.id">ID do módulo</option>
+															<option value="m.nome">Nome do módulo</option>
+														</optgroup>
+														<optgroup label="Funcionalidade">
+															<option value="f.ordem">Ordem da funcionalidade</option>
+															<option value="f.nome">Nome da funcionalidade</option>
+														</optgroup>
+														<optgroup label="Componente">
+															<option value="co.ordem">Ordem do componente</option>
+															<option value="tco.descricao">Nome do componente</option>
+														</optgroup>
+													</select>
+												</div>
+											</div>
+											<div class="valores"><?php echo json_encode($ordenacao) ?></div>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<label for="mostrar_ordem"><b>Mostrar</b></label>
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox" class="custom-control-input" id="mostrar_ordem"
+												name="mostrar_ordem" value="true"
+												<?php if($mostrarOrdem) echo 'checked' ?> />
+											<label class="custom-control-label" for="mostrar_ordem">Ordem</label>
+										</div>
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox" class="custom-control-input" id="mostrar_complexidade"
+												name="mostrar_complexidade" value="true"
+												<?php if($mostrarComplexidade) echo 'checked' ?> />
+											<label class="custom-control-label" for="mostrar_complexidade">Complexidade</label>
+										</div>
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox" class="custom-control-input" id="mostrar_valor_pf"
+												name="mostrar_valor_pf" value="true"
+												<?php if($mostrarValorPF) echo 'checked' ?> />
+											<label class="custom-control-label" for="mostrar_valor_pf">Valor (Pontos de Função)</label>
+										</div>
+									</div>
 								</div>
-								
 								<div id="modo_exibicao_tempo_unico" <?php if($modo_exibicao_tempo == 'd') echo 'style="display: none"' ?>>
-									<div class="row">
+									<div class="row" style="margin-top: 5px">
 										<div class="col-md-4">
 											<div class="form-group input-group with-float-label">
 												<label class="has-float-label">

@@ -9,6 +9,7 @@
 	background-color: transparent;
 }
 .nav-sidebar .nav-item>.nav-link{
+	text-overflow: ellipsis;
 	padding: .5rem 0.5rem;
 }
 .nav-sidebar>.nav-item .nav-icon{
@@ -522,6 +523,63 @@ ul.nav-pills + div.tab-content{
 .custom-control-label{
 	font-weight: normal !important;
 }
+/* Estilizações do menu de checkboxes */
+div.checkbox-menu-search input.form-control{
+	border-bottom-left-radius: 0;
+}
+div.checkbox-menu-search span.input-group-text{
+	border-bottom-right-radius: 0;
+}
+div.checkbox-menu-parent{
+	max-height: 290px;
+	overflow-y: scroll;
+	border-bottom: 1px solid #999;
+	border-bottom-left-radius: 4px;
+}
+label.checkbox-menu{
+	display: block;
+	border: 1px solid #aaa;
+	border-bottom: 0;
+	margin-bottom: 0;
+	padding: 10px;
+	cursor: pointer;
+	font-weight: normal;
+    background: rgb(244,244,244);
+}
+label.checkbox-menu:first-child,
+label.checkbox-menu:first-of-type{
+	border-radius: 3px 3px 0 0;
+}
+label.checkbox-menu:last-child,
+label.checkbox-menu:last-of-type{
+	border-radius: 0 0 3px 3px;
+	border-bottom: 1px solid #aaa;
+}
+label.checkbox-menu label{
+	padding: 0;
+	font-size: 0;
+}
+label.checkbox-menu span.checkbox-label-block{
+	display: inline-block;
+	vertical-align: middle;
+	width: 95%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+label.checkbox-menu:hover, label.checkbox-menu:focus{
+    background: rgb(232,232,232);
+}
+label.checkbox-menu:active{
+	color: white;
+	text-shadow: 0px 1px 0px #444;
+    background: #007bff;
+}
+div.checkbox-menu-footer{
+	border: 1px solid #aaa;
+	border-top: 0;
+	border-radius: 0 0 3px 3px;
+}
 /* Estilizações adicionais do componente Bootstrap Tagsinput */
 label.has-float-label div.bootstrap-tagsinput{
 	padding-top: 8px;
@@ -575,6 +633,19 @@ div.grid-table>div[class^='col']{
 	border: 1px solid #dee2e6;
 }
 
+/* Estilizações de empilhamentos de ícones do FontAwesome */
+.fa-alinhado-topo-direito{
+	top: -5px;
+	left: 11px;
+	text-shadow: none;
+}
+.fa-alinhado-topo-direito.fa-fundo-16{
+	font-size: 16px;
+}
+.fa-alinhado-topo-direito.fa-plano-branco{
+	color: white;
+}
+
 /* Componentes de funcionalidades, no formulário de cadastro de funcionalidades */
 div.componente_funcionalidade>div[class^="col"]{
 	border: 1px solid #dee2e6;
@@ -582,4 +653,64 @@ div.componente_funcionalidade>div[class^="col"]{
 }
 div.componente_funcionalidade:nth-child(even){
 	background: rgba(0,0,0,.075);
+}
+
+#campos_componentes table>tbody>tr:nth-child(even)>td:not(.acoes){
+	background: rgba(0,0,0,.075);
+}
+div.componente_inclusao_funcionalidade_orcamento_manutencao>div[class^="col"]{
+	padding: 5px;
+}
+
+/* Estilizações do componente de seleção de funcionalidades de alteração / exclusão, no relatório de Orçamento de Manutenção */
+#funcionalidades_alteracoes_exclusoes{
+	max-height: 250px !important;
+}
+#funcionalidades_alteracoes_exclusoes label.checkbox-menu{
+	padding: 0 10px;
+	border-radius: 0;
+}
+#funcionalidades_alteracoes_exclusoes span.checkbox-label-block{
+	margin-top: -6px;
+}
+#funcionalidades_alteracoes_exclusoes label.funcionalidade div.custom-control{
+	margin-left: 16px;
+}
+#funcionalidades_alteracoes_exclusoes label.funcionalidade span.boxurvr{
+	display: inline-block;
+	position: relative;
+	left: -38px;
+}
+#funcionalidades_alteracoes_exclusoes label.funcionalidade span.checkbox-label-block{
+	font-weight: normal;
+	margin-left: -16px;
+}
+button.ver_detalhes_funcionalidade{
+	padding: 0px 3px;
+	position: absolute;
+	top: 2px;
+	right: -7px;
+	font-size: 12px;
+}
+div.acoes_lote_funcionalidades_marcadas button.dropdown-toggle{
+	margin: 3px !important;
+	background-image: linear-gradient(30deg, #28a745 25%, #dc3545 75%);
+}
+div.acoes_lote_funcionalidades_marcadas div.dropdown-menu{
+	padding: 0;
+	width: 450px;
+}
+div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_alteracao,
+div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_exclusao{
+	color: white;
+	text-align: left;
+}
+div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_alteracao{
+	background-color: #28a745;
+}
+div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_exclusao{
+	background-color: #dc3545;
+}
+div.acoes_lote_funcionalidades_marcadas div.dropdown-menu a.dropdown-item{
+	border-bottom: 1px solid rgba(0,0,0,.15);
 }

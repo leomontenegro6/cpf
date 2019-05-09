@@ -387,3 +387,10 @@ campoMultiplo.instanciarOutrosComponentes = function(elementoDestino){
 	
 	instanciarComponentes(null, $elementoDestino);
 }
+
+campoMultiplo.limpar = function(id_campo){
+	var $campo = $('#' + id_campo);
+	var $tabela = $campo.children('table');
+	
+	$tabela.find('button.remover').trigger('click');
+}

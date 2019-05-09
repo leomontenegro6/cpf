@@ -388,6 +388,11 @@ select.instanciar = function(seletor_campo, escopo){
 					$results.html('');
 				}
 			},
+			// Selecting: Chamado imediatamente antes da seleção de um item. Útil para obter a opção anterior
+			'select2:selecting': function(){
+				var valorOpcaoAnterior = $select.val();
+				$select.data('previousValue', valorOpcaoAnterior);
+			},
 			// Estiliza: Evento customizado, usado para atualizar valor do campo
 			// sem precisar chamar o evento "onchange", o que em alguns contextos
 			// pode gerar erro de encadeamento infinito de eventos (stack overflow)
@@ -437,6 +442,12 @@ select.obterMetadadosOpcaoSelecionada = function (select) {
 	} else {
 		return metadados[0];
 	}
+}
+
+select.obterOpcaoAnterior = function(select){
+	var $select = $(select);
+	
+	return $select.data('previousValue');
 }
 
 select.setarFoco = function(select){

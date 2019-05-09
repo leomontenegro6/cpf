@@ -5,13 +5,21 @@ class componente extends abstractBusiness{
     }
 	
 	// Métodos de listagem de dados
-	public function getByFuncionalidade($id_funcionalidade){
-		return $this->getFieldsByParameter("tc.descricao AS tipo_componente, td.descricao AS tipo_dado,
-			c.possui_acoes, c.possui_mensagens, c.id", "c
-				JOIN tipos_componentes tc ON (c.tipo_componente = tc.id)
-				JOIN tipos_dados td ON (tc.tipo_dado = td.id)
-			WHERE c.funcionalidade = $id_funcionalidade
-			ORDER BY c.ordem");
+	public function getTotalByFuncionalidade($id_funcionalidade){
+		return $this->getTotal("WHERE funcionalidade = $id_funcionalidade");
+	}
+	
+	public function getByFuncionalidade($id_funcionalidade, $ordenacao='co.ordem'){
+		return $this->getFieldsByParameter("tco.descricao AS tipo_componente, td.descricao AS tipo_dado,
+			co.possui_acoes, co.possui_mensagens, COUNT(DISTINCT c.id) AS quantidade_campos,
+			COUNT(DISTINCT ar.id) AS quantidade_arquivos_referenciados, tco.tipo_dado AS id_tipo_dado, co.id", "co
+				JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
+				JOIN tipos_dados td ON (tco.tipo_dado = td.id)
+				LEFT JOIN campos c ON (c.componente = co.id)
+				LEFT JOIN arquivos_referenciados ar ON (ar.componente = co.id)
+			WHERE co.funcionalidade = $id_funcionalidade
+			GROUP BY tco.descricao, td.descricao, co.possui_acoes, co.possui_mensagens, tco.tipo_dado, co.id
+			ORDER BY $ordenacao");
 	}
 	
 	private function formataSQLByListagem($busca, $id_sistema, $id_modulo, $id_funcionalidade){
@@ -214,15 +222,7 @@ class componente extends abstractBusiness{
 		return $componente_rs;
 	}
 	
-	private function calcularTempoDesenvolvimentoPorEstimativaEsforco($valor_pf, $recursos, $tempo_dedicacao, $indice_produtividade){
-		return ($valor_pf * $indice_produtividade / ($recursos * $tempo_dedicacao)) * 24;
-	}
-	
-	private function calcularTempoDesenvolvimentoPorFormulaCapersJones($total_pf, $expoente_capers_jones){
-		return pow($total_pf, $expoente_capers_jones) * 30 * 24;
-	}
-	
-	public function getByPlanilhaPrazosDesenvolvimento($id_sistema, $id_modulo, $id_funcionalidade, $metodo_estimativa_prazo, $recursos, $tempo_dedicacao, $indice_produtividade, $expoente_capers_jones, $modo_exibicao_tempo, $percentual_reducao_unico, $esforco_disciplinas){
+	public function getByPlanilhaPrazosDesenvolvimento($id_sistema, $id_modulo, $id_funcionalidade, $metodo_estimativa_prazo, $recursos, $tempo_dedicacao, $indice_produtividade, $expoente_capers_jones, $modo_exibicao_tempo, $percentual_reducao_unico, $esforco_disciplinas, $formato_tempo, $ordenacao){
 		$sql_where = 'TRUE';
 		
 		// Filtro por sistema
@@ -243,6 +243,12 @@ class componente extends abstractBusiness{
 		$recursos = (int)$recursos;
 		$tempo_dedicacao = (float)$tempo_dedicacao;
 		$indice_produtividade = (float)$indice_produtividade;
+		$string_ordenacao = '';
+		foreach($ordenacao as $i=>$o){
+			if($i > 0) $string_ordenacao .= ', ';
+			$string_ordenacao .= $o['ordenacao'];
+		}
+		if(empty($string_ordenacao)) $string_ordenacao = '2, 3, 1';
 		
 		// Executando consulta de obtenção dos dados da planilha
 		$componente_rs = $this->getFieldsByParameter("CONCAT(f.ordem, '. ', co.ordem, '.') AS ordem,
@@ -254,7 +260,7 @@ class componente extends abstractBusiness{
 				JOIN modulos m ON (f.modulo = m.id)
 				JOIN sistemas s ON (m.sistema = s.id)
 			WHERE $sql_where
-			ORDER BY 2, 3, 1");
+			ORDER BY $string_ordenacao");
 		
 		// Iterando pelos resultados uma vez, para calcular os valores para
 		// posterior união vertical de linhas (rowspan)
@@ -290,7 +296,7 @@ class componente extends abstractBusiness{
 			// Calculando tempo de desenvolvimento, caso o método de estimativa
 			// de prazo selecionado seja o de "Estimativa de Esforço"
 			if($metodo_estimativa_prazo == 'e'){
-				$tempo_total = $this->calcularTempoDesenvolvimentoPorEstimativaEsforco($valor_pf, $recursos, $tempo_dedicacao, $indice_produtividade);
+				$tempo_total = cpf::calcularTempoDesenvolvimentoPorEstimativaEsforco($valor_pf, $recursos, $tempo_dedicacao, $indice_produtividade, $formato_tempo);
 			
 				if($modo_exibicao_tempo == 'u'){
 					if($percentual_reducao_unico > 100) $percentual_reducao_unico = 100;
@@ -328,7 +334,7 @@ class componente extends abstractBusiness{
 		if($metodo_estimativa_prazo == 'cj'){
 			// Calculando o tempo de desenvolvimento geral, em função do total de pontos de função.
 			// Necessário porque a fórmula de Capers Jones só funciona corretamente com o todo.
-			$tempo_total_geral = $this->calcularTempoDesenvolvimentoPorFormulaCapersJones($total_pf, $expoente_capers_jones);
+			$tempo_total_geral = cpf::calcularTempoDesenvolvimentoPorFormulaCapersJones($total_pf, $expoente_capers_jones, $formato_tempo);
 			foreach($componente_rs as $i=>$componente_row){
 				$valor_pf = $componente_row['valor_pf'];
 				$percentual_ajuste_capers_jones = ($valor_pf * 100) / $total_pf;
@@ -353,7 +359,7 @@ class componente extends abstractBusiness{
 		return $componente_rs;
 	}
 	
-	public function getByPlanilhaOrcamentoDesenvolvimento($id_sistema, $id_modulo, $id_funcionalidade, $recursos, $tempo_dedicacao, $indice_produtividade, $metodo_calculo_orcamento, $valor_hora_trabalhada, $valor_ponto_funcao, $percentual_reducao, $formato_tempo, $arredondarZeros, $ordenacao){
+	public function getByPlanilhaOrcamentoDesenvolvimento($id_sistema, $id_modulo, $id_funcionalidade, $metodo_estimativa_prazo, $recursos, $tempo_dedicacao, $indice_produtividade, $expoente_capers_jones, $metodo_calculo_orcamento, $valor_hora_trabalhada, $valor_ponto_funcao, $percentual_reducao, $formato_tempo, $arredondarZeros, $ordenacao){
 		$sql_where = 'TRUE';
 		
 		// Filtro por sistema
@@ -374,10 +380,10 @@ class componente extends abstractBusiness{
 		$recursos = (int)$recursos;
 		$tempo_dedicacao = (float)$tempo_dedicacao;
 		$indice_produtividade = (float)$indice_produtividade;
+		$expoente_capers_jones = (float)$expoente_capers_jones;
 		$valor_hora_trabalhada = (float)funcoes::decodeMonetario($valor_hora_trabalhada);
 		$valor_ponto_funcao = (float)funcoes::decodeMonetario($valor_ponto_funcao);
 		if($percentual_reducao > 100) $percentual_reducao = 100;
-		
 		$string_ordenacao = '';
 		foreach($ordenacao as $i=>$o){
 			if($i > 0) $string_ordenacao .= ', ';
@@ -416,6 +422,7 @@ class componente extends abstractBusiness{
 		
 		// Iterando pelos resultados outra vez, para formatar valores e calcular
 		// complexidade e valor de cada componente, em pontos de função
+		$total_pf = 0;
 		foreach($componente_rs as $i=>$componente_row){
 			$id_componente = $componente_row['id'];
 			$id_funcionalidade = $componente_row['id_funcionalidade'];
@@ -424,20 +431,17 @@ class componente extends abstractBusiness{
 			
 			$complexidade = $complexidade_valor['complexidade'];
 			$valor_pf = $complexidade_valor['valor'];
-			$tempo = ((($valor_pf * $indice_produtividade / ($recursos * $tempo_dedicacao)) * 24) * $percentual_reducao) / 100;
 			
-			if($formato_tempo == 'ni'){
-				$tempo = funcoes::encodarTempoPrazosDesenvolvimentoByFormato($tempo, $formato_tempo, $arredondarZeros);
-			} elseif($formato_tempo == 'nr'){
-				$tempo = round($tempo, 2);
-			}
+			// Calculando tempo de desenvolvimento, caso o método de estimativa
+			// de prazo selecionado seja o de "Estimativa de Esforço"
+			if($metodo_estimativa_prazo == 'e'){
+				$tempo_total = cpf::calcularTempoDesenvolvimentoPorEstimativaEsforco($valor_pf, $recursos, $tempo_dedicacao, $indice_produtividade, $formato_tempo);
 			
-			if($metodo_calculo_orcamento == 'vpf'){
-				$custo = ($tempo * $valor_ponto_funcao);
-			} elseif($metodo_calculo_orcamento == 'vht'){
-				$custo = ($tempo * $valor_hora_trabalhada);
+				$tempo = ($tempo_total * $percentual_reducao) / 100;
+				$custo = cpf::calcularCustoDesenvolvimentoPorEstimativaEsforco($metodo_calculo_orcamento, $tempo, $valor_ponto_funcao, $valor_hora_trabalhada, $formato_tempo);
 			} else {
-				$custo = 0;
+				$total_pf += $valor_pf;
+				$tempo = $custo = 0;
 			}
 			
 			$componente_rs[$i]['rowspan'] = $rowspans[$id_funcionalidade];
@@ -445,6 +449,24 @@ class componente extends abstractBusiness{
 			$componente_rs[$i]['valor_pf'] = $valor_pf;
 			$componente_rs[$i]['tempo'] = $tempo;
 			$componente_rs[$i]['custo'] = $custo;
+		}
+		
+		// Se o método de estimativa de prazo selecionado for o da "Fórmula de Capers Jones",
+		// então recalcular os valores em uma terceira iteração
+		if($metodo_estimativa_prazo == 'cj'){
+			// Calculando o tempo de desenvolvimento geral, em função do total de pontos de função.
+			// Necessário porque a fórmula de Capers Jones só funciona corretamente com o todo.
+			$tempo_total_geral = cpf::calcularTempoDesenvolvimentoPorFormulaCapersJones($total_pf, $expoente_capers_jones, $formato_tempo);
+			foreach($componente_rs as $i=>$componente_row){
+				$valor_pf = $componente_row['valor_pf'];
+				$percentual_ajuste_capers_jones = ($valor_pf * 100) / $total_pf;
+				
+				$tempo = ((($tempo_total_geral * $percentual_ajuste_capers_jones) / 100) * $percentual_reducao) / 100;
+				$custo = cpf::calcularCustoDesenvolvimentoPorFormulaCapersJones($metodo_calculo_orcamento, $valor_pf, $valor_ponto_funcao, $valor_hora_trabalhada);
+				
+				$componente_rs[$i]['tempo'] = $tempo;
+				$componente_rs[$i]['custo'] = $custo;
+			}
 		}
 		
 		// Retornando resultados ao fim do processo

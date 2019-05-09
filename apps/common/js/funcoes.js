@@ -85,6 +85,15 @@ function isFloat(n){
 	return Number(n) === n && n % 1 !== 0;
 }
 
+function round(value, decimals) {
+	if(typeof decimals == 'undefined') decimals = 2;
+	return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+}
+
+function fmod(a, b){
+	return Number((a - (Math.floor(a / b) * b)).toPrecision(8));
+}
+
 /* Função que retorna o dispositivo utilizado pelo usuário, para acessar o sistema
  * Valores possíveis de retorno:
  *	- xs: Extra small (Celulares, com largura de tela menor que 768px);
@@ -577,6 +586,27 @@ function mostraModalSubmissaoFormAjax(tipo_modal, mensagem, mostrarDetalhes, det
 	}
 }
 
+function resetaForm(form){
+	setTimeout(function(){
+		var $form = $(form);
+
+		$form.find('select.select, div.campo_multiplo, input[type="file"].fileuploader').each(function(){
+			var $campo = $(this);
+			
+			if($campo.is('select.select')){
+				// Select2
+				select.atualizar($campo);
+			} else if($campo.is('div.campo_multiplo')){
+				// Campos múltiplos
+				campoMultiplo.limpar($campo.attr('id'));
+			} else {
+				// FileUploader
+				fileUploader.limpar($campo);
+			}
+		});
+	}, 25);
+}
+
 function exibirAvisoNotify(mensagem, tipo){
 	if(typeof tipo == 'undefined') tipo = 'success';
 	$.hulla = new hullabaloo();
@@ -851,6 +881,24 @@ function decodeMonetario(valor){
 	return parseFloat(valor);
 }
 
+function encodeFloatToTime(float, arredondarSegundos){
+	if(typeof arredondarSegundos == 'undefined') arredondarSegundos = false;
+	var fraction;
+	if(arredondarSegundos){
+		fraction = Math.round(fmod(float, 1) * 60);
+	} else {
+		fraction = fmod(float, 1) * 60;
+	}
+	
+	var hora = parseInt(float, 10);
+	var minutos = parseInt(fraction, 10);
+	
+	if(hora < 10) hora = '0' + hora;
+	if(minutos < 10) minutos = '0' + minutos;
+
+	return hora + ':' + minutos;
+}
+
 function adicionarModuloSistema(botao){
 	var $botao = $(botao);
 	var $tabela = $botao.closest('table');
@@ -944,8 +992,12 @@ function carregarComponentesByTipoFuncionalidade(campoTipoFuncionalidade){
 	});
 }
 
-function concatenarLabelOptgroupParaTemplateSelection(select){
+function concatenarLabelOptgroupParaTemplateSelection(select, prepend){
+	if(typeof prepend == 'undefined') prepend = false;
 	var $select = $(select);
+	
+	$select.trigger('estiliza');
+	
 	var $opcaoSelecionada = $select.find(':selected');
 	var $optgroupOpcaoSelecionada = $opcaoSelecionada.closest('optgroup');
 	var $spanSelect2Container = $select.next();
@@ -955,8 +1007,15 @@ function concatenarLabelOptgroupParaTemplateSelection(select){
 	var spanSelectionTitle = $spanSelection.attr('title');
 	var spanSelectionText = $spanSelection.html();
 	
-	$spanSelection.attr('title', spanSelectionTitle + ' - ' + label_optgroup);
-	$spanSelection.html(spanSelectionText + ' - ' + label_optgroup);
+	var titulo_concatenado;
+	if(prepend){
+		titulo_concatenado = label_optgroup + ' - ' + spanSelectionTitle;
+	} else {
+		titulo_concatenado = spanSelectionTitle + ' - ' + label_optgroup;
+	}
+	
+	$spanSelection.attr('title', titulo_concatenado);
+	$spanSelection.html(titulo_concatenado);
 }
 
 function toggleQuantidadeOuNomeCamposArquivosComponente(radio){
@@ -1308,7 +1367,7 @@ function toggleCheckboxArredondarZeros(selectFormatoTempo){
 	
 	var formato_tempo = $selectFormatoTempo.val();
 	
-	if(formato_tempo == 'ni'){
+	if(formato_tempo == 'hni' || formato_tempo == 'dni'){
 		$checkboxArredondarZeros.removeAttr('disabled');
 	} else {
 		$checkboxArredondarZeros.prop('checked', false).attr('disabled', 'disabled');
@@ -1427,9 +1486,6 @@ function toggleCamposValorOrcamento(selectMetodoCalculoOrcamento){
 		
 		$divColValorPontoFuncao.add($divColBotaoDetalhesCalculoVPF).hide();
 		$divColValorHoraTrabalhada.add($divColBotaoDetalhesCalculoVHT).show();
-	} else {
-		// TODO: Capers-jones
-		
 	}
 }
 
@@ -1452,4 +1508,45 @@ function validaFormOrcamentoDesenvolvimento(form){
 	}
 	
 	return false;
+}
+
+function filtrarOpcoesCheckboxRadioMenu(input){
+	var $input = $(input);
+	var $divCheckboxMenuParent = $input.parent().next();
+	
+	setTimeout(function(){
+		var busca = $input.val();
+		
+		if($.trim(busca) != ''){
+			$divCheckboxMenuParent.children('label').each(function(){
+				var $label = $(this);
+				var $spanCheckboxLabelBlock = $label.find('span.checkbox-label-block');
+
+				var texto = $spanCheckboxLabelBlock.html().toLowerCase();
+
+				if(texto.indexOf(busca) !== -1){
+					$label.show();
+				} else {
+					$label.hide();
+				}
+			});
+		} else {
+			$divCheckboxMenuParent.children('label').show();
+		}
+	}, 25);
+}
+
+function marcarCheckboxMenuNoEnterOuEspaco(campo, evento){
+	var $campo = $(campo);
+	
+	// Se teclar ENTER ou Espaço, marcar radiobutton equivalente
+	if(evento.which == 13 || evento.which == 32){
+		var $checkbox = $campo.find("input[type='checkbox']");
+		if($checkbox.is(':checked')){
+			$checkbox.prop('checked', false);
+		} else {
+			$checkbox.prop('checked', true);
+		}
+		$checkbox.trigger('change');
+	}
 }

@@ -5,11 +5,11 @@ class funcionalidade extends abstractBusiness{
     }
 	
 	// Métodos de listagem de dados
-	public function getByModulo($id_modulo){
+	public function getByModulo($id_modulo, $ordenacao='f.nome'){
 		return $this->getFieldsByParameter("f.nome, m.nome AS modulo, f.id", "f
-				JOIN sistemas m ON (f.modulo = m.id)
+				JOIN modulos m ON (f.modulo = m.id)
 			WHERE f.modulo = $id_modulo
-			ORDER BY f.nome");
+			ORDER BY $ordenacao");
 	}
 	
 	private function formataSQLByListagem($busca, $id_sistema, $id_modulo, $id_tipo_funcionalidade){
@@ -140,6 +140,47 @@ class funcionalidade extends abstractBusiness{
 			$sql_where
 			ORDER BY s.nome, m.nome, f.ordem, f.nome
 			LIMIT $limit OFFSET $offset");
+	}
+	
+	// Métodos de validações e cálculos
+	public function calcularValorPF($id){
+		$componenteFuncionalidade_rs = $this->getFieldsByParameter("tco.tipo_dado AS id_tipo_dado, co.possui_acoes, co.possui_mensagens,
+			COUNT(DISTINCT c.id) AS quantidade_campos, COUNT(DISTINCT ar.id) AS quantidade_arquivos_referenciados", "f
+				LEFT JOIN componentes co ON (co.funcionalidade = f.id)
+				LEFT JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
+				LEFT JOIN campos c ON (c.componente = co.id)
+				LEFT JOIN arquivos_referenciados ar ON (ar.componente = co.id)
+			WHERE f.id = $id
+			GROUP BY tco.tipo_dado, co.possui_acoes, co.possui_mensagens");
+		
+		$valor_total_pf = 0;
+		foreach($componenteFuncionalidade_rs as $componente_row){
+			$quantidade_tipos_dados = $componente_row['quantidade_campos'];
+			$quantidade_arquivos_referenciados = $componente_row['quantidade_arquivos_referenciados'];
+			
+			if($componente_row['possui_acoes'] == '1'){
+				$quantidade_tipos_dados++;
+			}
+			if($componente_row['possui_mensagens'] == '1'){
+				$quantidade_tipos_dados++;
+			}
+
+			$tipo_funcional = '';
+			if($componente_row['id_tipo_dado'] == 1){
+				$tipo_funcional = 'e';
+			} elseif($componente_row['id_tipo_dado'] == 2){
+				$tipo_funcional = 's';
+			} elseif($componente_row['id_tipo_dado'] == 3){
+				$tipo_funcional = 'c';
+			}			
+
+			$complexidade = cpf::calcularComplexidade($tipo_funcional, $quantidade_tipos_dados, $quantidade_arquivos_referenciados);
+			$valor = cpf::calcularValor($tipo_funcional, $complexidade);
+			
+			$valor_total_pf += $valor;
+		}
+		
+		return $valor_total_pf;
 	}
 	
 	// Métodos de escrita de dados

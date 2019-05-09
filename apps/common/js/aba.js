@@ -109,6 +109,11 @@ aba.instanciar = function(seletor, escopo){
 						// Instanciando componentes das abas ocultas
 						$aba.find('div.tabelaaberta').removeClass('oculta');
 						instanciarComponentes(null, $aba);
+						
+						// Executando callback da aba, se houver
+						if(callback_aba != ''){
+							new Function('return ' + callback_aba)();
+						}
 					}
 				}
 			});

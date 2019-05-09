@@ -7,13 +7,17 @@ $modulo = new modulo();
 $funcionalidade = new funcionalidade();
 $componente = new componente();
 $usuario = new usuario();
+$tipoSistema = new tipoSistema;
 
 $sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
 $modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
 $funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ('');
+$metodo_estimativa_prazo_lista = (isset($_GET['metodo_estimativa_prazo_lista'])) ? ($_GET['metodo_estimativa_prazo_lista']) : ('e');
 $recursos_lista = (isset($_GET['recursos_lista'])) ? ($_GET['recursos_lista']) : ('1');
 $tempo_dedicacao_lista = (isset($_GET['tempo_dedicacao_lista'])) ? ($_GET['tempo_dedicacao_lista']) : ('4');
 $indice_produtividade_lista = (isset($_GET['indice_produtividade_lista'])) ? ($_GET['indice_produtividade_lista']) : (0.5);
+$tipo_sistema_lista = (isset($_GET['tipo_sistema_lista'])) ? ($_GET['tipo_sistema_lista']) : ('');
+$expoente_capers_jones_lista = (isset($_GET['expoente_capers_jones_lista'])) ? ($_GET['expoente_capers_jones_lista']) : ('');
 $metodo_calculo_orcamento_lista = (isset($_GET['metodo_calculo_orcamento_lista'])) ? ($_GET['metodo_calculo_orcamento_lista']) : ('vht');
 $valor_hora_trabalhada_lista = (isset($_GET['valor_hora_trabalhada_lista'])) ? ($_GET['valor_hora_trabalhada_lista']) : (funcoes::encodeMonetario($usuario->getValorHoraTrabalhada($_SESSION['iduser']), 1));
 $valor_ponto_funcao_lista = (isset($_GET['valor_ponto_funcao_lista'])) ? ($_GET['valor_ponto_funcao_lista']) : (funcoes::encodeMonetario(1061.00, 1));
@@ -30,7 +34,7 @@ if(isset($_GET['ordenacao'])){
 		array('ordenacao' => 'co.ordem'),
 	);
 }
-$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hm');
+$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hhm');
 $percentual_reducao = (isset($_GET['percentual_reducao'])) ? ($_GET['percentual_reducao']) : ('100');
 if(isset($_GET['Submit'])){
 	$mostrarOrdem = (isset($_GET['mostrar_ordem']) && ($_GET['mostrar_ordem'] == 'true'));
@@ -77,6 +81,18 @@ if(is_numeric($funcionalidade_lista)){
 		$checkFuncionalidadeUnica = false;
 	}
 }
+if(is_numeric($tipo_sistema_lista)){
+	$tipoSistema_row = $tipoSistema->get($tipo_sistema_lista);
+	
+	$nome_tipo_sistema = $tipoSistema_row['nome'];
+	$expoente_minimo = $tipoSistema_row['expoente_minimo'];
+	$expoente_maximo = $tipoSistema_row['expoente_maximo'];
+} else {
+	$nome_tipo_sistema = '';
+	$expoente_minimo = 0.36;
+	$expoente_maximo = 0.45;
+}
+$placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.', ',', (string)$expoente_minimo) . ' e ' . str_replace('.', ',', (string)$expoente_maximo);
 ?>
 <section class="content-header">
 	<div class="container-fluid">
@@ -96,7 +112,7 @@ if(is_numeric($funcionalidade_lista)){
 
 <section id="corpo" class="content">
 	<div id="filtros" class="row">
-		<div class="col-10 mx-auto">
+		<div class="col-12 mx-auto">
 			<div class="card card-info">
 				<div class="card-header">
 					<h3 class="card-title">Filtros / Personalização</h3>
@@ -110,7 +126,7 @@ if(is_numeric($funcionalidade_lista)){
 									<i class="fas fa-filter"></i> Filtros
 								</a>
 							</li>
-							<li class="nav-item">
+							<li class="nav-item" data-callback="concatenarLabelOptgroupParaTemplateSelection(gE('formato_tempo'), true)">
 								<a class="nav-link" href="#">
 									<i class="fas fa-cog"></i> Personalização
 								</a>
@@ -160,10 +176,25 @@ if(is_numeric($funcionalidade_lista)){
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-md-4">
+									<div class="col-md-3">
+										<label class="form-group has-float-label">
+											<select id="metodo_estimativa_prazo_lista" name="metodo_estimativa_prazo_lista" class="select form-control"
+												onchange="toggleCamposEstimativaPrazo(this)">
+												<option value="e" <?php if($metodo_estimativa_prazo_lista == 'e') echo 'selected' ?>>
+													Estimativa de Esforço (< 100 PF)
+												</option>
+												<option value="cj" <?php if($metodo_estimativa_prazo_lista == 'cj') echo 'selected' ?>>
+													Fórmula de Capers Jones (> 100 PF)
+												</option>
+											</select>
+											<span>Método de Estimativa de Prazo</span>
+										</label>
+									</div>
+									<div class="col-md-3" <?php if($metodo_estimativa_prazo_lista != 'e') echo 'style="display: none"' ?>>
 										<div class="form-group input-group with-float-label">
 											<label class="has-float-label">
-												<input class="form-control" id="recursos_lista" name="recursos_lista" required
+												<input class="form-control" id="recursos_lista" name="recursos_lista"
+													<?php if($metodo_estimativa_prazo_lista == 'e') echo 'required' ?>
 													type="number" min="1" step="1" value="<?php echo $recursos_lista ?>"
 													placeholder="Recursos" />
 												<span>Recursos</span>
@@ -173,11 +204,12 @@ if(is_numeric($funcionalidade_lista)){
 											</div>
 										</div>
 									</div>
-									<div class="col-md-4">
+									<div class="col-md-3" <?php if($metodo_estimativa_prazo_lista != 'e') echo 'style="display: none"' ?>>
 										<div class="form-group input-group with-float-label">
 											<label class="has-float-label">
 												<input class="form-control" id="tempo_dedicacao_lista" name="tempo_dedicacao_lista" type="number"
-													min="1" value="<?php echo $tempo_dedicacao_lista ?>" placeholder="Tempo de Dedicação" required />
+													min="1" value="<?php echo $tempo_dedicacao_lista ?>" placeholder="Tempo de Dedicação"
+													<?php if($metodo_estimativa_prazo_lista == 'e') echo 'required' ?> />
 												<span>Tempo de Dedicação</span>
 											</label>
 											<div class="input-group-append">
@@ -185,17 +217,42 @@ if(is_numeric($funcionalidade_lista)){
 											</div>
 										</div>
 									</div>
-									<div class="col-md-4">
+									<div class="col-md-3" <?php if($metodo_estimativa_prazo_lista != 'e') echo 'style="display: none"' ?>>
 										<div class="form-group input-group with-float-label">
 											<label class="has-float-label">
 												<input class="form-control" id="indice_produtividade_lista" name="indice_produtividade_lista"
 													type="number" value="<?php echo $indice_produtividade_lista ?>" min="0.4" max="1.0" step="0.1"
-													placeholder="Digite um valor entre 0,4 e 1" required />
+													<?php if($metodo_estimativa_prazo_lista == 'e') echo 'required' ?>
+													placeholder="Digite um valor entre 0,4 e 1" />
 												<span>Índice de Produtividade</span>
 											</label>
 											<div class="input-group-append">
 												<span class="input-group-text">Horas / PF</span>
 											</div>
+										</div>
+									</div>
+									<div class="col-md-4" <?php if($metodo_estimativa_prazo_lista != 'cj') echo 'style="display: none"' ?>>
+										<label class="form-group has-float-label">
+											<select id="tipo_sistema_lista" name="tipo_sistema_lista" class="select form-control"
+												data-pagina="tipo_sistema_autocomplete.php" data-limite-caracteres="0"
+												<?php if($metodo_estimativa_prazo_lista == 'cj') echo 'required' ?>
+												onchange="toggleCampoExpoenteCapersJones(this)">
+												<option value="">Escolha um tipo de sistema</option>
+												<?php if(is_numeric($tipo_sistema_lista)){ ?>
+													<option value="<?php echo $tipo_sistema_lista ?>" selected><?php echo $nome_tipo_sistema ?></option>
+												<?php } ?>
+											</select>
+											<span>Tipo de Sistema</span>
+										</label>
+									</div>
+									<div class="col-md-5" <?php if($metodo_estimativa_prazo_lista != 'cj') echo 'style="display: none"' ?>>
+										<div class="form-group has-float-label">
+											<input class="form-control" id="expoente_capers_jones_lista" name="expoente_capers_jones_lista"
+												type="number" value="<?php echo $expoente_capers_jones_lista ?>"
+												min="<?php echo $expoente_minimo ?>" max="<?php echo $expoente_maximo ?>" step="0.01"
+												<?php echo (is_numeric($tipo_sistema_lista) && ($metodo_estimativa_prazo_lista == 'cj')) ? ('required') : ('disabled') ?> 
+												placeholder="<?php echo $placeholder_expoente_capers_jones ?>" />
+											<label for="expoente_capers_jones_lista">Expoente de Capers Jones</label>
 										</div>
 									</div>
 								</div>
@@ -206,7 +263,6 @@ if(is_numeric($funcionalidade_lista)){
 												onchange="toggleCamposValorOrcamento(this)">
 												<optgroup label="Setores Públicos">
 													<option value="vpf" <?php if($metodo_calculo_orcamento_lista == 'vpf') echo 'selected' ?>>Valor do Ponto de Função</option>
-													<option value="fcj" <?php if($metodo_calculo_orcamento_lista == 'fcj') echo 'selected'; else echo 'disabled' ?>>Fórmula de Capers-Jones</option>
 												</optgroup>
 												<optgroup label="Setores Privados">
 													<option value="vht" <?php if($metodo_calculo_orcamento_lista == 'vht') echo 'selected' ?>>Valor da Hora Trabalhada</option>
@@ -217,7 +273,7 @@ if(is_numeric($funcionalidade_lista)){
 									</div>
 									<div class="col-md-4 col-xs-6" <?php if($metodo_calculo_orcamento_lista != 'vpf') echo 'style="display: none"' ?>>
 										<div class="form-group input-group with-float-label">
-											<div class="input-group-prepend" style="margin-right: -10px">
+											<div class="input-group-prepend" style="margin-right: -16px">
 												<span class="input-group-text">R$</span>
 											</div>
 											<label class="has-float-label">
@@ -234,7 +290,7 @@ if(is_numeric($funcionalidade_lista)){
 									</div>
 									<div class="col-md-4 col-xs-6" <?php if($metodo_calculo_orcamento_lista != 'vht') echo 'style="display: none"' ?>>
 										<div class="form-group input-group with-float-label">
-											<div class="input-group-prepend" style="margin-right: -10px">
+											<div class="input-group-prepend" style="margin-right: -16px">
 												<span class="input-group-text">R$</span>
 											</div>
 											<label class="has-float-label">
@@ -255,7 +311,7 @@ if(is_numeric($funcionalidade_lista)){
 								<div class="row">
 									<div class="col-md-4">
 										<label for="percentual_reducao"><b>Tempo</b></label>
-										<div class="form-group input-group with-float-label">
+										<div class="form-group input-group with-float-label" style="margin-bottom: 6px">
 											<label class="has-float-label">
 												<input class="form-control" id="percentual_reducao" name="percentual_reducao"
 													type="number" value="<?php echo $percentual_reducao ?>" min="1" max="100" step="1"
@@ -266,19 +322,28 @@ if(is_numeric($funcionalidade_lista)){
 												<span class="input-group-text">%</span>
 											</div>
 										</div>
-										<label class="form-group has-float-label" style="margin-bottom: 0">
+										<label class="form-group has-float-label" style="margin-bottom: 3px">
 											<select id="formato_tempo" name="formato_tempo" class="select form-control"
-												onchange="toggleCheckboxArredondarZeros(this)">
-												<option value="hm" <?php if($formato_tempo == 'hm') echo 'selected' ?>>Horas / Minutos</option>
-												<option value="ni" <?php if($formato_tempo == 'ni') echo 'selected' ?>>Números Inteiros</option>
-												<option value="nr" <?php if($formato_tempo == 'nr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												onchange="concatenarLabelOptgroupParaTemplateSelection(this, true); toggleCheckboxArredondarZeros(this)">
+												<optgroup label="Horas / Minutos">
+													<option value="hhm" <?php if($formato_tempo == 'hhm') echo 'selected' ?>>HH:MM</option>
+													<option value="hni" <?php if($formato_tempo == 'hni') echo 'selected' ?>>Números Inteiros</option>
+													<option value="hnr" <?php if($formato_tempo == 'hnr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												</optgroup>
+												<optgroup label="Dias">
+													<option value="dni" <?php if($formato_tempo == 'dni') echo 'selected' ?>>Números Inteiros</option>
+													<option value="dnr" <?php if($formato_tempo == 'dnr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												</optgroup>
+												<optgroup label="Meses">
+													<option value="mnr" <?php if($formato_tempo == 'mnr') echo 'selected' ?>>Números Reais (2 Casas Decimais)</option>
+												</optgroup>
 											</select>
 											<span>Formato de Tempo</span>
 										</label>
 										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input"
 												id="arredondar_zeros" name="arredondar_zeros" value="true"
-												<?php if($formato_tempo != 'ni') echo 'disabled'; elseif($arredondarZeros) echo 'checked'; ?> />
+												<?php if(!in_array($formato_tempo, array('hni', 'dni'))) echo 'disabled'; elseif($arredondarZeros) echo 'checked'; ?> />
 											<label class="custom-control-label" for="arredondar_zeros">Arredondar Zeros para Cima</label>
 										</div>
 									</div>
@@ -302,21 +367,23 @@ if(is_numeric($funcionalidade_lista)){
 													</tbody>
 												</table>
 												<div class="template">
-													<select id="ordenacao_{iterador}" name="ordenacao[]" data-nome="ordenacao" class="select form-control">
-														<option value="">Escolha uma coluna</option>
-														<optgroup label="Módulo">
-															<option value="m.id">ID do módulo</option>
-															<option value="m.nome">Nome do módulo</option>
-														</optgroup>
-														<optgroup label="Funcionalidade">
-															<option value="f.ordem">Ordem da funcionalidade</option>
-															<option value="f.nome">Nome da funcionalidade</option>
-														</optgroup>
-														<optgroup label="Componente">
-															<option value="co.ordem">Ordem do componente</option>
-															<option value="tco.descricao">Nome do componente</option>
-														</optgroup>
-													</select>
+													<div style="margin-bottom: 6px">
+														<select id="ordenacao_{iterador}" name="ordenacao[]" data-nome="ordenacao" class="select form-control">
+															<option value="">Escolha uma coluna</option>
+															<optgroup label="Módulo">
+																<option value="m.id">ID do módulo</option>
+																<option value="m.nome">Nome do módulo</option>
+															</optgroup>
+															<optgroup label="Funcionalidade">
+																<option value="f.ordem">Ordem da funcionalidade</option>
+																<option value="f.nome">Nome da funcionalidade</option>
+															</optgroup>
+															<optgroup label="Componente">
+																<option value="co.ordem">Ordem do componente</option>
+																<option value="tco.descricao">Nome do componente</option>
+															</optgroup>
+														</select>
+													</div>
 												</div>
 												<div class="valores"><?php echo json_encode($ordenacao) ?></div>
 											</div>
@@ -342,7 +409,7 @@ if(is_numeric($funcionalidade_lista)){
 										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input" id="mostrar_tempo"
 												name="mostrar_tempo" value="true" <?php if($mostrarTempo) echo 'checked' ?> />
-											<label class="custom-control-label" for="mostrar_tempo">Tempo (Horas)</label>
+											<label class="custom-control-label" for="mostrar_tempo">Tempo</label>
 										</div>
 									</div>
 								</div>

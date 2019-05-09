@@ -1190,10 +1190,10 @@ class funcoes{
 	}
 	
 	public static function encodarTempoPrazosDesenvolvimentoByFormato($tempo, $formato, $arredondarZeros=false){
-		if($formato == 'hm'){
-			// Horas / Minutos
+		if($formato == 'hhm'){
+			// Horas / Minutos (HH:MM)
 			return self::encodeFloatToTime($tempo, true);
-		} elseif($formato == 'ni'){
+		} elseif(in_array($formato, array('hni', 'dni'))){
 			// Números inteiros
 			$tempo = round($tempo);
 			if($arredondarZeros && $tempo == 0) $tempo = 1;
@@ -1202,6 +1202,27 @@ class funcoes{
 			// Números reais (2 casas decimais)
 			$tempo = round($tempo, 2);
 			return self::encodeMonetario($tempo, 2);
+		}
+	}
+	
+	public static function formatarTituloTempoByFormato($formato){
+		$tipo_formato = substr($formato, 0, 1);
+		
+		if($tipo_formato == 'h'){
+			// Horas
+			if($formato == 'hhm'){
+				return 'Horas / Minutos';
+			} else {
+				return 'Horas';
+			}
+		} elseif($tipo_formato == 'd'){
+			// Dias
+			return 'Dias';
+		} elseif($tipo_formato == 'm'){
+			// Meses
+			return 'Meses';
+		} else {
+			return '';
 		}
 	}
 }

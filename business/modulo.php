@@ -5,11 +5,11 @@ class modulo extends abstractBusiness{
     }
 	
 	// Métodos de listagem de dados
-	public function getBySistema($id_sistema){
+	public function getBySistema($id_sistema, $ordenacao='m.nome'){
 		return $this->getFieldsByParameter("m.nome, s.nome AS sistema, m.id", "m
 				JOIN sistemas s ON (m.sistema = s.id)
 			WHERE m.sistema = $id_sistema
-			ORDER BY m.nome");
+			ORDER BY $ordenacao");
 	}
 	
 	public function getIdsBySistema($id_sistema){

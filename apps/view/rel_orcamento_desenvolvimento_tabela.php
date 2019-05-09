@@ -6,13 +6,17 @@ $modulo = new modulo();
 $funcionalidade = new funcionalidade();
 $componente = new componente();
 $usuario = new usuario();
+$tipoSistema = new tipoSistema;
 
 $sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
 $modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
 $funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ('');
+$metodo_estimativa_prazo_lista = (isset($_GET['metodo_estimativa_prazo_lista'])) ? ($_GET['metodo_estimativa_prazo_lista']) : ('e');
 $recursos_lista = (isset($_GET['recursos_lista'])) ? ($_GET['recursos_lista']) : ('1');
 $tempo_dedicacao_lista = (isset($_GET['tempo_dedicacao_lista'])) ? ($_GET['tempo_dedicacao_lista']) : ('4');
 $indice_produtividade_lista = (isset($_GET['indice_produtividade_lista'])) ? ($_GET['indice_produtividade_lista']) : (0.5);
+$tipo_sistema_lista = (isset($_GET['tipo_sistema_lista'])) ? ($_GET['tipo_sistema_lista']) : ('');
+$expoente_capers_jones_lista = (isset($_GET['expoente_capers_jones_lista'])) ? ($_GET['expoente_capers_jones_lista']) : ('');
 $metodo_calculo_orcamento_lista = (isset($_GET['metodo_calculo_orcamento_lista'])) ? ($_GET['metodo_calculo_orcamento_lista']) : ('vht');
 $valor_hora_trabalhada_lista = (isset($_GET['valor_hora_trabalhada_lista'])) ? ($_GET['valor_hora_trabalhada_lista']) : ($usuario->getValorHoraTrabalhada($_SESSION['iduser']));
 $valor_ponto_funcao_lista = (isset($_GET['valor_ponto_funcao_lista'])) ? ($_GET['valor_ponto_funcao_lista']) : (1061.00);
@@ -29,7 +33,7 @@ if(isset($_GET['ordenacao'])){
 		array('ordenacao' => 'co.ordem'),
 	);
 }
-$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hm');
+$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hhm');
 $percentual_reducao = (isset($_GET['percentual_reducao'])) ? ($_GET['percentual_reducao']) : ('100');
 $mostrarOrdem = (isset($_GET['mostrar_ordem']) && ($_GET['mostrar_ordem'] == 'true'));
 $mostrarComplexidade = (isset($_GET['mostrar_complexidade']) && ($_GET['mostrar_complexidade'] == 'true'));
@@ -68,8 +72,13 @@ if(is_numeric($funcionalidade_lista)){
 		$checkFuncionalidadeUnica = false;
 	}
 }
+if(is_numeric($tipo_sistema_lista)){
+	$nome_tipo_sistema = $tipoSistema->getNome($tipo_sistema_lista, 'n');
+} else {
+	$nome_tipo_sistema = '';
+}
 
-$componente_rs = $componente->getByPlanilhaOrcamentoDesenvolvimento($sistema_lista, $modulo_lista, $funcionalidade_lista, $recursos_lista, $tempo_dedicacao_lista, $indice_produtividade_lista, $metodo_calculo_orcamento_lista, $valor_hora_trabalhada_lista, $valor_ponto_funcao_lista, $percentual_reducao, $formato_tempo, $arredondarZeros, $ordenacao);
+$componente_rs = $componente->getByPlanilhaOrcamentoDesenvolvimento($sistema_lista, $modulo_lista, $funcionalidade_lista, $metodo_estimativa_prazo_lista, $recursos_lista, $tempo_dedicacao_lista, $indice_produtividade_lista, $expoente_capers_jones_lista, $metodo_calculo_orcamento_lista, $valor_hora_trabalhada_lista, $valor_ponto_funcao_lista, $percentual_reducao, $formato_tempo, $arredondarZeros, $ordenacao);
 ?>
 <div class="card-header">
 	<h3 class="card-title" style="font-weight: bold">
@@ -90,7 +99,9 @@ $componente_rs = $componente->getByPlanilhaOrcamentoDesenvolvimento($sistema_lis
 	<div class="card-tools">
 		<?php
 		$parametros = "sistema=$sistema_lista&modulo=$modulo_lista&funcionalidade=$funcionalidade_lista";
-		$parametros .= "&recursos=$recursos_lista&tempo_dedicacao=$tempo_dedicacao_lista&indice_produtividade=$indice_produtividade_lista";
+		$parametros .= "&metodo_estimativa_prazo=$metodo_estimativa_prazo_lista&recursos=$recursos_lista";
+		$parametros .= "&tempo_dedicacao=$tempo_dedicacao_lista&indice_produtividade=$indice_produtividade_lista";
+		$parametros .= "&tipo_sistema_lista=$tipo_sistema_lista&expoente_capers_jones_lista=$expoente_capers_jones_lista";
 		$parametros .= "&metodo_calculo_orcamento_lista=$metodo_calculo_orcamento_lista&valor_hora_trabalhada_lista=$valor_hora_trabalhada_lista&valor_ponto_funcao_lista=$valor_ponto_funcao_lista";
 		if($mostrarOrdem) $parametros .= "&mostrar_ordem=true";
 		if($mostrarComplexidade) $parametros .= "&mostrar_complexidade=true";
@@ -125,7 +136,7 @@ $componente_rs = $componente->getByPlanilhaOrcamentoDesenvolvimento($sistema_lis
 					<?php } ?>
 					<?php if($mostrarTempo){ ?>
 						<th class="align-middle" style="background-color: #fafafa">
-							Tempo (<?php echo ($formato_tempo == 'hm') ? ('Horas / Minutos') : ('Horas') ?>)
+							Tempo (<?php echo funcoes::formatarTituloTempoByFormato($formato_tempo) ?>)
 						</th>
 					<?php } ?>
 					<th class="align-middle" style="background-color: #fafafa">Custo (R$)</th>
@@ -149,13 +160,21 @@ $componente_rs = $componente->getByPlanilhaOrcamentoDesenvolvimento($sistema_lis
 				
 				foreach($componente_rs as $componente_row){
 					$rowspan = $componente_row['rowspan'];
+					
+					if(in_array($formato_tempo, array('hni', 'dni'))){
+						$tempo = funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo'], $formato_tempo, $arredondarZeros);
+					} elseif(in_array($formato_tempo, array('hnr', 'dnr', 'mnr'))){
+						$tempo = round($componente_row['tempo'], 2);
+					} else {
+						$tempo = $componente_row['tempo'];
+					}
 
 					$totais_gerais['valor_pf'] += $componente_row['valor_pf'];
-					$totais_gerais['tempo'] += $componente_row['tempo'];
+					$totais_gerais['tempo'] += $tempo;
 					$totais_gerais['custo'] += $componente_row['custo'];
 
-					if(in_array($formato_tempo, array('hm', 'nr'))){
-						$componente_row['tempo'] = funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo'], $formato_tempo);
+					if(in_array($formato_tempo, array('hhm', 'hnr', 'dnr', 'mnr'))){
+						$tempo = funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo'], $formato_tempo);
 					}
 					?>
 					<tr>
@@ -201,7 +220,7 @@ $componente_rs = $componente->getByPlanilhaOrcamentoDesenvolvimento($sistema_lis
 							<td><?php echo $componente_row['valor_pf'] ?></td>
 						<?php } ?>
 						<?php if($mostrarTempo){ ?>
-							<td><?php echo $componente_row['tempo'] ?></td>
+							<td><?php echo $tempo ?></td>
 						<?php } ?>
 						<th><?php echo funcoes::encodeMonetario($componente_row['custo'], 1) ?></th>
 					</tr>

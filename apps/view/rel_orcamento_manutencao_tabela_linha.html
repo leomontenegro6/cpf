@@ -1,0 +1,63 @@
+{{for componentes ~array=componentes}}
+	{{if #index == 0}}
+		<tr data-id-funcionalidade="{{>~root.id}}" data-id-componente="{{>id}}">
+			<td rowspan="{{:~array.length}}" class="ordem text-center align-middle">
+				<div class="{{if ~array.length > 1}}btn-group-vertical{{else}}btn-group{{/if}}" role="group">
+					<button type="button" title="Subir funcionalidade" class="btn btn-default btn-sm"
+						onclick="orcamentoManutencao.toggleOrdemFuncionalidade(this, true)">
+						<i class="fa fa-chevron-up"></i>
+					</button>
+					<button type="button" title="Descer funcionalidade" class="btn btn-default btn-sm"
+						onclick="orcamentoManutencao.toggleOrdemFuncionalidade(this, false)">
+						<i class="fa fa-chevron-down"></i>
+					</button>
+				</div>
+				
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][modulo]" value="{{>~root.modulo}}" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][funcionalidade]" value="{{>~root.funcionalidade}}" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][componente]" value="{{>componente}}" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][tipo_manutencao]" value="{{>tipo_manutencao}}" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][valor_pf_original]" value="{{>valor_pf_original}}" class="valor_pf_original" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][valor_pf_ajustado]" value="{{>valor_pf_ajustado}}" class="valor_pf_ajustado" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][tempo]" value="{{>tempo}}" class="tempo" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][custo]" value="{{>custo}}" class="custo" />
+			</td>
+			<td class="modulo" rowspan="{{:~array.length}}">{{>~root.modulo}}</td>
+			<td class="funcionalidade" rowspan="{{:~array.length}}">{{>~root.funcionalidade}}</td>
+			<td class="text-center align-middle">
+				<button type="button" title="Excluir componente desta funcionalidade" class="btn btn-danger btn-sm"
+					onclick="orcamentoManutencao.excluirComponenteFuncionalidade(this)">
+					<i class="fa fa-times"></i>
+				</button>
+			</td>
+			<td>{{>componente}}</td>
+			<td>{{>tipo_manutencao}}</td>
+			<td class="valor_pf_original_formatado">{{>valor_pf_original}}</td>
+			<td class="valor_pf_ajustado_formatado">{{>valor_pf_ajustado}}</td>
+			<td class="tempo_formatado">{{>tempo}}</td>
+			<td class="custo_formatado">{{>custo}}</td>
+		</tr>
+	{{else}}
+		<tr data-id-funcionalidade="{{>~root.id}}" data-id-componente="{{>id}}">
+			<td class="text-center align-middle">
+				<button type="button" title="Excluir componente desta funcionalidade" class="btn btn-danger btn-sm"
+					onclick="orcamentoManutencao.excluirComponenteFuncionalidade(this)">
+					<i class="fa fa-times"></i>
+				</button>
+				
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][componente]" value="{{>componente}}" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][tipo_manutencao]" value="{{>tipo_manutencao}}" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][valor_pf_original]" value="{{>valor_pf_original}}" class="valor_pf_original" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][valor_pf_ajustado]" value="{{>valor_pf_ajustado}}" class="valor_pf_ajustado" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][tempo]" value="{{>tempo}}" class="tempo" />
+				<input type="hidden" name="funcionalidades[{{>~root.id}}][componentes][{{>id}}][custo]" value="{{>custo}}" class="custo" />
+			</td>
+			<td>{{>componente}}</td>
+			<td>{{>tipo_manutencao}}</td>
+			<td class="valor_pf_original_formatado">{{>valor_pf_original}}</td>
+			<td class="valor_pf_ajustado_formatado">{{>valor_pf_ajustado}}</td>
+			<td class="tempo_formatado">{{>tempo}}</td>
+			<td class="custo_formatado">{{>custo}}</td>
+		</tr>
+	{{/if}}
+{{/for}}

@@ -49,9 +49,14 @@ class menu{
 						'pagina' => 'rel_prazos_desenvolvimento_lista.php',
 					),
 					array(
-						'nome' => 'Orçamento',
+						'nome' => 'Orçamento de Desenvolvimento',
 						'icone' => 'fa-dollar-sign',
 						'pagina' => 'rel_orcamento_desenvolvimento_lista.php',
+					),
+					array(
+						'nome' => 'Orçamento de Manutenção',
+						'icone' => 'fa-tools',
+						'pagina' => 'rel_orcamento_manutencao_lista.php',
 					)
 				)
 			)
@@ -81,7 +86,7 @@ class menu{
 			}
 			?>
 			<li class="nav-item <?php if($checkTemFilhos) echo 'has-treeview' ?> <?php if($checkPaiEstaNaPaginaAtual) echo 'menu-open' ?>">
-				<a <?php if(!empty($pagina)){ echo "href='$pagina'"; } else { echo "href=''"; } ?>
+				<a <?php if(!empty($pagina)){ echo "href='$pagina'"; } else { echo "href=''"; } ?> title="<?php echo $nome ?>"
 					class="nav-link <?php if($checkEstaNaPaginaAtual || $checkPaiEstaNaPaginaAtual) echo 'active' ?>">
 					<i class="nav-icon fa <?php echo $icone ?>"></i>
 					<p>

@@ -17,12 +17,24 @@ $indice_produtividade_lista = (isset($_GET['indice_produtividade_lista'])) ? ($_
 $tipo_sistema_lista = (isset($_GET['tipo_sistema_lista'])) ? ($_GET['tipo_sistema_lista']) : ('');
 $expoente_capers_jones_lista = (isset($_GET['expoente_capers_jones_lista'])) ? ($_GET['expoente_capers_jones_lista']) : ('');
 
+if(isset($_GET['ordenacao'])){
+	$ordenacao = array();
+	foreach($_GET['ordenacao'] as $o){
+		array_push($ordenacao, array('ordenacao' => $o));
+	}
+} else {
+	$ordenacao = array(
+		array('ordenacao' => 'm.id'),
+		array('ordenacao' => 'f.ordem'),
+		array('ordenacao' => 'co.ordem'),
+	);
+}
 $mostrarOrdem = (isset($_GET['mostrar_ordem']) && ($_GET['mostrar_ordem'] == 'true'));
 $mostrarComplexidade = (isset($_GET['mostrar_complexidade']) && ($_GET['mostrar_complexidade'] == 'true'));
 $mostrarValorPF = (isset($_GET['mostrar_valor_pf']) && ($_GET['mostrar_valor_pf'] == 'true'));
 $arredondarZeros = (isset($_GET['arredondar_zeros']) && ($_GET['arredondar_zeros'] == 'true'));
 $modo_exibicao_tempo = (isset($_GET['modo_exibicao_tempo'])) ? ($_GET['modo_exibicao_tempo']) : ('u');
-$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hm');
+$formato_tempo = (isset($_GET['formato_tempo'])) ? ($_GET['formato_tempo']) : ('hhm');
 $percentual_reducao_unico = (isset($_GET['percentual_reducao_unico'])) ? ($_GET['percentual_reducao_unico']) : ('45');
 if(isset($_GET['esforco_disciplinas'])){
 	$esforco_disciplinas = $_GET['esforco_disciplinas'];
@@ -88,7 +100,7 @@ if(is_numeric($tipo_sistema_lista)){
 	$nome_tipo_sistema = '';
 }
 
-$componente_rs = $componente->getByPlanilhaPrazosDesenvolvimento($sistema_lista, $modulo_lista, $funcionalidade_lista, $metodo_estimativa_prazo_lista, $recursos_lista, $tempo_dedicacao_lista, $indice_produtividade_lista, $expoente_capers_jones_lista, $modo_exibicao_tempo, $percentual_reducao_unico, $esforco_disciplinas);
+$componente_rs = $componente->getByPlanilhaPrazosDesenvolvimento($sistema_lista, $modulo_lista, $funcionalidade_lista, $metodo_estimativa_prazo_lista, $recursos_lista, $tempo_dedicacao_lista, $indice_produtividade_lista, $expoente_capers_jones_lista, $modo_exibicao_tempo, $percentual_reducao_unico, $esforco_disciplinas, $formato_tempo, $ordenacao);
 
 $rowspan_tempo = 1;
 if(isset($esforco_disciplinas['analise']['exibir'])){
@@ -159,11 +171,11 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 					<?php } ?>
 					<?php if($modo_exibicao_tempo == 'u'){ ?>
 						<th rowspan="2" class="align-middle" style="background-color: #fafafa">
-							Tempo (<?php echo ($formato_tempo == 'hm') ? ('Horas / Minutos') : ('Horas') ?>)
+							Tempo (<?php echo funcoes::formatarTituloTempoByFormato($formato_tempo) ?>)
 						</th>
 					<?php } else { ?>
 						<th colspan="<?php echo $rowspan_tempo ?>" class="text-center" style="background-color: #fafafa">
-							Tempo (<?php echo ($formato_tempo == 'hm') ? ('Horas / Minutos') : ('Horas') ?>)
+							Tempo (<?php echo funcoes::formatarTituloTempoByFormato($formato_tempo) ?>)
 						</th>
 					<?php } ?>
 				</tr>
@@ -211,9 +223,9 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 
 					$tempo_total = 0;
 					if($modo_exibicao_tempo == 'u'){
-						if($formato_tempo == 'ni'){
+						if(in_array($formato_tempo, array('hni', 'dni'))){
 							$tempos = funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo'], $formato_tempo, $arredondarZeros);
-						} elseif($formato_tempo == 'nr'){
+						} elseif(in_array($formato_tempo, array('hnr', 'dnr', 'mnr'))){
 							$tempos = round($componente_row['tempo'], 2);
 						} else {
 							$tempos = $componente_row['tempo'];
@@ -222,18 +234,18 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 						$totais_gerais['valor_pf'] += $componente_row['valor_pf'];
 						$totais_gerais['tempo']['total'] += $tempos;
 
-						if(in_array($formato_tempo, array('hm', 'nr'))){
+						if(in_array($formato_tempo, array('hhm', 'hnr', 'dnr', 'mnr'))){
 							$tempos = funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo'], $formato_tempo);
 						}
 					} else {
-						if($formato_tempo == 'ni'){
+						if(in_array($formato_tempo, array('hni', 'dni'))){
 							$tempos = array(
 								'analise' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['analise'], $formato_tempo, $arredondarZeros),
 								'desenvolvimento' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['desenvolvimento'], $formato_tempo, $arredondarZeros),
 								'testes' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['testes'], $formato_tempo, $arredondarZeros),
 								'implantacao' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['implantacao'], $formato_tempo, $arredondarZeros)
 							);
-						} elseif($formato_tempo == 'nr'){
+						} elseif(in_array($formato_tempo, array('hnr', 'dnr', 'mnr'))){
 							$tempos = array(
 								'analise' => round($componente_row['tempo']['analise'], 2),
 								'desenvolvimento' => round($componente_row['tempo']['desenvolvimento'], 2),
@@ -268,7 +280,7 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 						}
 						$totais_gerais['tempo']['total'] += $tempo_total;
 
-						if(in_array($formato_tempo, array('hm', 'nr'))){
+						if(in_array($formato_tempo, array('hhm', 'hnr', 'dnr', 'mnr'))){
 							$tempos = array(
 								'analise' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['analise'], $formato_tempo),
 								'desenvolvimento' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['desenvolvimento'], $formato_tempo),
