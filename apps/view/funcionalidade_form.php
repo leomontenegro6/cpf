@@ -23,7 +23,14 @@ if(isset($_POST['id'])){
 } else {
 	$acao = 'cadastrar';
 	
-	$id = $id_modulo = $id_sistema = $nome = $id_tipo_funcionalidade = $ordem = '';
+	$id = $nome = $id_tipo_funcionalidade = '';
+	$id_sistema = (isset($_GET['sistema'])) ? ($_GET['sistema']) : ('');
+	$id_modulo = (isset($_GET['modulo'])) ? ($_GET['modulo']) : ('');
+	if(is_numeric($id_modulo)){
+		$ordem = $funcionalidade->getProximaOrdemByModulo($id_modulo);
+	} else {
+		$ordem = '';
+	}
 }
 
 $tipoFuncionalidade_rs = $tipoFuncionalidade->getAll();
@@ -54,7 +61,7 @@ $tipoFuncionalidade_rs = $tipoFuncionalidade->getAll();
 					<label class="form-group has-float-label">
 						<select id="modulo" name="funcionalidade[modulo]" class="select form-control"
 							data-pagina="modulo_autocomplete.php?sistema={sistema}" data-limite-caracteres="0"
-							required onchange="definirModuloSistema(this, 'modulo', 'sistema')">
+							required onchange="definirModuloSistema(this, 'modulo', 'sistema'); definirProximaOrdemFuncionalidade(this)">
 							<option value="">Escolha um módulo</option>
 							<?php if(is_numeric($id_modulo)){ ?>
 								<option value="<?php echo $id_modulo ?>" selected><?php echo $modulo->getNome($id_modulo, 'n') ?></option>

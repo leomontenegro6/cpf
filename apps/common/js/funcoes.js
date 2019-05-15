@@ -841,6 +841,42 @@ function abortarPaginaChamada(ajax){
 	}
 }
 
+function salvarPersistenciaMenuMinimizado(){
+	if(dispositivo != 'xs'){
+		setTimeout(function(){
+			var $body = $('body');
+			var opcao_menu_minimizado;
+			if($body.hasClass('sidebar-collapse')){
+				opcao_menu_minimizado = 'true';
+			} else {
+				opcao_menu_minimizado = 'false';
+			}
+			chamarPagina('sessao_crud.php', 'acao=set_menu_minimizado&menu_minimizado=' + opcao_menu_minimizado, function(){
+				// Atualizando variável global de menu minimizado
+				menu_minimizado = opcao_menu_minimizado;
+			});
+		}, 25);
+	}
+}
+
+function salvarSistemaModuloFuncionalidadeSessao(){
+	setTimeout(function(){
+		var $selectSistemaSessao = $('#sistema_sessao');
+		var $selectModuloSessao = $('#modulo_sessao');
+		var $selectFuncionalidadeSessao = $('#funcionalidade_sessao');
+
+		var id_sistema_sessao = $selectSistemaSessao.val();
+		var id_modulo_sessao = $selectModuloSessao.val();
+		var id_funcionalidade_sessao = $selectFuncionalidadeSessao.val();
+
+		var parametros = 'sistema=' + id_sistema_sessao;
+		parametros += '&modulo=' + id_modulo_sessao;
+		parametros += '&funcionalidade=' + id_funcionalidade_sessao;
+		parametros += '&acao=set_sistema_modulo_funcionalidade_sessao';
+		chamarPagina('sessao_crud.php', parametros);
+	}, 25);
+}
+
 function validaFormAlterarSenha(form){
 	return validaForm(form, undefined, undefined, undefined, function(){
 		jInfo('Senha redefinida com sucesso!<br />Realize o login com a nova senha!', undefined, function(){
@@ -970,6 +1006,30 @@ function definirModuloSistema(campo, id_campo_modulo, id_campo_sistema, callback
     } else {
 		if(callback_sistema) callback_sistema(false);
 	}
+}
+
+function cadastrarNovaFuncionalidade(){
+	var $divFiltros = $('#filtros');
+	var $selectSistema = $divFiltros.find("select[name='sistema_lista']");
+	var $selectModulo = $divFiltros.find("select[name='modulo_lista']");
+	
+	var id_sistema = $selectSistema.val();
+	var id_modulo = $selectModulo.val();
+	
+	var parametros = '';
+	if(id_sistema != '') parametros += '&sistema=' + id_sistema;
+	if(id_modulo != '') parametros += '&modulo=' + id_modulo;
+	return jFormGrande('funcionalidade_form.php?' + parametros);
+}
+
+function definirProximaOrdemFuncionalidade(selectModulo){
+	var $selectModulo = $(selectModulo);
+	var $inputOrdem = $('#ordem');
+	
+    var item_selecionado = $selectModulo.select2('data')[0];
+	var proxima_ordem = item_selecionado['proxima_ordem'];
+	
+	$inputOrdem.val(proxima_ordem);
 }
 
 function carregarComponentesByTipoFuncionalidade(campoTipoFuncionalidade){
@@ -1130,6 +1190,33 @@ function instanciarComponenteBootstrapTagsinput(campo, escopo){
 		
 		$select.attr('data-instanciado', 'true');
 	});
+}
+
+function cadastrarNovoComponente(){
+	var $divFiltros = $('#filtros');
+	var $selectSistema = $divFiltros.find("select[name='sistema_lista']");
+	var $selectModulo = $divFiltros.find("select[name='modulo_lista']");
+	var $selectFuncionalidade = $divFiltros.find("select[name='funcionalidade_lista']");
+	
+	var id_sistema = $selectSistema.val();
+	var id_modulo = $selectModulo.val();
+	var id_funcionalidade = $selectFuncionalidade.val();
+	
+	var parametros = '';
+	if(id_sistema != '') parametros += '&sistema=' + id_sistema;
+	if(id_modulo != '') parametros += '&modulo=' + id_modulo;
+	if(id_funcionalidade != '') parametros += '&funcionalidade=' + id_funcionalidade;
+	return jFormGrande('componente_form.php?' + parametros);
+}
+
+function definirProximaOrdemComponente(selectFuncionalidade){
+	var $selectFuncionalidade = $(selectFuncionalidade);
+	var $inputOrdem = $('#ordem');
+	
+    var item_selecionado = $selectFuncionalidade.select2('data')[0];
+	var proxima_ordem = item_selecionado['proxima_ordem'];
+	
+	$inputOrdem.val(proxima_ordem);
 }
 
 function calcularComplexidadeEValorComponente(elemento){
@@ -1392,19 +1479,30 @@ function toggleCamposModoExibicao(selectModoExibicao){
 	}
 }
 
+function toggleSliderEsforcoDisciplina(checkboxAtivar){
+	var $checkboxAtivar = $(checkboxAtivar);
+	var $divGridTableAtual = $checkboxAtivar.closest('div.grid-table');
+	var $inputPercentualEsforco = $divGridTableAtual.find('input.slider');
+	
+	if($checkboxAtivar.is(':checked')){
+		$inputPercentualEsforco.slider('enable');
+	} else {
+		$inputPercentualEsforco.slider('setValue', 0, false, true);
+		$inputPercentualEsforco.slider('disable');
+	}
+}
+
 function balancearPercentuaisEsforcoDisciplinas(inputAtual, evento){
 	var $inputAtual = $(inputAtual);
+	var $divPercentuaisDisciplinas = $('#modo_exibicao_tempos_divididos');
 	var $divGridTableAtual = $inputAtual.closest('div.grid-table');
 	var $spanRotuloPercentualAtual = $divGridTableAtual.find('span.badge');
-	var $inputPercentualEsforcoAnalise = $('#esforco_disciplinas_analise_percentual');
-	var $inputPercentualEsforcoDesenvolvimento = $('#esforco_disciplinas_desenvolvimento_percentual');
-	var $inputPercentualEsforcoTestes = $('#esforco_disciplinas_testes_percentual');
-	var $inputPercentualEsforcoImplantacao = $('#esforco_disciplinas_implantacao_percentual');
-	var $inputsPercentuaisEsforco = $inputPercentualEsforcoAnalise.add($inputPercentualEsforcoDesenvolvimento).add($inputPercentualEsforcoTestes).add($inputPercentualEsforcoImplantacao);
+	var $inputsPercentuaisEsforco = $divPercentuaisDisciplinas.find('div.slider').not('.slider-disabled').next();
 	
+	var total_disciplinas = $inputsPercentuaisEsforco.length;
 	var percentual_anterior = evento.value.oldValue;
 	var percentual_atual = evento.value.newValue;
-	var percentual_dividir = (percentual_atual - percentual_anterior) / 3;
+	var percentual_dividir = (percentual_atual - percentual_anterior) / (total_disciplinas - 1);
 	
 	$spanRotuloPercentualAtual.html(Math.round(percentual_atual) + '%');
 	

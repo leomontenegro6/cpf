@@ -8,9 +8,9 @@ $funcionalidade = new funcionalidade();
 $componente = new componente();
 $tipoSistema = new tipoSistema;
 
-$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
-$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
-$funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ('');
+$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ($_SESSION['sistema_sessao']);
+$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ($_SESSION['modulo_sessao']);
+$funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ($_SESSION['funcionalidade_sessao']);
 $metodo_estimativa_prazo_lista = (isset($_GET['metodo_estimativa_prazo_lista'])) ? ($_GET['metodo_estimativa_prazo_lista']) : ('e');
 $recursos_lista = (isset($_GET['recursos_lista'])) ? ($_GET['recursos_lista']) : ('1');
 $tempo_dedicacao_lista = (isset($_GET['tempo_dedicacao_lista'])) ? ($_GET['tempo_dedicacao_lista']) : ('4');
@@ -72,7 +72,7 @@ if(isset($_GET['esforco_disciplinas'])){
 }
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getNome($sistema_lista, 'n');
+	$nome_sistema = $sistema->getDescricao($sistema_lista);
 	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
 } else {
 	$nome_sistema = '';
@@ -404,7 +404,7 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 										<div class="col-md-3">
 											<div class="custom-control custom-checkbox">
 												<input type="checkbox" class="custom-control-input" id="esforco_disciplinas_analise_exibir"
-													name="esforco_disciplinas[analise][exibir]" value="true"
+													name="esforco_disciplinas[analise][exibir]" value="true" onchange="toggleSliderEsforcoDisciplina(this)"
 													<?php if(isset($esforco_disciplinas['analise']['exibir'])) echo 'checked' ?> />
 												<label class="custom-control-label" for="esforco_disciplinas_analise_exibir">Análise</label>
 											</div>
@@ -425,7 +425,7 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 										<div class="col-md-3">
 											<div class="custom-control custom-checkbox">
 												<input type="checkbox" class="custom-control-input" id="esforco_disciplinas_desenvolvimento_exibir"
-													name="esforco_disciplinas[desenvolvimento][exibir]" value="true"
+													name="esforco_disciplinas[desenvolvimento][exibir]" value="true" onchange="toggleSliderEsforcoDisciplina(this)"
 													<?php if(isset($esforco_disciplinas['desenvolvimento']['exibir'])) echo 'checked' ?> />
 												<label class="custom-control-label" for="esforco_disciplinas_desenvolvimento_exibir">Desenvolvimento</label>
 											</div>
@@ -446,7 +446,7 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 										<div class="col-md-3">
 											<div class="custom-control custom-checkbox">
 												<input type="checkbox" class="custom-control-input" id="esforco_disciplinas_testes_exibir"
-													name="esforco_disciplinas[testes][exibir]" value="true"
+													name="esforco_disciplinas[testes][exibir]" value="true" onchange="toggleSliderEsforcoDisciplina(this)"
 													<?php if(isset($esforco_disciplinas['testes']['exibir'])) echo 'checked' ?> />
 												<label class="custom-control-label" for="esforco_disciplinas_testes_exibir">Testes</label>
 											</div>
@@ -467,7 +467,7 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 										<div class="col-md-3">
 											<div class="custom-control custom-checkbox">
 												<input type="checkbox" class="custom-control-input" id="esforco_disciplinas_implantacao_exibir"
-													name="esforco_disciplinas[implantacao][exibir]" value="true"
+													name="esforco_disciplinas[implantacao][exibir]" value="true" onchange="toggleSliderEsforcoDisciplina(this)"
 													<?php if(isset($esforco_disciplinas['implantacao']['exibir'])) echo 'checked' ?> />
 												<label class="custom-control-label" for="esforco_disciplinas_implantacao_exibir">Implantação</label>
 											</div>

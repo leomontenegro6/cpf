@@ -6,8 +6,8 @@ $sistema = new sistema();
 $modulo = new modulo();
 $tipoFuncionalidade = new tipoFuncionalidade();
 
-$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
-$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
+$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ($_SESSION['sistema_sessao']);
+$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ($_SESSION['modulo_sessao']);
 $tipo_funcionalidade_lista = (isset($_GET['tipo_funcionalidade_lista'])) ? ($_GET['tipo_funcionalidade_lista']) : ('');
 
 $checkExibirFiltros = (!empty($sistema_lista) || !empty($modulo_lista) || !empty($tipo_funcionalidade_lista));
@@ -48,7 +48,7 @@ $tipoFuncionalidade_rs = $tipoFuncionalidade->getAll();
 										onchange="select.limpar( gE('modulo_lista') )">
 										<option value="">Todos</option>
 										<?php if(is_numeric($sistema_lista)){ ?>
-											<option value="<?php echo $sistema_lista ?>" selected><?php echo $sistema->getNome($sistema_lista, 'n') ?></option>
+											<option value="<?php echo $sistema_lista ?>" selected><?php echo $sistema->getDescricao($sistema_lista) ?></option>
 										<?php } ?>
 									</select>
 									<span>Sistema</span>

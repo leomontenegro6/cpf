@@ -1,5 +1,5 @@
 <?php if($ajax === false){ ?>
-	<body class="hold-transition sidebar-mini">
+	<body class="hold-transition sidebar-mini <?php echo ($_SESSION['menu_minimizado']) ? ('sidebar-collapse') : ('sidebar-open') ?>">
 		<!-- Site wrapper -->
 		<div class="wrapper">
 			<!-- Navbar -->
@@ -7,7 +7,7 @@
 				<!-- Left navbar links -->
 				<ul class="navbar-nav">
 					<li class="nav-item">
-						<a class="nav-link" data-widget="pushmenu" href="#"><i class="fa fa-bars"></i></a>
+						<a class="nav-link" data-widget="pushmenu" href="#" onclick="salvarPersistenciaMenuMinimizado()"><i class="fa fa-bars"></i></a>
 					</li>
 				</ul>
 
@@ -69,7 +69,7 @@
 				<div class="sidebar">
 					<!-- Sidebar Menu -->
 					<nav class="mt-2">
-						<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+						<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" data-instanciado="true">
 							<?php menu::montar($_SESSION['menu'], $endereco) ?>
 						</ul>
 					</nav>

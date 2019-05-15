@@ -6,12 +6,12 @@ $sistema = new sistema();
 $modulo = new modulo();
 $componente = new componente();
 
-$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
-$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
+$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ($_SESSION['sistema_sessao']);
+$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ($_SESSION['modulo_sessao']);
 $detalhar_campos_arquivos = (isset($_GET['detalhar_campos_arquivos']) && ($_GET['detalhar_campos_arquivos'] == 'true'));
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getNome($sistema_lista, 'n');
+	$nome_sistema = $sistema->getDescricao($sistema_lista);
 	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
 } else {
 	$nome_sistema = '';

@@ -86,4 +86,46 @@ class modulo extends abstractBusiness{
 			ORDER BY s.nome, m.nome
 			LIMIT $limit OFFSET $offset");
 	}
+	
+	// Métodos de validações e cálculos
+	public function calcularValorPF($id){
+		$componenteModulo_rs = $this->getFieldsByParameter("co.id AS id_componente, tco.tipo_dado AS id_tipo_dado, co.possui_acoes, co.possui_mensagens,
+			COUNT(DISTINCT c.id) AS quantidade_campos, COUNT(DISTINCT ar.id) AS quantidade_arquivos_referenciados", "m
+				JOIN funcionalidades f ON (f.modulo = m.id)
+				LEFT JOIN componentes co ON (co.funcionalidade = f.id)
+				LEFT JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
+				LEFT JOIN campos c ON (c.componente = co.id)
+				LEFT JOIN arquivos_referenciados ar ON (ar.componente = co.id)
+			WHERE m.id = $id
+			GROUP BY co.id, tco.tipo_dado, co.possui_acoes, co.possui_mensagens");
+		
+		$valor_total_pf = 0;
+		foreach($componenteModulo_rs as $componente_row){
+			$quantidade_tipos_dados = $componente_row['quantidade_campos'];
+			$quantidade_arquivos_referenciados = $componente_row['quantidade_arquivos_referenciados'];
+			
+			if($componente_row['possui_acoes'] == '1'){
+				$quantidade_tipos_dados++;
+			}
+			if($componente_row['possui_mensagens'] == '1'){
+				$quantidade_tipos_dados++;
+			}
+
+			$tipo_funcional = '';
+			if($componente_row['id_tipo_dado'] == 1){
+				$tipo_funcional = 'e';
+			} elseif($componente_row['id_tipo_dado'] == 2){
+				$tipo_funcional = 's';
+			} elseif($componente_row['id_tipo_dado'] == 3){
+				$tipo_funcional = 'c';
+			}			
+
+			$complexidade = cpf::calcularComplexidade($tipo_funcional, $quantidade_tipos_dados, $quantidade_arquivos_referenciados);
+			$valor = cpf::calcularValor($tipo_funcional, $complexidade);
+			
+			$valor_total_pf += $valor;
+		}
+		
+		return $valor_total_pf;
+	}
 }

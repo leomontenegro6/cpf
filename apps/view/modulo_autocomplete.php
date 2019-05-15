@@ -8,6 +8,7 @@ if(!isset($_SESSION['login'])){
 require_once '../../utils/autoload.php';
 
 $modulo = new modulo();
+$funcionalidade = new funcionalidade();
 
 $dados = autocomplete::interpretarDados($_GET);
 $busca = $dados['busca'];
@@ -51,6 +52,7 @@ foreach($modulo_rs as $modulo_row) {
 		'label'=>$nome_modulo,
 		'nome_sistema'=>$nome_sistema,
 		'id_sistema'=>$id_sistema,
+		'proxima_ordem'=>$funcionalidade->getProximaOrdemByModulo($modulo_row['id']),
 		'id'=>$modulo_row['id']
 	));
 }

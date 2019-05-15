@@ -42,7 +42,7 @@ $mostrarTempo = (isset($_GET['mostrar_tempo']) && ($_GET['mostrar_tempo'] == 'tr
 $arredondarZeros = (isset($_GET['arredondar_zeros']) && ($_GET['arredondar_zeros'] == 'true'));
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getNome($sistema_lista, 'n');
+	$nome_sistema = $sistema->getDescricao($sistema_lista);
 	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
 } else {
 	$nome_sistema = '';

@@ -134,8 +134,10 @@ function cpf(){
 			return 'Baixa';
 		} else if(complexidade == 'media'){
 			return 'Média';
-		} else {
+		} else if(complexidade == 'alta'){
 			return 'Alta';
+		} else {
+			return '---';
 		}
 	}
 	

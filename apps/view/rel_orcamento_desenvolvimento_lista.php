@@ -9,9 +9,9 @@ $componente = new componente();
 $usuario = new usuario();
 $tipoSistema = new tipoSistema;
 
-$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
-$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
-$funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ('');
+$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ($_SESSION['sistema_sessao']);
+$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ($_SESSION['modulo_sessao']);
+$funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ($_SESSION['funcionalidade_sessao']);
 $metodo_estimativa_prazo_lista = (isset($_GET['metodo_estimativa_prazo_lista'])) ? ($_GET['metodo_estimativa_prazo_lista']) : ('e');
 $recursos_lista = (isset($_GET['recursos_lista'])) ? ($_GET['recursos_lista']) : ('1');
 $tempo_dedicacao_lista = (isset($_GET['tempo_dedicacao_lista'])) ? ($_GET['tempo_dedicacao_lista']) : ('4');
@@ -51,7 +51,7 @@ if(isset($_GET['Submit'])){
 }
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getNome($sistema_lista, 'n');
+	$nome_sistema = $sistema->getDescricao($sistema_lista);
 	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
 } else {
 	$nome_sistema = '';
@@ -286,7 +286,8 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 										</div>
 									</div>
 									<div class="col-md-4 col-xs-6" <?php if($metodo_calculo_orcamento_lista != 'vpf') echo 'style="display: none"' ?>>
-										<button type="button" class="btn btn-primary" title="Como este valor foi calculado?">Como foi calculado?</button>
+										<button type="button" class="btn btn-primary" title="Como este valor foi calculado?"
+											onclick="jModalGrande('como_foi_calculado_valor_ponto_funcao.html')">Como foi calculado?</button>
 									</div>
 									<div class="col-md-4 col-xs-6" <?php if($metodo_calculo_orcamento_lista != 'vht') echo 'style="display: none"' ?>>
 										<div class="form-group input-group with-float-label">
@@ -303,7 +304,8 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 										</div>
 									</div>
 									<div class="col-md-4 col-xs-6" <?php if($metodo_calculo_orcamento_lista != 'vht') echo 'style="display: none"' ?>>
-										<button type="button" class="btn btn-primary" title="Como calcular o valor da hora trabalhada?">Como calcular?</button>
+										<button type="button" class="btn btn-primary" title="Como calcular o valor da hora trabalhada?"
+											onclick="jModalGrande('como_calcular_valor_hora_trabalhada.html')">Como calcular?</button>
 									</div>
 								</div>
 							</div>

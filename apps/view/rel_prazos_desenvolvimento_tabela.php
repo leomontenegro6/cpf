@@ -64,7 +64,7 @@ if(isset($_GET['esforco_disciplinas'])){
 }
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getNome($sistema_lista, 'n');
+	$nome_sistema = $sistema->getDescricao($sistema_lista);
 	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
 } else {
 	$nome_sistema = '';

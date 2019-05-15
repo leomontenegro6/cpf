@@ -142,6 +142,15 @@ class funcionalidade extends abstractBusiness{
 			LIMIT $limit OFFSET $offset");
 	}
 	
+	public function getProximaOrdemByModulo($id_modulo){
+		$funcionalidade_rs = $this->getFieldsByParameter("ordem", "WHERE modulo = $id_modulo ORDER BY ordem DESC LIMIT 1");
+		if(count($funcionalidade_rs) > 0){
+			return $funcionalidade_rs[0]['ordem'] + 1;
+		} else {
+			return 1;
+		}
+	}
+	
 	// Métodos de validações e cálculos
 	public function calcularValorPF($id){
 		$componenteFuncionalidade_rs = $this->getFieldsByParameter("tco.tipo_dado AS id_tipo_dado, co.possui_acoes, co.possui_mensagens,

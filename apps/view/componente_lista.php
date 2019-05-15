@@ -6,9 +6,9 @@ $sistema = new sistema();
 $modulo = new modulo();
 $funcionalidade = new funcionalidade();
 
-$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
-$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ('');
-$funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ('');
+$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ($_SESSION['sistema_sessao']);
+$modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ($_SESSION['modulo_sessao']);
+$funcionalidade_lista = (isset($_GET['funcionalidade_lista'])) ? ($_GET['funcionalidade_lista']) : ($_SESSION['funcionalidade_sessao']);
 
 $checkExibirFiltros = (!empty($sistema_lista) || !empty($modulo_lista) || !empty($funcionalidade_lista));
 ?>
@@ -46,7 +46,7 @@ $checkExibirFiltros = (!empty($sistema_lista) || !empty($modulo_lista) || !empty
 										onchange="select.limpar( gE('modulo_lista') ); select.limpar( gE('funcionalidade_lista') )">
 										<option value="">Todos</option>
 										<?php if(is_numeric($sistema_lista)){ ?>
-											<option value="<?php echo $sistema_lista ?>" selected><?php echo $sistema->getNome($sistema_lista, 'n') ?></option>
+											<option value="<?php echo $sistema_lista ?>" selected><?php echo $sistema->getDescricao($sistema_lista) ?></option>
 										<?php } ?>
 									</select>
 									<span>Sistema</span>

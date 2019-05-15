@@ -57,8 +57,9 @@
 /* Estilizações da dashboard da tela inicial */
 div.cpf_dashboard_logo{
 	background-image: url('../img/cpf_dashboard_logo.png');
-	width: 421px;
-	height: 260px;
+	background-size: 100% 100%;
+	width: 75px;
+	height: 50px;
 }
 /* Estilizações do componente "Bootstrap Float Label" */
 .has-float-label .form-control:placeholder-shown:not(:focus) + *{
@@ -646,6 +647,19 @@ div.grid-table>div[class^='col']{
 	color: white;
 }
 
+/* CSS de listas numeradas hierárquicas*/
+ol.lista_hierarquica {
+	counter-reset: item;
+}
+ol.lista_hierarquica li {
+	list-style-type: none;
+}
+ol.lista_hierarquica li:before {
+	content: counters(item, ".") ". ";
+	counter-increment: item;
+	font-weight: bold;
+}
+
 /* Componentes de funcionalidades, no formulário de cadastro de funcionalidades */
 div.componente_funcionalidade>div[class^="col"]{
 	border: 1px solid #dee2e6;
@@ -658,59 +672,15 @@ div.componente_funcionalidade:nth-child(even){
 #campos_componentes table>tbody>tr:nth-child(even)>td:not(.acoes){
 	background: rgba(0,0,0,.075);
 }
-div.componente_inclusao_funcionalidade_orcamento_manutencao>div[class^="col"]{
+div.componente_inclusao_funcionalidade_orcamento_manutencao>div[class^="col"],
+div.componente_calculadora_pf>div[class^="col"]{
 	padding: 5px;
 }
-
-/* Estilizações do componente de seleção de funcionalidades de alteração / exclusão, no relatório de Orçamento de Manutenção */
-#funcionalidades_alteracoes_exclusoes{
-	max-height: 250px !important;
+#form_alterar_excluir_funcionalidades table.dataTable tr.even td{
+    background: rgba(0,0,0,.075);
 }
-#funcionalidades_alteracoes_exclusoes label.checkbox-menu{
-	padding: 0 10px;
-	border-radius: 0;
-}
-#funcionalidades_alteracoes_exclusoes span.checkbox-label-block{
-	margin-top: -6px;
-}
-#funcionalidades_alteracoes_exclusoes label.funcionalidade div.custom-control{
-	margin-left: 16px;
-}
-#funcionalidades_alteracoes_exclusoes label.funcionalidade span.boxurvr{
-	display: inline-block;
-	position: relative;
-	left: -38px;
-}
-#funcionalidades_alteracoes_exclusoes label.funcionalidade span.checkbox-label-block{
-	font-weight: normal;
-	margin-left: -16px;
-}
-button.ver_detalhes_funcionalidade{
-	padding: 0px 3px;
-	position: absolute;
-	top: 2px;
-	right: -7px;
-	font-size: 12px;
-}
-div.acoes_lote_funcionalidades_marcadas button.dropdown-toggle{
-	margin: 3px !important;
-	background-image: linear-gradient(30deg, #28a745 25%, #dc3545 75%);
-}
-div.acoes_lote_funcionalidades_marcadas div.dropdown-menu{
-	padding: 0;
-	width: 450px;
-}
-div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_alteracao,
-div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_exclusao{
-	color: white;
-	text-align: left;
-}
-div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_alteracao{
-	background-color: #28a745;
-}
-div.acoes_lote_funcionalidades_marcadas div.dropdown-menu h6.acoes_exclusao{
-	background-color: #dc3545;
-}
-div.acoes_lote_funcionalidades_marcadas div.dropdown-menu a.dropdown-item{
-	border-bottom: 1px solid rgba(0,0,0,.15);
+/* Estilizações da tabela de listagem, no relatório de orçamento de Manutenção */
+#tabela_orcamento_manutencao table>thead>tr>th,
+#tabela_orcamento_manutencao table>tfoot>tr>th{
+	background-color: #fafafa;
 }

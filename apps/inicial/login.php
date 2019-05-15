@@ -19,6 +19,10 @@ if($usuario_row != false){
 	$_SESSION['foto'] = $usuario_row['foto'];
 	$_SESSION['admin'] = ($usuario_row['admin'] == '1');
 	$_SESSION['menu'] = menu::carregar();
+	$_SESSION['menu_minimizado'] = ($dispositivo_usuario == 'xs') ? (false) : ($usuario_row['menu_minimizado']);
+	$_SESSION['sistema_sessao'] = '';
+	$_SESSION['modulo_sessao'] = '';
+	$_SESSION['funcionalidade_sessao'] = '';
 	
 	setcookie('auth', $usuario_row['login']);
 	session_regenerate_id();

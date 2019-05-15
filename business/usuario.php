@@ -77,9 +77,13 @@ class usuario extends abstractBusiness{
 	public function getLogin($login, $senha){
 		$senha_sha1 = sha1($senha);
 		
-		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, admin, id", "WHERE login = '$login' AND senha_sha1 = '$senha_sha1' LIMIT 1");
+		$usuario_rs = $this->getFieldsByParameter("nome, login, foto, admin, menu_minimizado, id", "WHERE login = '$login' AND senha_sha1 = '$senha_sha1' LIMIT 1");
 		if(count($usuario_rs) > 0){
-			return $usuario_rs[0];
+			$usuario_row = $usuario_rs[0];
+			
+			$usuario_row['menu_minimizado'] = ($usuario_row['menu_minimizado'] == '1');
+			
+			return $usuario_row;
 		} else {
 			return array();
 		}

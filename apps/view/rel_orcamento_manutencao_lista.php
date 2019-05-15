@@ -6,7 +6,7 @@ $sistema = new sistema();
 $funcionalidade = new funcionalidade();
 $tipoComponente = new tipoComponente();
 
-$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ('');
+$sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ($_SESSION['sistema_sessao']);
 
 $sistema_rs = $sistema->getAll();
 $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
@@ -42,8 +42,16 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 								<select id="sistema_lista" name="sistema_lista" class="select form-control"
 									required onchange="orcamentoManutencao.configurarRelatorio(this)">
 									<option value="">Escolha um sistema</option>
-									<?php foreach($sistema_rs as $sistema_row){ ?>
-										<option value="<?php echo $sistema_row['id'] ?>"><?php echo $sistema_row['sigla'] . ' - ' . $sistema_row['nome'] ?></option>
+									<?php foreach($sistema_rs as $sistema_row){
+										if($sistema_lista == $sistema_row['id']){
+											$selected = 'selected';
+										} else {
+											$selected = '';
+										}
+										?>
+										<option value="<?php echo $sistema_row['id'] ?>" <?php echo $selected ?>>
+											<?php echo $sistema_row['sigla'] . ' - ' . $sistema_row['nome'] ?>
+										</option>
 									<?php } ?>
 								</select>
 								<span>Sistema</span>
@@ -60,7 +68,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 										Inclusões
 									</a>
 								</li>
-								<li class="nav-item">
+								<li class="nav-item" data-callback="orcamentoManutencao.instanciarComponenteAlteracaoExclusaoFuncionalidades()">
 									<a class="nav-link active" href="#">
 										<span class="fa-stack">
 											<i class="fa fa-cogs fa-stack-2x"></i>
@@ -185,57 +193,13 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 									</form>
 								</div>
 								<div class="tab-pane" role="tabpanel">
-									<div class="input-group checkbox-menu-search">
-										<input type="search" class="form-control" placeholder="Digite o nome da funcionalidade"
-											onkeydown="filtrarOpcoesCheckboxRadioMenu(this)" />
-										<span class="input-group-append">
-											<span class="input-group-text"><i class="fas fa-search"></i></span>
-										</span>
-									</div>
-									<div id="funcionalidades_alteracoes_exclusoes" class="checkbox-menu-parent">
+									<form method="GET" id="form_alterar_excluir_funcionalidades" name="form_alterar_excluir_funcionalidades"
+										onsubmit="return orcamentoManutencao.alterarExcluirFuncionalidades(this)" novalidate>
 										<?php
-										if(is_numeric($sistema_lista)){
-											$_GET['sistema'] = $sistema_lista;
-											include('rel_orcamento_manutencao_funcionalidade_preenche.php');
-										}
+										$_GET['sistema'] = (is_numeric($sistema_lista)) ? ($sistema_lista) : ('');
+										include('rel_orcamento_manutencao_funcionalidade_preenche.php');
 										?>
-									</div>
-									<div class="checkbox-menu-footer acoes_lote_funcionalidades_marcadas">
-										<div class="btn-group">
-											<button type="button" class="btn btn-success dropdown-toggle"
-												data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
-												<span class="label-batch total_funcionalidades_marcadas_alteracao_exclusao">---</span>
-												<span class="caret"></span>
-											</button>
-											<div class="dropdown-menu" role="menu" x-placement="bottom-start">
-												<h6 class="dropdown-header acoes_alteracao">
-													<i class="fas fa-arrow-down"></i>
-													Adicionar como Alteração
-												</h6>
-												<a class="dropdown-item" href="#" onclick="orcamentoManutencao.alterarExcluirFuncionalidadesMarcadas('a', 50, event)">
-													Pelo(s) mesmo(s) desenvolvedor(es)
-													<span class="badge badge-success float-right">FI 50%</span>
-												</a>
-												<a class="dropdown-item" href="#" onclick="orcamentoManutencao.alterarExcluirFuncionalidadesMarcadas('a', 75, event)">
-													Desenvolvido por terceiros, sem redocumentação
-													<span class="badge badge-success float-right">FI 75%</span>
-												</a>
-												<a class="dropdown-item" href="#" onclick="orcamentoManutencao.alterarExcluirFuncionalidadesMarcadas('a', 90, event)">
-													Desenvolvido por terceiros, com redocumentação
-													<span class="badge badge-success float-right">FI 90%</span>
-												</a>
-
-												<h6 class="dropdown-header acoes_exclusao">
-													<i class="fas fa-arrow-down"></i>
-													Adicionar como Exclusão
-												</h6>
-												<a class="dropdown-item" href="#" onclick="orcamentoManutencao.alterarExcluirFuncionalidadesMarcadas('e', 40, event)">
-													Remoção de código e banco de dados
-													<span class="badge badge-danger float-right">FI 40%</span>
-												</a>
-											</div>
-										</div>
-									</div>
+									</form>
 								</div>
 							</div>
 						</div>
@@ -391,7 +355,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 											</div>
 											<label class="form-group has-float-label" style="margin-bottom: 3px">
 												<select id="formato_tempo" name="formato_tempo" class="select form-control"
-													onchange="concatenarLabelOptgroupParaTemplateSelection(this, true); toggleCheckboxArredondarZeros(this); orcamentoManutencao.atualizarValoresCorpoTabela()">
+														onchange="concatenarLabelOptgroupParaTemplateSelection(this, true); toggleCheckboxArredondarZeros(this); orcamentoManutencao.personalizarFormatoTempoTabela()">
 													<optgroup label="Horas / Minutos">
 														<option value="hhm">HH:MM</option>
 														<option value="hni">Números Inteiros</option>
@@ -415,7 +379,8 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 										</div>
 										<div class="col-12">
 											<label class="form-group has-float-label" style="margin-top: 5px; margin-bottom: 3px">
-												<select id="mostrar_valor" name="mostrar_valor" class="select form-control">
+												<select id="mostrar_valor" name="mostrar_valor" class="select form-control"
+													onchange="orcamentoManutencao.toggleColunasTabela()">
 													<option value="oa">Original e Ajustado</option>
 													<option value="a">Apenas Ajustado</option>
 												</select>
@@ -423,12 +388,12 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 											</label>
 											<div class="custom-control custom-checkbox">
 												<input type="checkbox" class="custom-control-input" id="mostrar_tempo"
-													name="mostrar_tempo" value="true" checked />
+													name="mostrar_tempo" value="true" checked onchange="orcamentoManutencao.toggleColunasTabela()" />
 												<label class="custom-control-label" for="mostrar_tempo">Mostrar Tempo</label>
 											</div>
 											<div class="custom-control custom-checkbox">
 												<input type="checkbox" class="custom-control-input" id="mostrar_custo"
-													name="mostrar_custo" value="true" checked />
+													name="mostrar_custo" value="true" checked onchange="orcamentoManutencao.toggleColunasTabela()" />
 												<label class="custom-control-label" for="mostrar_custo">Mostrar Custo (R$)</label>
 											</div>
 										</div>
@@ -441,7 +406,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 			</div>
 		</div>
 	</div>
-	<div class="card" id="tabela_orcamento_manutencao" style="display: none">
+	<div class="card" id="tabela_orcamento_manutencao" <?php if(!is_numeric($sistema_lista)) echo 'style="display: none"' ?>>
 		<?php
 		$_GET['ajax'] = true;
 		include('rel_orcamento_manutencao_tabela.php');

@@ -5,6 +5,16 @@ class sistema extends abstractBusiness{
     }
 	
 	// Métodos de listagem de dados
+	public function getDescricao($id){
+		$sistema_row = $this->get($id);
+		
+		if(count($sistema_row) > 0){
+			return $sistema_row['sigla'] . ' - ' . $sistema_row['nome'];
+		} else {
+			return '';
+		}
+	}
+	
 	private function formataSQLByListagem($busca){
 		$sql_where = 'TRUE';
 		
@@ -83,6 +93,59 @@ class sistema extends abstractBusiness{
 		return $this->getFieldsByParameter('*', "$sql_where ORDER BY nome LIMIT $limit OFFSET $offset");
 	}
 	
+	public function getByValoresSistemas(){
+		$sistema_rs = $this->getFieldsByParameter("CONCAT(sigla, ' - ', nome) AS sistema, id", "ORDER BY 1");
+		
+		foreach($sistema_rs as $i=>$sistema_row){
+			$sistema_rs[$i]['valor_pf'] = $this->calcularValorPF($sistema_row['id']);
+		}
+		
+		return $sistema_rs;
+	}
+	
+	// Métodos de validações e cálculos
+	public function calcularValorPF($id){
+		$componenteSistema_rs = $this->getFieldsByParameter("co.id AS id_componente, tco.tipo_dado AS id_tipo_dado, co.possui_acoes, co.possui_mensagens,
+			COUNT(DISTINCT c.id) AS quantidade_campos, COUNT(DISTINCT ar.id) AS quantidade_arquivos_referenciados", "s
+				JOIN modulos m ON (m.sistema = s.id)
+				JOIN funcionalidades f ON (f.modulo = m.id)
+				LEFT JOIN componentes co ON (co.funcionalidade = f.id)
+				LEFT JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
+				LEFT JOIN campos c ON (c.componente = co.id)
+				LEFT JOIN arquivos_referenciados ar ON (ar.componente = co.id)
+			WHERE s.id = $id
+			GROUP BY co.id, tco.tipo_dado, co.possui_acoes, co.possui_mensagens");
+		
+		$valor_total_pf = 0;
+		foreach($componenteSistema_rs as $componente_row){
+			$quantidade_tipos_dados = $componente_row['quantidade_campos'];
+			$quantidade_arquivos_referenciados = $componente_row['quantidade_arquivos_referenciados'];
+			
+			if($componente_row['possui_acoes'] == '1'){
+				$quantidade_tipos_dados++;
+			}
+			if($componente_row['possui_mensagens'] == '1'){
+				$quantidade_tipos_dados++;
+			}
+
+			$tipo_funcional = '';
+			if($componente_row['id_tipo_dado'] == 1){
+				$tipo_funcional = 'e';
+			} elseif($componente_row['id_tipo_dado'] == 2){
+				$tipo_funcional = 's';
+			} elseif($componente_row['id_tipo_dado'] == 3){
+				$tipo_funcional = 'c';
+			}			
+
+			$complexidade = cpf::calcularComplexidade($tipo_funcional, $quantidade_tipos_dados, $quantidade_arquivos_referenciados);
+			$valor = cpf::calcularValor($tipo_funcional, $complexidade);
+			
+			$valor_total_pf += $valor;
+		}
+		
+		return $valor_total_pf;
+	}
+	
 	// Métodos de escrita de dados
 	public function set($post, $commit=true){
 		$modulo = new modulo();
@@ -133,7 +196,7 @@ class sistema extends abstractBusiness{
 		
 		// Inserindo registros na tabela "modulos"
 		foreach($post_modulos as $modulo_row){
-			$nome_modulo = $modulo_row['nome'];
+			$nome_modulo = (isset($modulo_row['nome'])) ? ($modulo_row['nome']) : ('');
 			$id_modulo = $modulo_row['id'];
 			$acao = $modulo_row['acao'];
 			

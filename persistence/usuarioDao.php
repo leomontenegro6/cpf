@@ -33,6 +33,10 @@ class usuarioDao extends abstractDao{
 			'admin'=>array(
 				'tipo'=>'bolean',
 				'default'=>'false'
+			),
+			'menu_minimizado'=>array(
+				'tipo'=>'boolean',
+				'default'=>'false'
 			)
 		);
 		

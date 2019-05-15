@@ -75,6 +75,14 @@ class componente extends abstractBusiness{
 	public function getByListagem($busca, $id_sistema, $id_modulo, $id_funcionalidade, $ordenacao='co.nome', $filtragem='ASC', $limit=15, $offset=0){
 		$sql_where = $this->formataSQLByListagem($busca, $id_sistema, $id_modulo, $id_funcionalidade);
 		
+		if($ordenacao == '1'){
+			$ordenacao = "f.ordem $filtragem, co.ordem $filtragem";
+		} elseif(funcoes::checaStringContemPalavras($ordenacao, array("1 asc"))){
+			$ordenacao = str_replace('1 asc', 'f.ordem ASC, co.ordem ASC', $ordenacao);
+		} elseif(funcoes::checaStringContemPalavras($ordenacao, array('1 desc'))){
+			$ordenacao = str_replace('1 desc', 'f.ordem DESC, co.ordem DESC', $ordenacao);
+		}
+		
 		$componente_rs = $this->getFieldsByParameter("CONCAT(f.ordem, '. ', co.ordem, '.') AS ordem, s.nome AS sistema, m.nome AS modulo, f.nome AS funcionalidade,
 			tco.descricao AS tipo_componente, '' AS complexidade, '' AS valor_pf, co.possui_acoes, co.possui_mensagens, co.id", "co
 				JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
@@ -116,6 +124,15 @@ class componente extends abstractBusiness{
 			return $componente_row;
 		} else {
 			return array();
+		}
+	}
+	
+	public function getProximaOrdemByFuncionalidade($id_funcionalidade){
+		$componente_rs = $this->getFieldsByParameter("ordem", "WHERE funcionalidade = $id_funcionalidade ORDER BY ordem DESC LIMIT 1");
+		if(count($componente_rs) > 0){
+			return $componente_rs[0]['ordem'] + 1;
+		} else {
+			return 1;
 		}
 	}
 	

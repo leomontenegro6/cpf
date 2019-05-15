@@ -35,7 +35,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 					<i class="fas fa-filter"></i> Filtros
 				</button>
 			</div>
-			<button type="button" class="btn btn-primary float-right" onclick="jFormMedio('componente_form.php')">
+			<button type="button" class="btn btn-primary float-right" onclick="cadastrarNovoComponente()">
 				<i class="fas fa-plus-circle"></i> Novo
 			</button>
 		</div>
@@ -53,7 +53,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 							<th class="align-middle">Tipo de Componente</th>
 							<th class="align-middle" data-ordenavel="false">Complexidade</th>
 							<th class="align-middle" data-ordenavel="false">Valor (PF)</th>
-							<th width="75" class="acoes">Ações</th>
+							<th width="75" class="acoes align-middle">Ações</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -66,7 +66,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 							<th class="align-middle">Tipo de Componente</th>
 							<th class="align-middle">Complexidade</th>
 							<th class="align-middle">Valor (PF)</th>
-							<th width="75" class="acoes">Ações</th>
+							<th width="75" class="acoes align-middle">Ações</th>
 						</tr>
 					</tfoot>
 				</table>

@@ -22,6 +22,7 @@
 <script src="../common/js/jquery.dataTables.min.js"></script>
 <script src="../common/js/dataTables.bootstrap4.min.js"></script>
 <script src="../common/js/dataTables.responsive.min.js"></script>
+<script src="../common/js/dataTables.rowGroup.min.js"></script>
 <!-- jsrender.js -->
 <script src="../common/js/jsrender.min.js"></script>
 <!-- AdminLTE App -->
@@ -38,6 +39,7 @@
 <script src="../common/js/campoMultiplo.js?<?php echo filemtime('../common/js/campoMultiplo.js') ?>"></script>
 <script src="../common/js/cpf.js?<?php echo filemtime('../common/js/cpf.js') ?>"></script>
 <script type="text/javascript">
+	var menu_minimizado = <?php echo ($_SESSION['menu_minimizado']) ? ('true') : ('false') ?>;
 	var data_servidor = new Date(<?php echo strtotime('now') * 1000 ?>);
 	var ambiente = '<?php echo $ambiente ?>';
 	var dispositivo = '';

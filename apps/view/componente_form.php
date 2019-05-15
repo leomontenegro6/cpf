@@ -33,8 +33,16 @@ if(isset($_POST['id'])){
 } else {
 	$acao = 'cadastrar';
 	
-	$id = $id_funcionalidade = $id_modulo = $id_sistema = '';
-	$id_tipo_componente = $ordem = '';
+	$id = '';
+	$id_sistema = (isset($_GET['sistema'])) ? ($_GET['sistema']) : ('');
+	$id_modulo = (isset($_GET['modulo'])) ? ($_GET['modulo']) : ('');
+	$id_funcionalidade = (isset($_GET['funcionalidade'])) ? ($_GET['funcionalidade']) : ('');
+	if(is_numeric($id_funcionalidade)){
+		$ordem = $componente->getProximaOrdemByFuncionalidade($id_funcionalidade);
+	} else {
+		$ordem = '';
+	}
+	$id_tipo_componente = '';
 	$possui_acoes = $possui_mensagens = false;
 	$complexidade = $valor_pf = '';
 	$campo_rs = $arquivoReferenciado_rs = array();
@@ -82,7 +90,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 					<label class="form-group has-float-label">
 						<select id="funcionalidade" name="funcionalidade" class="select form-control" required
 							data-pagina="funcionalidade_autocomplete.php?sistema={sistema}&modulo={modulo}" data-limite-caracteres="0"
-							onchange="definirModuloSistema(this, 'modulo', 'sistema', function(){ $('#form').submit() })">
+							onchange="definirModuloSistema(this, 'modulo', 'sistema'); definirProximaOrdemComponente(this)">
 							<option value="">Escolha uma funcionalidade</option>
 							<?php if(is_numeric($id_funcionalidade)){ ?>
 								<option value="<?php echo $id_funcionalidade ?>" selected><?php echo $funcionalidade->getNome($id_funcionalidade, 'n') ?></option>
