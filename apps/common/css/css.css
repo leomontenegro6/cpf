@@ -263,9 +263,9 @@ div.fileuploader .escolher_arquivo>span.rotulo{
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-.conteiner_arquivo div.progress-bar{
+div.progress-bar{
 	font-weight: bold;
-	text-shadow: 1px 1px 0px black;
+	text-shadow: 1px 1px 0px #444;
 }
 .conteiner_arquivo td.acoes>button{
 	min-width: 0;
@@ -581,6 +581,22 @@ div.checkbox-menu-footer{
 	border-top: 0;
 	border-radius: 0 0 3px 3px;
 }
+/* Estilizações do modal de geração de arquivos XLS */
+table.geracao_xls{
+	margin: 0 auto;
+}
+table.geracao_xls i.fa{
+	color: #205BCF;
+}
+table.geracao_xls td.mensagem_modal{
+	line-height: 1.4;
+}
+table.geracao_xls p{
+	margin-bottom: 0;
+}
+table.geracao_xls p.problema, table.geracao_xls ul{
+	font-weight: normal;
+}
 /* Estilizações adicionais do componente Bootstrap Tagsinput */
 label.has-float-label div.bootstrap-tagsinput{
 	padding-top: 8px;
@@ -679,7 +695,13 @@ div.componente_calculadora_pf>div[class^="col"]{
 #form_alterar_excluir_funcionalidades table.dataTable tr.even td{
     background: rgba(0,0,0,.075);
 }
-/* Estilizações da tabela de listagem, no relatório de orçamento de Manutenção */
+/* Estilizações da tabela de listagem, no relatório de contagem de pontos*/
+#tabela_contagem_pontos>thead>tr>th,
+#tabela_prazos_desenvolvimento>thead>tr>th,
+#tabela_orcamento_desenvolvimento>thead>tr>th{
+	background-color: #fafafa;
+}
+/* Estilizações da tabela de listagem, no relatório de Orçamento de Manutenção */
 #tabela_orcamento_manutencao table>thead>tr>th,
 #tabela_orcamento_manutencao table>tfoot>tr>th{
 	background-color: #fafafa;

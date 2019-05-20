@@ -24,7 +24,7 @@ function orcamentoManutencao(){
 	
 	// Métodos
 	this.carregarRotinasPrincipais = function(){
-		this.conteinerTabelaOrcamentoManutencao = $('#tabela_orcamento_manutencao');
+		this.conteinerTabelaOrcamentoManutencao = $('#conteiner_tabela_orcamento_manutencao');
 		this.tabelaOrcamentoManutencao = this.conteinerTabelaOrcamentoManutencao.find('table');
 		
 		this.salvarParametros();
@@ -73,14 +73,15 @@ function orcamentoManutencao(){
 		var opcao_anterior = select.obterOpcaoAnterior($selectSistema);
 		var opcao_atual = $selectSistema.val();
 		var metadados_opcao_atual = select.obterMetadadosOpcaoSelecionada($selectSistema);
-		var nome_sistema = metadados_opcao_atual['text'];
+		var nome_sistema = $.trim( metadados_opcao_atual['text'] );
+		var sigla_sistema = $( metadados_opcao_atual['element'] ).attr('data-sigla');
 		
 		var checkPeloMenosUmaFuncionalidadeAdicionada = ($tbody.children('tr').length > 0);
 		
 		if(opcao_anterior == '' && opcao_atual != ''){
 			// Escolhendo o sistema pela primeira vez, então exibir a tabela e
 			// atualizar funcionalidades na aba "Alterações / Exclusões"
-			this.toggleVisibilidadeTabela(true, nome_sistema);
+			this.toggleVisibilidadeTabela(true, nome_sistema, sigla_sistema);
 			this.atualizarFuncionalidadesAbaAlteracoesExclusoes(opcao_atual);
 		} else if(opcao_anterior != '' && opcao_atual != ''){
 			// Mudando de um sistema pra outro, logo limpar a tabela e atualizar
@@ -92,7 +93,7 @@ function orcamentoManutencao(){
 						// Usuário confirmou a operação, logo limpar a tabela e
 						// atualizar as funcionalidades na aba "Alterações / Exclusões"
 						this.limparTabela();
-						this.toggleVisibilidadeTabela(true, nome_sistema);
+						this.toggleVisibilidadeTabela(true, nome_sistema, sigla_sistema);
 						this.atualizarFuncionalidadesAbaAlteracoesExclusoes(opcao_atual);
 					} else {
 						// Usuário cancelou a operação, logo voltar campo "Sistema"
@@ -104,7 +105,7 @@ function orcamentoManutencao(){
 				// Nenhuma funcionalidade na tabela, logo limpá-la e atualizar as
 				// funcionalidades na aba "Alterações / Exclusões"
 				this.limparTabela();
-				this.toggleVisibilidadeTabela(true, nome_sistema);
+				this.toggleVisibilidadeTabela(true, nome_sistema, sigla_sistema);
 				this.atualizarFuncionalidadesAbaAlteracoesExclusoes(opcao_atual);
 			}
 		} else if(opcao_anterior != '' && opcao_atual == ''){
@@ -153,18 +154,29 @@ function orcamentoManutencao(){
 		}
 	}
 	
-	this.toggleVisibilidadeTabela = function(exibir, nome_sistema){
+	this.toggleVisibilidadeTabela = function(exibir, nome_sistema, sigla_sistema){
 		if(typeof exibir == 'undefined') exibir = true;
 		
 		var $conteinerTabelaOrcamentoManutencao = this.conteinerTabelaOrcamentoManutencao;
 		var $spanNomeSistema = $('#nome_sistema');
+		var $botaoGerarPlanilha = $('#botao_gerar_planilha');
 		
 		if(exibir){
 			$conteinerTabelaOrcamentoManutencao.show();
 			$spanNomeSistema.html(nome_sistema);
+			$botaoGerarPlanilha.attr({
+				'data-titulo': nome_sistema,
+				'data-subtitulo': 'Orçamento de Manutenção de Funcionalidades',
+				'data-nome-arquivo': 'Orçamento de Manutenção de Funcionalidades - ' + sigla_sistema
+			});
 		} else {
 			$conteinerTabelaOrcamentoManutencao.hide();
 			$spanNomeSistema.html('...');
+			$botaoGerarPlanilha.attr({
+				'data-titulo': '',
+				'data-subtitulo': '',
+				'data-nome-arquivo': ''
+			});
 		}
 	}
 	
@@ -970,33 +982,33 @@ function orcamentoManutencao(){
 		$inputMostrarValoresPF.val(mostrar_valor_pf);
 		
 		if(mostrar_valor_pf == 'a'){
-			$thValorPFAjustadoCabecalho.hide();
+			$thValorPFAjustadoCabecalho.addClass('d-none');
 			$thValoresPFCabecalho.attr({
 				'colspan': '1',
 				'rowspan': '2'
 			});
 			
-			$thValorPFOriginalCabecalho.add($tdsValorPFOriginalCorpo).add($thValorPFOriginalRodape).hide();
+			$thValorPFOriginalCabecalho.add($tdsValorPFOriginalCorpo).add($thValorPFOriginalRodape).addClass('d-none');
 		} else {
 			$thValoresPFCabecalho.attr('colspan', '2').removeAttr('rowspan');
 			$thValorPFOriginalCabecalho.add($thValorPFAjustadoCabecalho)
 				.add($tdsValorPFOriginalCorpo).add($tdsValorPFAjustadoCorpo)
-				.add($thValorPFOriginalRodape).add($thValorPFAjustadoRodape).show();
+				.add($thValorPFOriginalRodape).add($thValorPFAjustadoRodape).removeClass('d-none');
 		}
 		
 		if($checkboxMostrarTempo.is(':checked')){
-			$thTempoCabecalho.add($tdsTempoCorpo).add($thTempoRodape).show();
+			$thTempoCabecalho.add($tdsTempoCorpo).add($thTempoRodape).removeClass('d-none');
 			$inputMostrarTempo.val('true');
 		} else {
-			$thTempoCabecalho.add($tdsTempoCorpo).add($thTempoRodape).hide();
+			$thTempoCabecalho.add($tdsTempoCorpo).add($thTempoRodape).addClass('d-none');
 			$inputMostrarTempo.val('false');
 		}
 		
 		if($checkboxMostrarCusto.is(':checked')){
-			$thCustoCabecalho.add($tdsCustoCorpo).add($thCustoRodape).show();
+			$thCustoCabecalho.add($tdsCustoCorpo).add($thCustoRodape).removeClass('d-none');
 			$inputMostrarCusto.val('true');
 		} else {
-			$thCustoCabecalho.add($tdsCustoCorpo).add($thCustoRodape).hide();
+			$thCustoCabecalho.add($tdsCustoCorpo).add($thCustoRodape).addClass('d-none');
 			$inputMostrarCusto.val('false');
 		}
 	}
@@ -1095,6 +1107,64 @@ function orcamentoManutencao(){
 				$trsFuncionalidade.insertAfter($trSeguinte);
 			}
 		}
+	}
+	
+	this.gerarPlanilha = function(botao){
+		var $botao = $(botao);
+		var $tabelaOrcamentoManutencao = this.tabelaOrcamentoManutencao;
+		
+		// Obtendo ID da tabela original, e gerando id da tabela modificada
+		var id_tabela_original = $botao.attr('data-tabela');
+		var id_tabela_modificada = id_tabela_original + '_tmp';
+		
+		// Clonando tabela de orçamento de manutenção, para nela fazer alterações
+		// antes da geração da planilha
+		var $tabelaModificada = $tabelaOrcamentoManutencao.clone();
+		$tabelaModificada.attr('id', id_tabela_modificada).hide();
+		
+		// Efetuando personalizações na tabela modificada
+		$tabelaModificada.children('thead').find('th').each(function(){
+			var $th = $(this);
+			
+			if($th.is(':contains("Ordem")')){
+				$th.remove();
+			} else if($th.is(':contains("Componente")')){
+				$th.removeAttr('colspan');
+			}
+		});
+		$tabelaModificada.children('tbody').find('td, th').each(function(){
+			var $thd = $(this);
+			
+			if($thd.hasClass('ordem')){
+				$thd.remove();
+			} else if($thd.hasClass('acoes_componente') || $thd.hasClass('acoes_funcionalidade')){
+				$thd.remove();
+			}
+		});
+		$tabelaModificada.children('tfoot').find('th').each(function(){
+			var $th = $(this);
+			
+			if($th.is(':contains("TOTAL:")')){
+				var colspan = parseInt($th.attr('colspan'), 10);
+				$th.attr('colspan', colspan - 2);
+			}
+		});
+		
+		$tabelaModificada.find('.d-none').remove();
+		
+		// Inserindo elemento da tabela no corpo da página
+		$('body').append($tabelaModificada);
+		
+		// Alterando id da tabela a gerar a planilha, da original para a modificada
+		$botao.attr('data-tabela', id_tabela_modificada);
+		
+		// Chamando rotina de geração da planilha
+		phpspreadsheet.gerar(botao, function(){
+			// Removendo tabela modificada da página, e redefinindo id da tabela
+			// no botão de gerar planilha
+			$tabelaModificada.remove();
+			$botao.attr('data-tabela', id_tabela_original);
+		});
 	}
 }
 

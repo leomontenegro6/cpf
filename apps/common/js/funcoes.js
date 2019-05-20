@@ -841,6 +841,31 @@ function abortarPaginaChamada(ajax){
 	}
 }
 
+function trocaColspanTotal(seletor_celulas, escopo) {
+	var busca;
+	if(!escopo) escopo = 'body';
+	if(seletor_celulas){
+		busca = $(escopo).find(seletor_celulas);
+	} else {
+		busca = $(escopo).find("th, td").filter("[colspan='100%']");
+	}
+	
+    busca.each(function () {
+		var $thd = $(this);
+        var maximo = 0;
+        $thd.closest("table").children("thead, tbody, tfoot").children("tr").each(function () {
+            var $tr = $(this);
+            var total = $tr.children("td, th").length;
+            if (total > maximo) {
+                maximo = total;
+            }
+        });
+        if (maximo > 0) {
+            $thd.attr("colspan", maximo);
+        }
+    });
+}
+
 function salvarPersistenciaMenuMinimizado(){
 	if(dispositivo != 'xs'){
 		setTimeout(function(){
@@ -1541,7 +1566,7 @@ function balancearPercentuaisEsforcoDisciplinas(inputAtual, evento){
 function validaFormPrazosDesenvolvimento(form){
 	if(validaFormAbas(form, false)){
 		var $form = $(form);
-		var $divTabelaPrazosDesenvolvimento = $('#tabela_prazos_desenvolvimento');
+		var $divTabelaPrazosDesenvolvimento = $('#conteiner_tabela_prazos_desenvolvimento');
 		
 		mostraCarregando(true, false);
 		
@@ -1590,7 +1615,7 @@ function toggleCamposValorOrcamento(selectMetodoCalculoOrcamento){
 function validaFormOrcamentoDesenvolvimento(form){
 	if(validaFormAbas(form, false)){
 		var $form = $(form);
-		var $divTabelaOrcamentoDesenvolvimento = $('#tabela_orcamento_desenvolvimento');
+		var $divTabelaOrcamentoDesenvolvimento = $('#conteiner_tabela_orcamento_desenvolvimento');
 		
 		mostraCarregando(true, false);
 		

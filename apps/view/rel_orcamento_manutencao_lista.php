@@ -49,7 +49,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 											$selected = '';
 										}
 										?>
-										<option value="<?php echo $sistema_row['id'] ?>" <?php echo $selected ?>>
+										<option value="<?php echo $sistema_row['id'] ?>" <?php echo $selected ?> data-sigla="<?php echo $sistema_row['sigla'] ?>">
 											<?php echo $sistema_row['sigla'] . ' - ' . $sistema_row['nome'] ?>
 										</option>
 									<?php } ?>
@@ -406,7 +406,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 			</div>
 		</div>
 	</div>
-	<div class="card" id="tabela_orcamento_manutencao" <?php if(!is_numeric($sistema_lista)) echo 'style="display: none"' ?>>
+	<div class="card" id="conteiner_tabela_orcamento_manutencao" <?php if(!is_numeric($sistema_lista)) echo 'style="display: none"' ?>>
 		<?php
 		$_GET['ajax'] = true;
 		include('rel_orcamento_manutencao_tabela.php');

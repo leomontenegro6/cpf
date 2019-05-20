@@ -3,17 +3,24 @@ session_start();
 
 include('cabecalho.php');
 
-$mostrarAviso = (isset($_GET['erro']) && ($_GET['erro'] == 'true'));
+$mostrarAvisoSenhaIncorreta = (isset($_GET['erro']) && ($_GET['erro'] == 'true'));
+$mostrarAvisoSessaoExpirada = (isset($_GET['sessao_expirada']) && ($_GET['sessao_expirada'] == 'true'));
 ?>
 <div class="login-box">
 	<div class="login-logo">
 		CPF - Contador de Pontos de Função
 	</div>
-	<?php if($mostrarAviso){ ?>
+	<?php if($mostrarAvisoSenhaIncorreta){ ?>
 		<div class="alert alert-warning alert-dismissible">
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 			<h5><i class="icon fa fa-exclamation-triangle"></i> Aviso!</h5>
 			Usuário e/ou senha incorreta!
+		</div>
+	<?php } elseif($mostrarAvisoSessaoExpirada){ ?>
+		<div class="alert alert-info alert-dismissible">
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+			<h5><i class="icon fa fa-info-circle"></i> Informação.</h5>
+			Sua sessão expirou. Faça login novamente.
 		</div>
 	<?php } ?>
 	<!-- /.login-logo -->

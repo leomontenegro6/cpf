@@ -11,7 +11,7 @@ if(isset($_GET['ajax']) || isset($_POST['ajax'])){
 	$ajax = false;
 }
 if(!isset($_SESSION['login'])){
-	header("Location: logoff.php");
+	header("Location: logoff.php?sessao_expirada=true");
 	exit;
 }
 require_once '../../utils/autoload.php';

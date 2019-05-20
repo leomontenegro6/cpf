@@ -64,10 +64,13 @@ if(isset($_GET['esforco_disciplinas'])){
 }
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getDescricao($sistema_lista);
+	$sistema_row = $sistema->get($sistema_lista);
+	$nome_sistema = $sistema_row['nome'];
+	$sigla_sistema = $sistema_row['sigla'];
+	$descricao_sistema = $sigla_sistema . ' - ' . $nome_sistema;
 	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
 } else {
-	$nome_sistema = '';
+	$sigla_sistema = $descricao_sistema = '';
 	$moduloSistema_rs = array();
 }
 if(is_numeric($modulo_lista)){
@@ -102,6 +105,12 @@ if(is_numeric($tipo_sistema_lista)){
 
 $componente_rs = $componente->getByPlanilhaPrazosDesenvolvimento($sistema_lista, $modulo_lista, $funcionalidade_lista, $metodo_estimativa_prazo_lista, $recursos_lista, $tempo_dedicacao_lista, $indice_produtividade_lista, $expoente_capers_jones_lista, $modo_exibicao_tempo, $percentual_reducao_unico, $esforco_disciplinas, $formato_tempo, $ordenacao);
 
+if($modo_exibicao_tempo == 'u'){
+	$rowspan_padrao = 1;
+} else {
+	$rowspan_padrao = 2;
+}
+
 $rowspan_tempo = 1;
 if(isset($esforco_disciplinas['analise']['exibir'])){
 	$rowspan_tempo++;
@@ -119,62 +128,52 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 <div class="card-header">
 	<h3 class="card-title" style="font-weight: bold">
 		<?php
-		echo $nome_sistema;
+		$titulo = $descricao_sistema;
 		if($checkModuloUnico){
 			if(empty($nome_modulo)) $nome_modulo = $moduloSistema_rs['0']['nome'];
-			echo ' - Módulo ' . $nome_modulo;
+			$titulo .= ' - Módulo ' . $nome_modulo;
 		}
 		if($checkFuncionalidadeUnica){
 			if(empty($nome_funcionalidade)) $nome_funcionalidade = $funcionalidadeModulo_rs['0']['nome'];
-			echo ' - ' . $nome_funcionalidade;
-		} 
+			$titulo .= ' - ' . $nome_funcionalidade;
+		}
+		echo $titulo;
 		?>
 		<br />
 		Prazos de Desenvolvimento de Funcionalidades
 	</h3>
 	<div class="card-tools">
-		<?php
-		$parametros = "sistema=$sistema_lista&modulo=$modulo_lista&funcionalidade=$funcionalidade_lista";
-		$parametros .= "&metodo_estimativa_prazo=$metodo_estimativa_prazo_lista&recursos=$recursos_lista";
-		$parametros .= "&tempo_dedicacao=$tempo_dedicacao_lista&indice_produtividade=$indice_produtividade_lista";
-		$parametros .= "&tipo_sistema_lista=$tipo_sistema_lista&expoente_capers_jones_lista=$expoente_capers_jones_lista";
-		if($mostrarOrdem) $parametros .= "&mostrar_ordem=true";
-		if($mostrarComplexidade) $parametros .= "&mostrar_complexidade=true";
-		if($mostrarValorPF) $parametros .= "&mostrar_valor_pf=true";
-		if($arredondarZeros) $parametros .= "&arredondar_zeros=true";
-		$parametros .= "&modo_exibicao_tempo=$modo_exibicao_tempo&formato_tempo=$formato_tempo&percentual_reducao_unico=$percentual_reducao_unico";
-		$parametros .= '&' . http_build_query(array('esforco_disciplinas' => $esforco_disciplinas));
-		?>
-		<button type="button" class="btn btn-success float-right"
-			onclick="abrirPagina('rel_prazos_desenvolvimento_xls.php?<?php echo $parametros ?>', '', '_blank');">
+		<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)"
+			data-titulo="<?php echo $titulo ?>" data-subtitulo="Prazos de Desenvolvimento de Funcionalidades" data-tabela="tabela_prazos_desenvolvimento"
+			data-nome-arquivo="Prazos de Desenvolvimento de Funcionalidades - <?php echo $sigla_sistema ?>">
 			<i class="fas fa-file-excel"></i> Gerar Planilha
 		</button>
 	</div>
 </div>
 <div class="card-body">
 	<div class="table-responsive">
-		<table class="table table-bordered table-sm">
+		<table id="tabela_prazos_desenvolvimento" class="table table-bordered table-sm">
 			<thead>
 				<tr>
 					<?php if(!$checkModuloUnico){ ?>
-						<th rowspan="2" class="align-middle" style="background-color: #fafafa">Módulo</th>
+						<th rowspan="<?php echo $rowspan_padrao ?>" class="align-middle">Módulo</th>
 					<?php } ?>
 					<?php if(!$checkFuncionalidadeUnica){ ?>
-						<th rowspan="2" class="align-middle" style="background-color: #fafafa">Funcionalidade</th>
+						<th rowspan="<?php echo $rowspan_padrao ?>" class="align-middle">Funcionalidade</th>
 					<?php } ?>
-					<th rowspan="2" class="align-middle" style="background-color: #fafafa">Componente</th>
+					<th rowspan="<?php echo $rowspan_padrao ?>" class="align-middle">Componente</th>
 					<?php if($mostrarComplexidade){ ?>
-						<th rowspan="2" class="align-middle" style="background-color: #fafafa">Complexidade</th>
+						<th rowspan="<?php echo $rowspan_padrao ?>" class="align-middle">Complexidade</th>
 					<?php } ?>
 					<?php if($mostrarValorPF){ ?>
-						<th rowspan="2" class="align-middle" style="background-color: #fafafa">Valor (PF)</th>
+						<th rowspan="<?php echo $rowspan_padrao ?>" class="align-middle">Valor (PF)</th>
 					<?php } ?>
 					<?php if($modo_exibicao_tempo == 'u'){ ?>
-						<th rowspan="2" class="align-middle" style="background-color: #fafafa">
+						<th rowspan="<?php echo $rowspan_padrao ?>" class="align-middle">
 							Tempo (<?php echo funcoes::formatarTituloTempoByFormato($formato_tempo) ?>)
 						</th>
 					<?php } else { ?>
-						<th colspan="<?php echo $rowspan_tempo ?>" class="text-center" style="background-color: #fafafa">
+						<th colspan="<?php echo $rowspan_tempo ?>" class="text-center">
 							Tempo (<?php echo funcoes::formatarTituloTempoByFormato($formato_tempo) ?>)
 						</th>
 					<?php } ?>
@@ -182,18 +181,18 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 				<?php if($modo_exibicao_tempo == 'd'){ ?>
 					<tr>
 						<?php if(isset($esforco_disciplinas['analise']['exibir'])){ ?>
-							<th style="background-color: #fafafa">Análise</th>
+							<th>Análise</th>
 						<?php } ?>
 						<?php if(isset($esforco_disciplinas['desenvolvimento']['exibir'])){ ?>
-							<th style="background-color: #fafafa">Desenvolvimento</th>
+							<th>Desenvolvimento</th>
 						<?php } ?>
 						<?php if(isset($esforco_disciplinas['testes']['exibir'])){ ?>
-							<th style="background-color: #fafafa">Testes</th>
+							<th>Testes</th>
 						<?php } ?>
 						<?php if(isset($esforco_disciplinas['implantacao']['exibir'])){ ?>
-							<th style="background-color: #fafafa">Implantação</th>
+							<th>Implantação</th>
 						<?php } ?>
-						<th style="background-color: #fafafa">TOTAL</th>
+						<th>TOTAL</th>
 					</tr>
 				<?php } ?>
 			</thead>
@@ -347,7 +346,7 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 								<td><?php echo $tempos['implantacao'] ?></td>
 							<?php } ?>
 						<?php } ?>
-						<th>
+						<th data-phpspreadsheet-classe="negrito">
 							<?php
 							if($modo_exibicao_tempo == 'd'){
 								echo $tempo_total;

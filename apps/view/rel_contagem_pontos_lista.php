@@ -11,10 +11,13 @@ $modulo_lista = (isset($_GET['modulo_lista'])) ? ($_GET['modulo_lista']) : ($_SE
 $detalhar_campos_arquivos = (isset($_GET['detalhar_campos_arquivos']) && ($_GET['detalhar_campos_arquivos'] == 'true'));
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getDescricao($sistema_lista);
+	$sistema_row = $sistema->get($sistema_lista);
+	$nome_sistema = $sistema_row['nome'];
+	$sigla_sistema = $sistema_row['sigla'];
+	$descricao_sistema = $sigla_sistema . ' - ' . $nome_sistema;
 	$moduloSistema_rs = $modulo->getBySistema($sistema_lista);
 } else {
-	$nome_sistema = '';
+	$sigla_sistema = $descricao_sistema = '';
 	$moduloSistema_rs = array();
 }
 if(is_numeric($modulo_lista)){
@@ -63,7 +66,7 @@ if(is_numeric($modulo_lista)){
 										onchange="select.limpar( gE('modulo_lista') )">
 										<option value="">Escolha um sistema</option>
 										<?php if(is_numeric($sistema_lista)){ ?>
-											<option value="<?php echo $sistema_lista ?>" selected><?php echo $nome_sistema ?></option>
+											<option value="<?php echo $sistema_lista ?>" selected><?php echo $descricao_sistema ?></option>
 										<?php } ?>
 									</select>
 									<span>Sistema</span>
@@ -117,53 +120,55 @@ if(is_numeric($modulo_lista)){
 					<?php
 					if($checkModuloUnico){
 						if(empty($nome_modulo)) $nome_modulo = $moduloSistema_rs['0']['nome'];
-						echo $nome_sistema . ' - Módulo ' . $nome_modulo;
+						$titulo = $descricao_sistema . ' - Módulo ' . $nome_modulo;
 					} else {
-						echo $nome_sistema;
+						$titulo = $descricao_sistema;
 					}
+					echo $titulo;
 					?>
 					<br />
-					Contabilização de Pontos de Função
+					Contagem de Pontos de Função
 				</h3>
 				<div class="card-tools">
-					<button type="button" class="btn btn-success float-right"
-						onclick="abrirPagina('rel_contagem_pontos_xls.php?sistema=<?php echo $sistema_lista ?>&modulo=<?php echo $modulo_lista ?>&detalhar_campos_arquivos=<?php echo ($detalhar_campos_arquivos) ? ('true') : ('false') ?>', '', '_blank');">
+					<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)"
+						data-titulo="<?php echo $titulo ?>" data-subtitulo="Contagem de Pontos de Função" data-tabela="tabela_contagem_pontos"
+						data-nome-arquivo="Contagem de Pontos de Função - <?php echo $sigla_sistema ?>">
 						<i class="fas fa-file-excel"></i> Gerar Planilha
 					</button>
 				</div>
 			</div>
 			<div class="card-body">
 				<div class="table-responsive">
-					<table class="table table-bordered table-sm">
+					<table id="tabela_contagem_pontos" class="table table-bordered table-sm">
 						<thead>
 							<?php if($detalhar_campos_arquivos){ ?>
 								<tr>
 									<?php if(!$checkModuloUnico){ ?>
-										<th class="align-middle" style="background-color: #fafafa">Módulo</th>
+										<th class="align-middle">Módulo</th>
 									<?php } ?>
-									<th class="align-middle" style="background-color: #fafafa">Funcionalidade</th>
-									<th class="align-middle" style="background-color: #fafafa">Componente</th>
-									<th class="align-middle" style="background-color: #fafafa">Tipo Funcional</th>
-									<th class="align-middle" style="background-color: #fafafa">Tipos de Dados</th>
-									<th class="align-middle" style="background-color: #fafafa">Arquivos Referenciados</th>
-									<th class="align-middle" style="background-color: #fafafa">Complexidade</th>
-									<th class="align-middle" style="background-color: #fafafa">Valor (PF)</th>
+									<th class="align-middle">Funcionalidade</th>
+									<th class="align-middle">Componente</th>
+									<th class="align-middle">Tipo Funcional</th>
+									<th class="align-middle">Tipos de Dados</th>
+									<th class="align-middle">Arquivos Referenciados</th>
+									<th class="align-middle">Complexidade</th>
+									<th class="align-middle">Valor (PF)</th>
 								</tr>
 							<?php } else { ?>
 								<tr>
 									<?php if(!$checkModuloUnico){ ?>
-										<th rowspan="2" class="align-middle" style="background-color: #fafafa">Módulo</th>
+										<th rowspan="2" class="align-middle">Módulo</th>
 									<?php } ?>
-									<th rowspan="2" class="align-middle" style="background-color: #fafafa">Funcionalidade</th>
-									<th rowspan="2" class="align-middle" style="background-color: #fafafa">Componente</th>
-									<th rowspan="2" class="align-middle" style="background-color: #fafafa">Tipo Funcional</th>
-									<th colspan="2" class="text-center" style="background-color: #fafafa">Quantidades</th>
-									<th rowspan="2" class="align-middle" style="background-color: #fafafa">Complexidade</th>
-									<th rowspan="2" class="align-middle" style="background-color: #fafafa">Valor (PF)</th>
+									<th rowspan="2" class="align-middle">Funcionalidade</th>
+									<th rowspan="2" class="align-middle">Componente</th>
+									<th rowspan="2" class="align-middle">Tipo Funcional</th>
+									<th colspan="2" class="text-center">Quantidades</th>
+									<th rowspan="2" class="align-middle">Complexidade</th>
+									<th rowspan="2" class="align-middle">Valor (PF)</th>
 								</tr>
 								<tr>
-									<th style="background-color: #fafafa">Tipos de Dados</th>
-									<th style="background-color: #fafafa">Arquivos Referenciados</th>
+									<th>Tipos de Dados</th>
+									<th>Arquivos Referenciados</th>
 								</tr>
 							<?php } ?>
 						</thead>

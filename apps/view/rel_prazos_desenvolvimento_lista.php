@@ -510,7 +510,7 @@ $placeholder_expoente_capers_jones = 'Digite um valor entre ' . str_replace('.',
 			</div>
 		</div>
 	</div>
-	<div class="card" id="tabela_prazos_desenvolvimento">
+	<div class="card" id="conteiner_tabela_prazos_desenvolvimento">
 		<?php
 		if(isset($_GET['Submit'])){
 			$_GET['ajax'] = true;

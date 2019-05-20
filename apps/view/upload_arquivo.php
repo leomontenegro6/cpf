@@ -9,7 +9,7 @@ if(isset($_SESSION['iduser'])){
 			if($tamanho_arquivo_transferido > 0){
 				if($tamanho_arquivo_transferido <= $tamanho_limite || $tamanho_limite == 0){
 					$origem_arquivo_transferido = $_FILES[$_POST['name']]['tmp_name'];
-					$destino_arquivo_transferido = $_FILES[$_POST['name']]['tmp_name'] . '_sisrdp_tmp';
+					$destino_arquivo_transferido = $_FILES[$_POST['name']]['tmp_name'] . '_cpf_tmp';
 					if(move_uploaded_file($origem_arquivo_transferido, $destino_arquivo_transferido)){
 						$nome_servidor = base64_encode($_FILES[$_POST['name']]['name']);
 						$caminho_servidor = base64_encode($destino_arquivo_transferido);

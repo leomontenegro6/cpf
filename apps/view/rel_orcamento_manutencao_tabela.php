@@ -6,29 +6,30 @@ $sistema = new sistema();
 $sistema_lista = (isset($_GET['sistema_lista'])) ? ($_GET['sistema_lista']) : ($_SESSION['sistema_sessao']);
 
 if(is_numeric($sistema_lista)){
-	$nome_sistema = $sistema->getDescricao($sistema_lista);
+	$sistema_row = $sistema->get($sistema_lista);
+	$nome_sistema = $sistema_row['nome'];
+	$sigla_sistema = $sistema_row['sigla'];
+	$descricao_sistema = $sigla_sistema . ' - ' . $nome_sistema;
 } else {
-	$nome_sistema = '...';
+	$descricao_sistema = '...';
 }
 ?>
 <div class="card-header">
 	<h3 class="card-title" style="font-weight: bold">
-		<span id="nome_sistema"><?php echo $nome_sistema ?></span><br />
+		<span id="nome_sistema"><?php echo $descricao_sistema ?></span><br />
 		Orçamento de Manutenção de Funcionalidades
 	</h3>
 	<div class="card-tools">
-		<?php
-		$parametros = "";
-		?>
-		<button type="button" class="btn btn-success float-right"
-			onclick="abrirPagina('rel_orcamento_manutencao_xls.php?<?php echo $parametros ?>', '', '_blank');">
+		<button type="button" id="botao_gerar_planilha" class="btn btn-success float-right" onclick="orcamentoManutencao.gerarPlanilha(this)"
+			data-titulo="<?php echo $descricao_sistema ?>" data-subtitulo="Orçamento de Manutenção de Funcionalidades" data-tabela="tabela_orcamento_manutencao"
+			data-nome-arquivo="Orçamento de Manutenção de Funcionalidades - <?php echo $sigla_sistema ?>">
 			<i class="fas fa-file-excel"></i> Gerar Planilha
 		</button>
 	</div>
 </div>
 <div class="card-body">
 	<div class="table-responsive">
-		<table class="table table-bordered table-sm" data-iterador-funcionalidades="0" data-iterador-componentes="0">
+		<table id="tabela_orcamento_manutencao" class="table table-bordered table-sm" data-iterador-funcionalidades="0" data-iterador-componentes="0">
 			<thead>
 				<tr>
 					<th rowspan="2" class="align-middle">Ordem</th>
