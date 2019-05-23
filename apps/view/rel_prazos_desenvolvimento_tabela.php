@@ -143,10 +143,11 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 		Prazos de Desenvolvimento de Funcionalidades
 	</h3>
 	<div class="card-tools">
-		<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)"
+		<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)" title='Gerar Planilha'
 			data-titulo="<?php echo $titulo ?>" data-subtitulo="Prazos de Desenvolvimento de Funcionalidades" data-tabela="tabela_prazos_desenvolvimento"
 			data-nome-arquivo="Prazos de Desenvolvimento de Funcionalidades - <?php echo $sigla_sistema ?>">
-			<i class="fas fa-file-excel"></i> Gerar Planilha
+			<i class="fas fa-file-excel"></i>
+			<span class='d-none d-sm-inline'>Gerar Planilha</span>
 		</button>
 	</div>
 </div>
@@ -244,12 +245,19 @@ if(isset($esforco_disciplinas['implantacao']['exibir'])){
 								'testes' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['testes'], $formato_tempo, $arredondarZeros),
 								'implantacao' => funcoes::encodarTempoPrazosDesenvolvimentoByFormato($componente_row['tempo']['implantacao'], $formato_tempo, $arredondarZeros)
 							);
-						} elseif(in_array($formato_tempo, array('hnr', 'dnr', 'mnr'))){
+						} elseif(in_array($formato_tempo, array('hnr', 'dnr'))){
 							$tempos = array(
 								'analise' => round($componente_row['tempo']['analise'], 2),
 								'desenvolvimento' => round($componente_row['tempo']['desenvolvimento'], 2),
 								'testes' => round($componente_row['tempo']['testes'], 2),
 								'implantacao' => round($componente_row['tempo']['implantacao'], 2)
+							);
+						} elseif($formato_tempo == 'mnr'){
+							$tempos = array(
+								'analise' => round($componente_row['tempo']['analise'], 4),
+								'desenvolvimento' => round($componente_row['tempo']['desenvolvimento'], 4),
+								'testes' => round($componente_row['tempo']['testes'], 4),
+								'implantacao' => round($componente_row['tempo']['implantacao'], 4)
 							);
 						} else {
 							$tempos = array(

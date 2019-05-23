@@ -12,7 +12,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormularioCadastroFuncionalidades($id_tipo_funcionalidade, $nome_funcionalidade);
 ?>
 <b>Componentes</b>
-<div class="row">
+<div class="row d-flex d-sm-none">
 	<div class="col-3" style="border: 1px solid #dee2e6"><b>Tipo</b></div>
 	<div class="col-3" style="border: 1px solid #dee2e6"><b>Campos</b></div>
 	<div class="col-3" style="border: 1px solid #dee2e6"><b>Arquivos Referenciados</b></div>

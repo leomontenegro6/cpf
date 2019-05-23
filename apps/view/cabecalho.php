@@ -38,6 +38,7 @@ if(!$ajax){
 			<meta charset="utf-8">
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<title>CPF | Contador de Pontos de Função</title>
+			<link rel="shortcut icon" type="image/x-icon" href="../common/img/favicon.ico" />
 			<!-- Tell the browser to be responsive to screen width -->
 			<meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -60,5 +61,6 @@ if(!$ajax){
 			<link href="../common/css/dataTables.responsive.css" rel="stylesheet">
 			<!-- Custom CSS -->
 			<link rel="stylesheet" href="../common/css/css.css?<?php echo filemtime('../common/css/css.css') ?>">
+			<link rel="stylesheet" href="../common/css/css-xs.css?<?php echo filemtime('../common/css/css-xs.css') ?>">
 		</head>
 <?php } ?>

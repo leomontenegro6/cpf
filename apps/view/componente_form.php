@@ -60,7 +60,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 		<div class="card-body">
 			
 			<div class="row">
-				<div class="col-4">
+				<div class="col-md-4 col-xs-12">
 					<label class="form-group has-float-label">
 						<select id="sistema" name="sistema" class="select form-control" required
 							data-pagina="sistema_autocomplete.php" data-limite-caracteres="0"
@@ -73,7 +73,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 						<span>Sistema</span>
 					</label>
 				</div>
-				<div class="col-4">
+				<div class="col-md-4 col-xs-12">
 					<label class="form-group has-float-label">
 						<select id="modulo" name="modulo" class="select form-control" required
 							data-pagina="modulo_autocomplete.php?sistema={sistema}" data-limite-caracteres="0"
@@ -86,7 +86,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 						<span>Módulo</span>
 					</label>
 				</div>
-				<div class="col-4">
+				<div class="col-md-4 col-xs-12">
 					<label class="form-group has-float-label">
 						<select id="funcionalidade" name="funcionalidade" class="select form-control" required
 							data-pagina="funcionalidade_autocomplete.php?sistema={sistema}&modulo={modulo}" data-limite-caracteres="0"
@@ -101,7 +101,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-4">
+				<div class="col-md-4 col-xs-12">
 					<label class="form-group has-float-label">
 						<select id="tipo_componente" name="tipo_componente" class="select form-control" required
 							onchange="calcularComplexidadeEValorComponente(this)">
@@ -126,7 +126,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 						<span>Tipo de Componente</span>
 					</label>
 				</div>
-				<div class="col-2">
+				<div class="col-md-2 col-xs-12">
 					<div class="form-group has-float-label">
 						<input class="form-control" id="ordem" name="ordem" type="number"
 							placeholder="Digite a ordem" value="<?php echo $ordem ?>" min="0"
@@ -134,7 +134,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 						<label for="ordem">Ordem</label>
 					</div>
 				</div>
-				<div class="col-3">
+				<div class="col-md-3 col-xs-12">
 					<div class="custom-control custom-checkbox">
 						<input type="checkbox" class="custom-control-input" id="possui_acoes"
 							name="possui_acoes" value="true" <?php if($possui_acoes) echo 'checked' ?>
@@ -142,7 +142,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 						<label class="custom-control-label" for="possui_acoes">Possui Ações</label>
 					</div>
 				</div>
-				<div class="col-3">
+				<div class="col-md-3 col-xs-12">
 					<div class="custom-control custom-checkbox">
 						<input type="checkbox" class="custom-control-input" id="possui_mensagens"
 							name="possui_mensagens" value="true" <?php if($possui_mensagens) echo 'checked' ?>
@@ -152,7 +152,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-6">
+				<div class="col-md-6 col-xs-12">
 					<label class="form-group">
 						<div id="campos_campos" class="campo_multiplo" data-aceita-valores-duplicados='true'>
 							<table class="conteiner">
@@ -195,7 +195,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 						</div>
 					</label>
 				</div>
-				<div class="col-6">
+				<div class="col-md-6 col-xs-12">
 					<label class="form-group has-float-label">
 						<div id="campos_arquivos_referenciados" class="campo_multiplo" data-aceita-valores-duplicados='true'>
 							<table class="conteiner">

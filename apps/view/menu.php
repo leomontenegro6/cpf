@@ -1,5 +1,5 @@
 <?php if($ajax === false){ ?>
-	<body class="hold-transition sidebar-mini <?php echo ($_SESSION['menu_minimizado']) ? ('sidebar-collapse') : ('sidebar-open') ?>">
+	<body class="hold-transition sidebar-mini <?php echo ($_SESSION['menu_minimizado']) ? ('sidebar-collapse') : ('') ?>">
 		<!-- Site wrapper -->
 		<div class="wrapper">
 			<!-- Navbar -->

@@ -10,6 +10,13 @@ $id_sistema = (isset($_GET['sistema'])) ? ($_GET['sistema']) : ('');
 
 if(is_numeric($id_sistema)){
 	?>
+	<div class="input-group">
+		<input type="search" class="form-control" placeholder="Digite o nome da funcionalidade ou componente"
+			onkeyup="orcamentoManutencao.buscarComponenteAlteracaoExclusaoFuncionalidades(this, event)" />
+		<span class="input-group-append">
+			<span class="input-group-text"><i class="fas fa-search"></i></span>
+		</span>
+	</div>
 	<table class="table table-bordered table-sm" style="width: 100%">
 		<thead>
 			<tr>
@@ -18,6 +25,7 @@ if(is_numeric($id_sistema)){
 				<th>Funcionalidade / Componente</th>
 				<th>Tipo de Manutenção</th>
 				<th>Fator de Impacto</th>
+				<th>Detalhes</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -84,7 +92,7 @@ if(is_numeric($id_sistema)){
 								<div class="custom-control custom-checkbox" style="display: inline-block">
 									<input type="checkbox" id="funcionalidade_<?php echo $id_funcionalidade ?>" class="custom-control-input"
 										name="funcionalidades[<?php echo $id_funcionalidade ?>][marcada]" value="<?php echo $id_funcionalidade ?>"
-										data-modulo="<?php echo $id_modulo ?>" required
+										data-modulo="<?php echo $id_modulo ?>"
 										onchange="orcamentoManutencao.toggleModuloPaiFuncionalidade(this); orcamentoManutencao.toggleComponentesFilhosFuncionalidade(this)" />
 									<label for="funcionalidade_<?php echo $id_funcionalidade ?>" class="custom-control-label">Funcionalidade "<?php echo $nome_funcionalidade ?>"</label>
 								</div>
@@ -101,7 +109,7 @@ if(is_numeric($id_sistema)){
 								<div class="custom-control custom-checkbox" style="display: inline-block">
 									<input type="checkbox" id="componente_<?php echo $id_componente ?>" class="custom-control-input"
 										name="componentes[<?php echo $id_componente ?>][marcado]" value="<?php echo $id_componente ?>"
-										data-funcionalidade="<?php echo $id_funcionalidade ?>" required
+										data-funcionalidade="<?php echo $id_funcionalidade ?>"
 										onchange="orcamentoManutencao.toggleModuloFuncionalidadePaiComponente(this);" />
 									<label for="componente_<?php echo $id_componente ?>" class="custom-control-label"><?php echo $tipo_componente ?></label>
 								</div>
@@ -131,6 +139,10 @@ if(is_numeric($id_sistema)){
 									</div>
 								</div>
 							</td>
+							<td>
+								<textarea name="componentes[<?php echo $id_componente ?>][detalhes]" class="form-control form-control-sm"
+									disabled></textarea>
+							</td>
 						</tr>
 						<?php
 					}
@@ -139,7 +151,7 @@ if(is_numeric($id_sistema)){
 		</tbody>
 		<tfoot>
 			<tr>
-				<th colspan="5" class="text-center">
+				<th colspan="6" class="text-center">
 					<button type="submit" class="btn btn-success" title="Adicionar funcionalidade(s) existente(s), no orçamento" disabled
 						style="background-image: linear-gradient(30deg, #28a745 25%, #dc3545 75%);">
 						<i class="fas fa-arrow-down"></i>

@@ -65,7 +65,7 @@ class funcionalidade extends abstractBusiness{
 		$sql_where = $this->formataSQLByListagem($busca, $id_sistema, $id_modulo, $id_tipo_funcionalidade);
 		
 		$funcionalidade_rs = $this->getFieldsByParameter("f.ordem, s.nome AS sistema, m.nome AS modulo, f.nome,
-			tf.descricao AS tipo_funcionalidade, COUNT(c.id) AS total_componentes, f.id", "f
+			tf.descricao AS tipo_funcionalidade, COUNT(c.id) AS total_componentes, '' AS valor_pf, f.id", "f
 				JOIN tipos_funcionalidades tf ON (f.tipo_funcionalidade = tf.id)
 				JOIN modulos m ON (f.modulo = m.id)
 				JOIN sistemas s ON (m.sistema = s.id)
@@ -75,7 +75,7 @@ class funcionalidade extends abstractBusiness{
 			ORDER BY $ordenacao $filtragem
 			LIMIT $limit OFFSET $offset");
 		foreach($funcionalidade_rs as $i=>$funcionalidade_row){
-			
+			$funcionalidade_rs[$i]['valor_pf'] = $this->calcularValorPF($funcionalidade_row['id']);
 		}
 		return $funcionalidade_rs;
 	}

@@ -28,7 +28,7 @@ $nome = $usuario_row['nome'];
 
 <section id="corpo" class="content">
 	<div class="row">
-		<div class="col-6 mx-auto">
+		<div class="col-md-6 col-xs-12 mx-auto">
 			<div class="card card-success">
 				<div class="card-header">
 					<h3 class="card-title">Alterar Senha</h3>

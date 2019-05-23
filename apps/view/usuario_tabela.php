@@ -23,7 +23,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 		$atributo_id = '';
 	}
 	?>
-	<div class="card">
+	<div class="card conteiner_tabelaaberta">
 		<div class="card-header">
 			<button type="button" class="btn btn-warning float-left" onclick="history.back()">
 				<i class="fas fa-arrow-left"></i> Voltar

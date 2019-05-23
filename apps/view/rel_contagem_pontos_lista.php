@@ -50,7 +50,7 @@ if(is_numeric($modulo_lista)){
 
 <section id="corpo" class="content">
 	<div id="filtros" class="row">
-		<div class="col-10 mx-auto">
+		<div class="col-sm-10 col-xs-12 mx-auto">
 			<div class="card card-info">
 				<div class="card-header">
 					<h3 class="card-title">Filtros de Busca</h3>
@@ -130,10 +130,11 @@ if(is_numeric($modulo_lista)){
 					Contagem de Pontos de Função
 				</h3>
 				<div class="card-tools">
-					<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)"
+					<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)" title='Gerar Planilha'
 						data-titulo="<?php echo $titulo ?>" data-subtitulo="Contagem de Pontos de Função" data-tabela="tabela_contagem_pontos"
 						data-nome-arquivo="Contagem de Pontos de Função - <?php echo $sigla_sistema ?>">
-						<i class="fas fa-file-excel"></i> Gerar Planilha
+						<i class="fas fa-file-excel"></i>
+						<span class='d-none d-sm-inline'>Gerar Planilha</span>
 					</button>
 				</div>
 			</div>

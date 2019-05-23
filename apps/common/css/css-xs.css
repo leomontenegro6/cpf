@@ -1,0 +1,86 @@
+/* Regras para dispositivos mobile */
+@media (max-width: 575px) {
+	.nav-sidebar .nav-item>.nav-link{
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	/* Campos de formulário agrupados */
+	div.input-group.with-float-label div.input-group-prepend,
+	div.modal-body div.input-group.with-float-label div.input-group-prepend{
+		margin-right: -2px;
+	}
+	/* Campos de arquivo instanciados pelo componente FileUploader */
+	.conteiner_arquivo .nome>span.valor{
+		width: 100px;
+	}
+	/* Estilizações adicionais do jQuery DataTables */
+	div.conteiner_tabelaaberta div.card-header,
+	div.conteiner_tabelaaberta div.card-body{
+		padding: 0.5rem;
+	}
+	.tabelaaberta div.dataTables_length{
+		width: 30%;
+	}
+	.tabelaaberta div.conteiner_dataTables_filter{
+		width: 70%;
+		display: inline-block;
+	}
+	.tabelaaberta div.conteiner_dataTables_filter input[type='text']{
+		width: 95%;
+		padding-top: 9px;
+		padding-bottom: 7px;
+	}
+	/* Ações mobile */
+	.tabelaaberta td.acoes{
+		text-align: center;
+	}
+	.tabelaaberta td.acoes button.dropdown-toggle:after{
+		content: none;
+	}
+	div.acoes_mobile{
+		margin: 0;
+		padding: 0;
+	}
+	div.acoes_mobile>h6.dropdown-header{
+		font-size: 13px;
+		font-weight: bold;
+		color: white;
+		text-shadow: 0px 1px 0px rgba(0,0,0,0.7);
+		text-align: center;
+		background: #545B62;
+	}
+	div.acoes_mobile>div.dropdown-divider{
+		margin: 0;
+	}
+	div.acoes_mobile a{
+		padding: 10px 3px;
+		border: 1px solid transparent;
+		border-bottom-color: rgba(0, 0, 0, 0.14902);
+	}
+	div.acoes_mobile a:last-child{
+		border-bottom-color: transparent;
+	}
+	div.acoes_mobile a:hover, div.acoes_mobile a:focus{
+		border: 1px solid #aaa;
+		background-color: #007bff !important;
+		color: white;
+		text-shadow: 0px 1px 0px black;
+	}
+	div.acoes_mobile a>i.fa, div.acoes_mobile a>i.fas{
+		margin-left: 3px;
+		margin-right: 3px;
+	}
+	div.acoes_mobile a>img{
+		margin-left: 3px;
+		margin-right: 3px;
+	}
+	div.acoes_mobile a.mobile-success{
+		background-color: #dff0d8;
+	}
+	div.acoes_mobile a.mobile-primary{
+		background-color: #d9edf7;
+	}
+	div.acoes_mobile a.mobile-danger{
+		background-color: #f2dede;
+	}
+}

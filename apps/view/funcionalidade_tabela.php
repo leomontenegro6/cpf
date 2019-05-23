@@ -23,7 +23,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 		$atributo_id = '';
 	}
 	?>
-	<div class="card">
+	<div class="card conteiner_tabelaaberta">
 		<div class="card-header">
 			<div class="btn-group float-left">
 				<button type="button" class="btn btn-warning" onclick="history.back()">
@@ -47,11 +47,12 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 					<thead>
 						<tr>
 							<th class="align-middle">Ordem</th>
-							<th class="align-middle">Sistema</th>
-							<th class="align-middle">Módulo</th>
+							<th class="align-middle not-mobile">Sistema</th>
+							<th class="align-middle not-mobile">Módulo</th>
 							<th class="align-middle">Nome</th>
 							<th class="align-middle">Tipo de Funcionalidade</th>
 							<th class="align-middle">Componentes</th>
+							<th class="align-middle" data-ordenavel="false">Valor (PF)</th>
 							<th width="75" class="acoes align-middle">Ações</th>
 						</tr>
 					</thead>
@@ -64,6 +65,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 							<th class="align-middle">Nome</th>
 							<th class="align-middle">Tipo de Funcionalidade</th>
 							<th class="align-middle">Componentes</th>
+							<th class="align-middle">Valor (PF)</th>
 							<th width="75" class="acoes align-middle">Ações</th>
 						</tr>
 					</tfoot>

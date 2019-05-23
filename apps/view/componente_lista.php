@@ -30,7 +30,7 @@ $checkExibirFiltros = (!empty($sistema_lista) || !empty($modulo_lista) || !empty
 
 <section id="corpo" class="content">
 	<div id="filtros" class="row <?php if(!$checkExibirFiltros) echo 'collapse' ?>">
-		<div class="col-10 mx-auto">
+		<div class="col-sm-10 col-xs-12 mx-auto">
 			<div class="card card-info">
 				<div class="card-header">
 					<h3 class="card-title">Filtros de Busca</h3>

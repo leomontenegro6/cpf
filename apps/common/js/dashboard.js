@@ -11,7 +11,7 @@ function dashboard(){
 		var $tabelaValoresSistemas = $('#valores_sistemas');
 		
 		$tabelaValoresSistemas.DataTable({
-			scrollY: "105px",
+			scrollY: (getDispositivo() == 'xs') ? ("210px") : ("105px"),
 			scrollCollapse: true,
 			paging: false,
 			info: false,

@@ -29,7 +29,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 
 <section id="corpo" class="content">
 	<div class="row">
-		<div class="col-8">
+		<div class="col-md-8">
 			<div class="card card-warning card-outline">
 				<div class="card-header">
 					<h3 class="card-title">Valores de Sistemas</h3>
@@ -55,7 +55,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 				</div>
 			</div>
 		</div>
-		<div class="col-4">
+		<div class="col-md-4">
 			<div class="card card-success card-outline">
 				<div class="card-header">
 					<h3 class="card-title">Filtros Globais</h3>

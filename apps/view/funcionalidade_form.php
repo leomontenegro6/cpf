@@ -44,7 +44,7 @@ $tipoFuncionalidade_rs = $tipoFuncionalidade->getAll();
 		class="needs-validation" onsubmit="return validaForm(this)" data-ajax='true' novalidate>
 		<div class="card-body">
 			<div class="row">
-				<div class="col-6">
+				<div class="col-md-6 col-xs-12">
 					<label class="form-group has-float-label">
 						<select id="sistema" name="funcionalidade[sistema]" class="select form-control"
 							data-pagina="sistema_autocomplete.php" data-limite-caracteres="0"
@@ -57,7 +57,7 @@ $tipoFuncionalidade_rs = $tipoFuncionalidade->getAll();
 						<span>Sistema</span>
 					</label>
 				</div>
-				<div class="col-6">
+				<div class="col-md-6 col-xs-12">
 					<label class="form-group has-float-label">
 						<select id="modulo" name="funcionalidade[modulo]" class="select form-control"
 							data-pagina="modulo_autocomplete.php?sistema={sistema}" data-limite-caracteres="0"
@@ -72,21 +72,21 @@ $tipoFuncionalidade_rs = $tipoFuncionalidade->getAll();
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-6">
+				<div class="col-md-6 col-xs-12">
 					<div class="form-group has-float-label">
 						<input class="form-control" id="nome" name="funcionalidade[nome]" type="text" required
 							placeholder="Digite o nome da funcionalidade" value="<?php echo $nome ?>">
 						<label for="nome">Nome</label>
 					</div>
 				</div>
-				<div class="col-3">
+				<div class="col-md-3 col-xs-12">
 					<div class="form-group has-float-label">
 						<input class="form-control" id="ordem" name="funcionalidade[ordem]" type="number"
 							placeholder="Digite a ordem" value="<?php echo $ordem ?>" min="0">
 						<label for="ordem">Ordem</label>
 					</div>
 				</div>
-				<div class="col-3">
+				<div class="col-md-3 col-xs-12">
 					<label class="form-group has-float-label">
 						<select id="tipo_funcionalidade" name="funcionalidade[tipo_funcionalidade]" class="select form-control"
 							required <?php if($acao == 'cadastrar'){ ?>onchange="carregarComponentesByTipoFuncionalidade(this)"<?php } ?>>

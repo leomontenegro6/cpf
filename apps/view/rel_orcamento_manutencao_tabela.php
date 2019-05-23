@@ -20,10 +20,11 @@ if(is_numeric($sistema_lista)){
 		Orçamento de Manutenção de Funcionalidades
 	</h3>
 	<div class="card-tools">
-		<button type="button" id="botao_gerar_planilha" class="btn btn-success float-right" onclick="orcamentoManutencao.gerarPlanilha(this)"
+		<button type="button" id="botao_gerar_planilha" class="btn btn-success float-right" onclick="orcamentoManutencao.gerarPlanilha(this)" title='Gerar Planilha'
 			data-titulo="<?php echo $descricao_sistema ?>" data-subtitulo="Orçamento de Manutenção de Funcionalidades" data-tabela="tabela_orcamento_manutencao"
 			data-nome-arquivo="Orçamento de Manutenção de Funcionalidades - <?php echo $sigla_sistema ?>">
-			<i class="fas fa-file-excel"></i> Gerar Planilha
+			<i class="fas fa-file-excel"></i>
+			<span class='d-none d-sm-inline'>Gerar Planilha</span>
 		</button>
 	</div>
 </div>
@@ -40,6 +41,7 @@ if(is_numeric($sistema_lista)){
 					<th colspan="2" class="valor_pf text-center align-middle">Valor (PF)</th>
 					<th rowspan="2" class="tempo align-middle">Tempo (Horas)</th>
 					<th rowspan="2" class="custo align-middle">Custo (R$)</th>
+					<th rowspan="2" class="detalhes align-middle">Detalhes</th>
 				</tr>
 				<tr>
 					<th class="valor_pf_original align-middle">Original</th>
@@ -54,6 +56,7 @@ if(is_numeric($sistema_lista)){
 					<th class="total_valor_pf_ajustado_formatado">---</th>
 					<th class="total_tempo_formatado">---</th>
 					<th class="total_custo_formatado">---</th>
+					<th class="detalhes">&nbsp;</th>
 				</tr>
 			</tfoot>
 		</table>
@@ -66,5 +69,6 @@ if(is_numeric($sistema_lista)){
 		<input type="hidden" class="mostrar_valores_pf" name="mostrar_valores_pf" value="oa" />
 		<input type="hidden" class="mostrar_tempo" name="mostrar_tempo" value="true" />
 		<input type="hidden" class="mostrar_custo" name="mostrar_custo" value="true" />
+		<input type="hidden" class="mostrar_detalhes" name="mostrar_detalhes" value="true" />
 	</div>
 </div>

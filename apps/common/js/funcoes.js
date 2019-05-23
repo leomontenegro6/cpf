@@ -3,6 +3,25 @@ var navegador_IE = eval('/*@cc_on !@*/false');
 var versao_jscript = (navegador_IE) ? eval("/*@cc_on @_jscript_version @*/") : (0);
 var versao_IE = (navegador_IE) ? (getVersaoIE()) : (0);
 
+// Adicionando funções como membro do protótipo do objeto String
+String.prototype.strtr = function (replacePairs) {
+    var str = this.toString(), key, re;
+    for (key in replacePairs) {
+        if (replacePairs.hasOwnProperty(key)) {
+            if (key == '*') {
+                re = /\*/g;
+            } else if (key == '.') {
+                re = /\./g;
+            } else {
+                re = new RegExp(key, 'g');
+            }
+            str = str.replace(re, replacePairs[key]);
+        }
+    }
+    return str;
+};
+
+//Funções JavaScript
 function gE(ID) {
 	return document.getElementById(ID);
 }
@@ -67,14 +86,14 @@ function scrollarElemento(id_elemento, tempo){
 	}
 }
 
-function gerarIdAleatorio(el){
-	var nome, numero, id;
-	do{
-		nome = ($(el).attr('name') === undefined) ? ('sem_nome') : $(el).attr('name');
-		numero = parseInt(Math.random() * 1000, 10);
-		id = (nome + numero).replace("[", "").replace("]", "");
-	} while($('#'+id).length > 0);
-	return id;
+function gerarIdAleatorio(el) {
+    var nome, numero, id;
+    do {
+        nome = ($(el).attr('name') === undefined) ? ('sem_nome') : $(el).attr('name');
+        numero = parseInt(Math.random() * 1000, 10);
+        id = (nome + numero).replace(/\[/g, "").replace(/\]/g, "");
+    } while ($('#' + id).length > 0);
+    return id;
 }
 
 function isInt(n){
@@ -96,32 +115,28 @@ function fmod(a, b){
 
 /* Função que retorna o dispositivo utilizado pelo usuário, para acessar o sistema
  * Valores possíveis de retorno:
- *	- xs: Extra small (Celulares, com largura de tela menor que 768px);
- *	- sm: Small (Tablets, com largura de tela maior ou igual a 768px);
- *	- md: Medium (Desktops de monitor antigo, com largura maior ou igual a 992px);
- *	- lg: Large (Desktops de monitor widescreen, com largura maior ou igual a 1200px).
+ *	- xs: Extra small (Celulares, com largura de tela menor que 576px);
+ *	- sm: Small (Tablets, com largura de tela entre 576px e 767px);
+ *	- md: Medium (Desktops de monitor antigo, com largura entre 768px e 991px);
+ *	- lg: Large (Desktops de monitor widescreen, com largura entre 992px e 1199px).
+ *	- xl: Extra-Large (Desktops de monitor widescreen, com largura maior ou igual a 1200px).
  * */
-function getDispositivo(onresize) {
-	if(typeof onresize == 'undefined') onresize = false;
-	if(onresize){
-		$(window).off('resize.atualizaVariavelGlobal').on('resize.atualizaVariavelGlobal', function(){
-			window.dispositivo = getDispositivo(false);
-		});
-	}
-	var envs = ['xs', 'sm', 'md', 'lg'];
+function getDispositivo() {
+	return breakpoint;
+}
 
-	var $el = $('<div>');
-	$el.appendTo( $('body') );
-
-	for (var i = envs.length - 1; i >= 0; i--) {
-		var env = envs[i];
-
-		$el.addClass('hidden-'+env);
-		if ($el.is(':hidden')) {
-			$el.remove();
-			return env
-		}
-	};
+function normalize(texto) {
+    var table_caracteres_especiais = {
+        'Š': 'S', 'š': 's', 'Đ': 'Dj', 'đ': 'dj', 'Ž': 'Z', 'ž': 'z', 'Č': 'C', 'č': 'c', 'Ć': 'C', 'ć': 'c',
+        'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'A', 'Å': 'A', 'Æ': 'A', 'Ç': 'C', 'È': 'E', 'É': 'E',
+        'Ê': 'E', 'Ë': 'E', 'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I', 'Ñ': 'N', 'Ò': 'O', 'Ó': 'O', 'Ô': 'O',
+        'Õ': 'O', 'Ö': 'O', 'Ø': 'O', 'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'U', 'Ý': 'Y', 'Þ': 'B', 'ß': 'Ss',
+        'à': 'a', 'á': 'a', 'â': 'a', 'ã': 'a', 'ä': 'a', 'å': 'a', 'æ': 'a', 'ç': 'c', 'è': 'e', 'é': 'e',
+        'ê': 'e', 'ë': 'e', 'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i', 'ð': 'o', 'ñ': 'n', 'ò': 'o', 'ó': 'o',
+        'ô': 'o', 'õ': 'o', 'ö': 'o', 'ø': 'o', 'ù': 'u', 'ú': 'u', 'û': 'u', 'ý': 'y', 'ý':'y', 'þ': 'b',
+        'ÿ': 'y', 'Ŕ': 'R', 'ŕ': 'r', '*': '', ';': '', '.': '', '\'': '', '´': '', '_': ' '
+    };
+    return texto.strtr(table_caracteres_especiais);
 }
 
 function instanciarComponentes(campo, escopo){
@@ -452,7 +467,13 @@ function mostrarAvisosValidaForm(camposAlvo){
 				// Abas
 				aviso($elemento, mensagem, 8, posicao);
 			} else if($elemento.is("[data-role='tagsinput']")){
+				// Bootstrap Tagsinput
 				$elemento.siblings('div.bootstrap-tagsinput').after(
+					$('<div />').addClass('invalid-feedback').html(mensagem)
+				);
+			} else if($elemento.parent().hasClass('input-group')){
+				// Campos agrupados do Bootstrap
+				$elemento.parent().append(
 					$('<div />').addClass('invalid-feedback').html(mensagem)
 				);
 			} else {
@@ -539,7 +560,9 @@ function mostraModalSubmissaoFormAjax(tipo_modal, mensagem, mostrarDetalhes, det
 		$modalRetorno = jAlert(mensagem);
 	} else if(tipo_modal == 'erro'){
 		if (typeof mensagem == 'string' && mensagem.startsWith('Sessão expirada')) {
-			$modalRetorno = modal.sessaoExpirada();
+			$modalRetorno = jError('Sessão expirada', undefined, function(){
+				abrirPagina('logoff.php?sessao_expirada=true');
+			});
 		} else {
 			$modalRetorno = jError(mensagem);
 		}
@@ -605,6 +628,52 @@ function resetaForm(form){
 			}
 		});
 	}, 25);
+}
+
+function limparCampos(id_conteiner) {
+    var busca;
+    if ((typeof id_conteiner != 'undefined') && $('#' + id_conteiner).length > 0) {
+        busca = $('#' + id_conteiner);
+    } else {
+        busca = $('body').find("form");
+    }
+    busca.find("input:not([hidden]), textarea, select").not("[data-desativar-limpar='true']").each(function () {
+        var $campo = $(this);
+
+        if (($campo.filter("input").filter("[type='text'], [type='password'], [type='url'], [type='number']").filter(":not([readonly])")).length > 0) {
+            // Campos de texto
+            $campo.val('');
+        } else if ($campo.is("textarea")) {
+            // Campos textarea
+            $campo.val('');
+        } else if ($campo.is("input:checkbox")) {
+            // Checkboxes
+            $campo.prop("checked", false);
+        } else if ($campo.is("select:not([disabled])")) {
+            // Campos Select (Combobox)
+            if ($campo.hasClass("select")) {
+                // Campos <select> gerados pelo componente Select 2
+                select.limpar($campo);
+            } else {
+                // Campos <select> comuns
+                var valor_primeira_opcao = $campo.find('option').first().val();
+                $campo.val(valor_primeira_opcao);
+            }
+        } else if ($campo.is("input[type='file']")) {
+            // Campos de arquivo
+            if ($campo.hasClass("fileuploader")) {
+                // Campos de arquivo gerados pelo componente FileUploader
+                fileUploader.limpar($campo);
+            } else {
+                // Campos de arquivo comuns
+                try {
+                    $campo.val('')
+                } catch (e) {
+					
+                };
+            }
+        }
+    });
 }
 
 function exibirAvisoNotify(mensagem, tipo){
@@ -867,7 +936,7 @@ function trocaColspanTotal(seletor_celulas, escopo) {
 }
 
 function salvarPersistenciaMenuMinimizado(){
-	if(dispositivo != 'xs'){
+	if(getDispositivo() != 'xs'){
 		setTimeout(function(){
 			var $body = $('body');
 			var opcao_menu_minimizado;
@@ -1033,6 +1102,10 @@ function definirModuloSistema(campo, id_campo_modulo, id_campo_sistema, callback
 	}
 }
 
+function reduzirTamanhoTabelaNoMobile(tabela){
+	if(getDispositivo() == 'xs') $(tabela).addClass('table-sm');
+}
+
 function cadastrarNovaFuncionalidade(){
 	var $divFiltros = $('#filtros');
 	var $selectSistema = $divFiltros.find("select[name='sistema_lista']");
@@ -1090,13 +1163,17 @@ function concatenarLabelOptgroupParaTemplateSelection(select, prepend){
 	
 	var label_optgroup = $optgroupOpcaoSelecionada.attr('label');
 	var spanSelectionTitle = $spanSelection.attr('title');
-	var spanSelectionText = $spanSelection.html();
+	//var spanSelectionText = $spanSelection.html();
 	
 	var titulo_concatenado;
-	if(prepend){
-		titulo_concatenado = label_optgroup + ' - ' + spanSelectionTitle;
+	if(typeof label_optgroup != 'undefined'){
+		if(prepend){
+			titulo_concatenado = label_optgroup + ' - ' + spanSelectionTitle;
+		} else {
+			titulo_concatenado = spanSelectionTitle + ' - ' + label_optgroup;
+		}
 	} else {
-		titulo_concatenado = spanSelectionTitle + ' - ' + label_optgroup;
+		titulo_concatenado = spanSelectionTitle;
 	}
 	
 	$spanSelection.attr('title', titulo_concatenado);

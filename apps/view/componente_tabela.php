@@ -23,7 +23,7 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 		$atributo_id = '';
 	}
 	?>
-	<div class="card">
+	<div class="card conteiner_tabelaaberta">
 		<div class="card-header">
 			<div class="btn-group float-left">
 				<button type="button" class="btn btn-warning" onclick="history.back()">
@@ -42,15 +42,18 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 		<div class="card-body">
 			<div <?php echo $atributo_id ?> class="<?php echo $classe_tabela ?>" data-pagina="<?php echo $pagina ?>"
 				data-parametros="<?php echo $parametros ?>" data-ordenacao="2, 3, 1" data-filtragem="asc, asc, asc" data-paginacao="<?php echo $temPaginacao ?>"
-				data-limite="<?php echo $limite ?>">
+				data-limite="<?php echo $limite ?>" data-ondraw="reduzirTamanhoTabelaNoMobile(this)">
 				<table>
 					<thead>
 						<tr>
 							<th class="align-middle">Ordem</th>
 							<th class="align-middle">Sistema</th>
 							<th class="align-middle">Módulo</th>
-							<th class="align-middle">Funcionalidade</th>
-							<th class="align-middle">Tipo de Componente</th>
+							<th class="align-middle all">Funcionalidade</th>
+							<th class="align-middle all">
+								<div class="d-none d-sm-block">Tipo de Componente</div>
+								<div class="d-block d-sm-none">Tipo</div>
+							</th>
 							<th class="align-middle" data-ordenavel="false">Complexidade</th>
 							<th class="align-middle" data-ordenavel="false">Valor (PF)</th>
 							<th width="75" class="acoes align-middle">Ações</th>
@@ -63,7 +66,10 @@ if(isset($_GET['montar_tabela']) && $_GET['montar_tabela'] === true) {
 							<th class="align-middle">Sistema</th>
 							<th class="align-middle">Módulo</th>
 							<th class="align-middle">Funcionalidade</th>
-							<th class="align-middle">Tipo de Componente</th>
+							<th class="align-middle">
+								<div class="d-none d-sm-block">Tipo de Componente</div>
+								<div class="d-block d-sm-none">Tipo</div>
+							</th>
 							<th class="align-middle">Complexidade</th>
 							<th class="align-middle">Valor (PF)</th>
 							<th width="75" class="acoes align-middle">Ações</th>

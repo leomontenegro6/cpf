@@ -283,12 +283,17 @@ tabela.instanciar = function(seletor_tabela, escopo){
 		
 		// Alterando parâmetros em função da existência da paginação ou não
 		if(temPaginacao){
-			// Fazer paginação exibir todos os botões, inclusive o "Primeiro" e "Último"
-			parametros['pagingType'] = 'full_numbers';
+			// Fazer paginação exibir todos os botões, inclusive o "Primeiro" e "Último", porém excluindo as elipses
+			parametros['pagingType'] = (dispositivo == 'xs') ? ('full_numbers_no_ellipses') : ('full_numbers');
 			// Personalizar itens do campo "Exibir", na paginação
 			parametros['lengthMenu'] = opcoes_exibir;
 			// Define o limite de registros exibidos na tabela, caso o total de registros da tabela ultrapasse este valor
 			parametros['pageLength'] = limite_registros;
+			// Redefine o DOM do cabeçalho do componente, de modo a facilitar
+			// a re-estilização dos filtros "Exibir" e "Pesquisar"
+			parametros['dom'] = "<'row'<'col-sm-12'l<'conteiner_dataTables_filter'f>>>" +
+				"<'row'<'col-sm-12'tr>>" +
+				"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 		} else {
 			$.fn.dataTable.Buttons.swfPath = '../common/datatables.net-buttons/swf/flashExport.swf';
 			
@@ -425,6 +430,13 @@ tabela.instanciar = function(seletor_tabela, escopo){
 				var colspan_rodape = colunas.length;
 				$celula.attr('colspan', colspan_rodape);
 			}
+			
+			// Se estiver em dispositivos com pouca largura de tela, remover nome "Ações"
+			if($celula.hasClass('acoes')){
+				if(dispositivo == 'xs'){
+					$celula.html('&nbsp;');
+				}
+			}
 		});
 		
 		// Se não foi possível obter a ordenação a partir das colunas, defini-la
@@ -455,19 +467,38 @@ tabela.instanciar = function(seletor_tabela, escopo){
 		
 		// Chamada de eventos e callbacks do componente
 		$tabela.on({
-			// PreInit: Chamado antes do componente ser instanciado pela primeira vez
-			'preInit.dt': function(e, s){
-				// Ocultar elementos da paginação em dispositivos com pouca largura de tela
-				// Dessa maneira, em celulares a paginação exibirá apenas os botões
-				if(temPaginacao){
-					$conteiner_tabela.find('div.dataTables_info, div.dataTables_length').addClass('hidden-xs');
-				}
-			},
 			// Init: Chamado após o componente ser instanciado pela primeira vez
 			'init.dt': function(){
 				if(temPaginacao){
 					var id_tabela = $tabela.attr('id');
-					select.instanciar( $conteiner_tabela.find("select[name='" + id_tabela + "_length']") );
+					
+					var $campoExibir = $conteiner_tabela.find("select[name='" + id_tabela + "_length']");
+					var $campoPesquisar = $conteiner_tabela.find('#' + id_tabela + '_filter').find("input[type='search']");
+					var $labelCampoExibir = $campoExibir.parent();
+					var $labelCampoPesquisar = $campoPesquisar.parent();
+					
+					$campoExibir.insertBefore($labelCampoExibir);
+					$labelCampoExibir.wrapInner('<span></span>');
+					$campoExibir.prependTo($labelCampoExibir);
+					$labelCampoExibir.addClass('form-group has-float-label');
+					$campoExibir.removeClass('custom-select custom-select-sm form-control-sm').addClass('select');
+					select.instanciar($campoExibir);
+					
+					$campoPesquisar.insertBefore($labelCampoPesquisar);
+					$labelCampoPesquisar.wrapInner('<span></span>');
+					$campoPesquisar.prependTo($labelCampoPesquisar);
+					$campoPesquisar.attr({
+						'type': 'text',
+						'placeholder': 'Digite o texto da busca'
+					}).removeClass('form-control-sm');
+					$labelCampoPesquisar.addClass('has-float-label').wrap("<div class='form-group input-group with-float-label'></div>");
+					$labelCampoPesquisar.after(
+						$('<div />').addClass('input-group-append').html(
+							$('<span />').addClass('input-group-text').html(
+								$('<i />').addClass('fas fa-search')
+							)
+						)
+					);
 				}
 			},
 			// Processing: Chamado quando o componente está processando algo
@@ -516,7 +547,7 @@ tabela.instanciar = function(seletor_tabela, escopo){
 				if(temPaginacao){
 					var limite_registros_campo = s._iDisplayLength;
 					var total_consulta = s['_iRecordsDisplay'];
-					var $campo_exibir = $conteiner_tabela.find('div.dataTables_length select');
+					var $campoExibir = $conteiner_tabela.find('div.dataTables_length select');
 
 					// Se a tabela for via Ajax, a consulta retornar mais de 1000 resultados, e o usuário tentar exibir todos os registros,
 					// perguntar ao usuário se ele realmente deseja realizar esta operação.
@@ -534,8 +565,8 @@ tabela.instanciar = function(seletor_tabela, escopo){
 								confirmarPesquisaCustosa = false;
 								s._iDisplayStart = pagina_original;
 								s._iDisplayLength = limite_registros_original;
-								$campo_exibir.val(limite_registros_original);
-								select.atualizar($campo_exibir);
+								$campoExibir.val(limite_registros_original);
+								select.atualizar($campoExibir);
 							}
 						})
 					}
@@ -555,10 +586,10 @@ tabela.instanciar = function(seletor_tabela, escopo){
 			// Efetuar customizações nos campos <select> da tabela, se tiver paginação
 			if(temPaginacao){
 				// Obtenção do campo <select>
-				var $campo_exibir = $conteiner_tabela.find('div.dataTables_length select');
+				var $campoExibir = $conteiner_tabela.find('div.dataTables_length select');
 
 				// Desativar filtro de busca, para campos estilizados com o componente Select2
-				$campo_exibir.attr('data-filtro', 'false');
+				$campoExibir.attr('data-filtro', 'false');
 
 				// Montagem das opções customizadas do campo "Exibir", em função do total da consulta
 				var total_consulta = info_paginacao.recordsDisplay;
@@ -577,7 +608,7 @@ tabela.instanciar = function(seletor_tabela, escopo){
 					ultima_opcao = opcoes_exibir_customizado.slice().pop();
 					var total_opcoes = opcoes_exibir_customizado.length;
 					if(total_opcoes > 0){
-						$campo_exibir.html('');
+						$campoExibir.html('');
 						var tem_selecionado = false;
 						for(var i=0; i<total_opcoes; i++){
 							var opcao = opcoes_exibir_customizado[i];
@@ -588,15 +619,15 @@ tabela.instanciar = function(seletor_tabela, escopo){
 							} else {
 								selected = '';
 							}
-							$campo_exibir.append('<option value="' + opcao + '" ' + selected + '>' + opcao + '</option>');
+							$campoExibir.append('<option value="' + opcao + '" ' + selected + '>' + opcao + '</option>');
 						}
 						if(ultima_opcao < 100){
-							$campo_exibir.each(function(){
+							$campoExibir.each(function(){
 								var $campo = $(this);
 								$campo.children('option').last().attr('value', '-1').html('Todos');
 							})
 						} else {
-							$campo_exibir.append('<option value="-1">Todos</option>');
+							$campoExibir.append('<option value="-1">Todos</option>');
 						}
 					}
 				}
@@ -615,7 +646,16 @@ tabela.instanciar = function(seletor_tabela, escopo){
 			var quantidade_exibir = parseInt(info_paginacao.length, 10);
 			
 			// Criando flags de validação, para uso posterior
+			var checkDentroDeModal = ($conteiner_tabela.closest('div.janela_modal').length > 0);
+			var checkAtualizacaoProgramatica = ($conteiner_tabela.is("[data-atualizacao-programatica='true']"));
 			var temResultados = (total_consulta > 0);
+			
+			if(!checkDentroDeModal && !checkAtualizacaoProgramatica){
+				// Scrollando página até a table, se for a primeira pesquisa
+				if(temPaginaAjax && dispositivo == 'xs'){
+					scrollarElemento($conteiner_tabela);
+				}
+			}
 
 			// Efetuando personalizações adicionais, para tabelas com paginação
 			if(temPaginacao){
@@ -735,8 +775,7 @@ tabela.instanciar = function(seletor_tabela, escopo){
 				var $div_processando = $conteiner_tabela.find('div.dataTables_processing');
 				$div_processando.hide();
 
-				// Chamando modal de sessão expirada
-				modal.sessaoExpirada();
+				abrirPagina('logoff.php?sessao_expirada=true');
 			} else {
 				var $modalRetorno = jError('Erro ao listar registros.');
 				
@@ -787,12 +826,9 @@ tabela.instanciar = function(seletor_tabela, escopo){
 				var parametros = e.state;
 				tabela.atualizarFormularioPesquisa(id, parametros);
 				if(e.state != null){
-					//$conteiner_tabela.removeClass('oculta');
 					var limite = parseInt($conteiner_tabela.attr('data-limite'), 10);
 					var pagina_com_parametros = pagina + '?' + parametros;
 					objeto_tabela.page.len(limite).ajax.url(pagina_com_parametros).load();
-				} else {
-					//$conteiner_tabela.addClass('oculta');
 				}
 				
 				if(eventos['onpopstate'] != ''){
@@ -886,6 +922,9 @@ tabela.pesquisar = function(form, seletor_tabela){
 		
 		// Removendo foco dos botões e campos do formulário
 		$form.find('input, button, textarea, select').blur();
+		
+		// Scrollando até a tabela
+		if(getDispositivo() == 'xs') scrollarElemento($conteiner_tabela);
 	}
 	return false; 
 }
@@ -910,16 +949,7 @@ tabela.atualizar = function(seletor_tabela){
 		if(temPaginaAjax){
 			$conteiner_tabela.attr('data-dentro-modal', 'true');
 			objeto_tabela.ajax.reload(function(){
-				var info_paginacao = objeto_tabela.page.info();
-				var total_consulta = info_paginacao.recordsDisplay;
-				var temResultados = (total_consulta > 0);
-				
 				$conteiner_tabela.removeAttr('data-dentro-modal');
-				if(temResultados){
-					//$conteiner_tabela.removeClass('oculta');
-				} else {
-					//$conteiner_tabela.addClass('oculta');
-				}
 			}, false);
 		} else {
 			var ordenacao, filtragem;
@@ -935,7 +965,7 @@ tabela.atualizar = function(seletor_tabela){
 			}
 			
 			try{
-				objeto_table.order([ordenacao, filtragem]).draw(false);
+				objeto_tabela.order([ordenacao, filtragem]).draw(false);
 			} catch(e){
 				
 			}
@@ -1053,20 +1083,22 @@ tabela.instanciarConteinerAcoes = function(conteiner_acoes, dispositivo){
 	if(typeof dispositivo == 'undefined') dispositivo = getDispositivo();
 	var $conteiner_acoes_instanciado = $(conteiner_acoes);
 	if(dispositivo == 'xs'){
-		var $botao_dropdown = $('<a />', {'href': 'javascript:;'}).addClass('btn btn-default dropdown-toggle').attr({
+		var $botao_dropdown = $('<button />').addClass('btn btn-secondary dropdown-toggle').attr({
+			'type': 'button',
 			'data-toggle': 'dropdown',
-			'role': 'button',
 			'aria-haspopup': 'true',
 			'aria-expanded': 'false'
 		}).html(
 			$('<i />').addClass('fa fa-ellipsis-v')
 		);
-		var $conteiner_dropdown = $('<ul />').addClass('acoes_mobile dropdown-menu').attr('role', 'menu').append(
-			$("<li />").addClass('dropdown-header').html('Ações')
+		var id_botao_dropdown = gerarIdAleatorio($botao_dropdown);
+		$botao_dropdown.attr('id', id_botao_dropdown);
+		var $conteiner_dropdown = $('<div />').addClass('acoes_mobile dropdown-menu dropdown-menu-right').attr('aria-labelledby', id_botao_dropdown).append(
+			$("<h6 />").addClass('dropdown-header').html('Ações')
 		).append(
-			$("<li />").attr('role', 'presentation').addClass('divider')
+			$("<div />").addClass('dropdown-divider')
 		);
-		$conteiner_acoes_instanciado.prepend( $botao_dropdown.add($conteiner_dropdown) );
+		$conteiner_acoes_instanciado.prepend( $botao_dropdown.add($conteiner_dropdown) ).addClass('btn-group');
 	} else {
 		$conteiner_acoes_instanciado.attr({
 			"role": "group",
@@ -1089,12 +1121,11 @@ tabela.instanciarConteinerAcoes = function(conteiner_acoes, dispositivo){
 tabela.estilizarAcao = function(acao, dispositivo, onclick, temPaginaAjax){
 	var $acao_estilizada = $(acao);
 	var temOnclick = (typeof onclick == 'function');
-	var $conteiner_dropdown = $acao_estilizada.siblings('ul');
+	var $conteiner_dropdown = $acao_estilizada.siblings('div');
 	if(dispositivo == 'xs'){
-		var $icone = $acao_estilizada.children('i.fa, span.glyphicon, img').first();
-		var $rotulo = $acao_estilizada.children('span.rotulo').first();
+		var $icone = $acao_estilizada.children('i.fa, i.fas, img').first();
 		
-		var titulo = $rotulo.html();
+		var titulo = $acao_estilizada.attr('title');
 		var acao = $acao_estilizada.attr('data-acao');
 		var cor_acao;
 		if($acao_estilizada.hasClass('btn-success')){
@@ -1107,20 +1138,18 @@ tabela.estilizarAcao = function(acao, dispositivo, onclick, temPaginaAjax){
 			cor_acao = 'mobile-default';
 		}
 		
-		var $li = $('<li />').attr('data-acao', acao).append(
-			$("<a />").attr('href', '#').addClass(cor_acao).prepend(
-				$icone.addClass('alinhadoVertical')
-			).append(
-				$('<span />').addClass('alinhadoVertical').html(titulo)
-			)
+		var $a = $("<a />").attr('href', '#').addClass('dropdown-item ' + cor_acao).prepend(
+			$icone.addClass('fa-fw align-middle')
+		).append(
+			$('<span />').addClass('align-middle').html(titulo)
 		);
 		if(temOnclick){
-			$li.click(function(e){
+			$a.click(function(e){
 				e.preventDefault();
 				onclick();
 			});
 		}
-		$conteiner_dropdown.append($li);
+		$conteiner_dropdown.append($a);
 
 		$acao_estilizada.remove();
 	} else {
@@ -1322,6 +1351,54 @@ tabela.obterDadosOrdenacao = function(seletor_tabela){
 	var objeto_tabela = $tabela.DataTable();
 	return objeto_tabela.order();
 }
+
+/**
+ *  Plug-in offers the same functionality as `full_numbers` pagination type 
+ *  (see `pagingType` option) but without ellipses.
+ *
+ *  See [example](http://www.gyrocode.com/articles/jquery-datatables-pagination-without-ellipses) for demonstration.
+ *
+ *  @name Full Numbers - No Ellipses
+ *  @summary Same pagination as 'full_numbers' but without ellipses
+ *  @author [Michael Ryvkin](http://www.gyrocode.com)
+ *
+ *  @example
+ *    $(document).ready(function() {
+ *        $('#example').dataTable( {
+ *            "pagingType": "full_numbers_no_ellipses"
+ *        } );
+ *    } );
+ */
+
+$.fn.DataTable.ext.pager.full_numbers_no_ellipses = function(page, pages){
+	var numbers = [];
+	var buttons = $.fn.DataTable.ext.pager.numbers_length;
+	var half = Math.floor( buttons / 2 );
+	var _range = function ( len, start ){
+		var end;
+		if ( typeof start === "undefined" ){ 
+			start = 0;
+			end = len;
+		} else {
+			end = start;
+			start = len;
+		}
+		var out = []; 
+		for ( var i = start ; i < end; i++ ){ out.push(i); }
+		return out;
+	};
+	if ( pages <= buttons ) {
+		numbers = _range( 0, pages );
+	} else if ( page <= half ) {
+		numbers = _range( 0, buttons);
+	} else if ( page >= pages - 1 - half ) {
+		numbers = _range( pages - buttons, pages );
+	} else {
+		numbers = _range( page - half, page + half + 1);
+	}
+	numbers.DT_el = 'span';
+	return [ 'first', 'previous', numbers, 'next', 'last' ];
+};
 
 /* Detecção automática de tipos de dados adicionais */
 jQuery.fn.dataTableExt.aTypes.unshift(function ( sData ){

@@ -43,6 +43,8 @@ $mostrarAvisoSessaoExpirada = (isset($_GET['sessao_expirada']) && ($_GET['sessao
 				</div>
 				<div class="row">
 					<div class="col-6 offset-3">
+						<input type="hidden" id="dispositivo_usuario" name="dispositivo_usuario" />
+						
 						<button type="submit" class="btn btn-primary btn-block btn-flat">Log in</button>
 					</div>
 					<!-- /.col -->
@@ -53,6 +55,14 @@ $mostrarAvisoSessaoExpirada = (isset($_GET['sessao_expirada']) && ($_GET['sessao
 	</div>
 </div>
 <!-- /.login-box -->
-<?php
-include('rodape.php');
-?>
+<?php include_once('bibliotecas_js.php'); ?>
+<script type="text/javascript">
+	$(function(){
+		var $inputDispositivoUsuario = $('#dispositivo_usuario');
+		$inputDispositivoUsuario.val( getDispositivo() );
+		$(window).on('resize', function(){
+			$inputDispositivoUsuario.val( getDispositivo() );
+		});
+	})
+</script>
+<?php include('rodape.php'); ?>

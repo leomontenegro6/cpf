@@ -2,6 +2,8 @@
 <script src="../common/js/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="../common/js/bootstrap.bundle.min.js"></script>
+<!-- If Bootstrap 4 Breakpoint - Para detecção de ambientes -->
+<script src="../common/js/if-b4-breakpoint.min.js"></script>
 <!-- Select2 -->
 <script src="../common/js/select2.full.min.js"></script>
 <!-- SlimScroll -->
@@ -45,9 +47,7 @@
 	var menu_minimizado = <?php echo ($_SESSION['menu_minimizado']) ? ('true') : ('false') ?>;
 	var data_servidor = new Date(<?php echo strtotime('now') * 1000 ?>);
 	var ambiente = '<?php echo $ambiente ?>';
-	var dispositivo = '';
 	$(function(){
-		dispositivo = getDispositivo(true);
 		instanciarBuscaMenu();
 		instanciarComponentes();
 	})

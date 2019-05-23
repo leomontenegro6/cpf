@@ -33,7 +33,7 @@ $funcaoUsuario_rs = $funcaoUsuario->getAll();
 
 <section id="corpo" class="content">
 	<div class="row">
-		<div class="col-6 mx-auto">
+		<div class="col-md-6 col-xs-12 mx-auto">
 			<div class="card card-success">
 				<div class="card-header">
 					<h3 class="card-title">Alterar Dados Pessoais</h3>
@@ -62,7 +62,7 @@ $funcaoUsuario_rs = $funcaoUsuario->getAll();
 							<span>Função</span>
 						</label>
 						<div class="form-group input-group with-float-label">
-							<div class="input-group-prepend" style="margin-right: -27px">
+							<div class="input-group-prepend">
 								<span class="input-group-text">R$</span>
 							</div>
 							<label class="has-float-label">

@@ -60,7 +60,7 @@ $funcaoUsuario_rs = $funcaoUsuario->getAll();
 				<span>Função</span>
 			</label>
 			<div class="form-group input-group with-float-label">
-				<div class="input-group-prepend" style="margin-right: -21px">
+				<div class="input-group-prepend">
 					<span class="input-group-text">R$</span>
 				</div>
 				<label class="has-float-label">

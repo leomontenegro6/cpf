@@ -101,10 +101,11 @@ $componente_rs = $componente->getByPlanilhaOrcamentoDesenvolvimento($sistema_lis
 		Orçamento de Desenvolvimento de Funcionalidades
 	</h3>
 	<div class="card-tools">
-		<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)"
+		<button type="button" class="btn btn-success float-right" onclick="phpspreadsheet.gerar(this)" title='Gerar Planilha'
 			data-titulo="<?php echo $titulo ?>" data-subtitulo="Orçamento de Desenvolvimento de Funcionalidades" data-tabela="tabela_orcamento_desenvolvimento"
 			data-nome-arquivo="Orçamento de Desenvolvimento de Funcionalidades - <?php echo $sigla_sistema ?>">
-			<i class="fas fa-file-excel"></i> Gerar Planilha
+			<i class="fas fa-file-excel"></i>
+			<span class='d-none d-sm-inline'>Gerar Planilha</span>
 		</button>
 	</div>
 </div>

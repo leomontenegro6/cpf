@@ -426,7 +426,7 @@ function jModal(pagina, parametros, callback, tamanho, tem_modal, tem_animacao, 
 		$janela_modal.children('div.modal-dialog').addClass(tamanho);
 		
 		if(callback) callback();
-	}, tem_modal, tem_animacao, false);
+	}, tem_modal, tem_animacao, fechar_ao_clicar_no_fundo);
 	
 	return $janela_modal;
 }

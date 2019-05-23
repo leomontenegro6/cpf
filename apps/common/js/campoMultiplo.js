@@ -389,8 +389,26 @@ campoMultiplo.instanciarOutrosComponentes = function(elementoDestino){
 }
 
 campoMultiplo.limpar = function(id_campo){
-	var $campo = $('#' + id_campo);
-	var $tabela = $campo.children('table');
+	var $divCampoMultiplo = $('#' + id_campo);
+	var $tableConteiner = $divCampoMultiplo.children('table.conteiner');
+	var $tbody = $tableConteiner.children('tbody');
 	
-	$tabela.find('button.remover').trigger('click');
+	$tbody.children('tr').each(function(i){
+		var $tr = $(this);
+		var $tdCorpo = $tr.children('td.corpo');
+		
+		var id_td_corpo;
+		if( $tdCorpo.is("[id]") ){
+			id_td_corpo = $tdCorpo.attr('id');
+		} else {
+			id_td_corpo = gerarIdAleatorio($tdCorpo[0]);
+			$tdCorpo.attr('id', id_td_corpo);
+		}
+		
+		if(i == 0){
+			limparCampos(id_td_corpo);
+		} else {
+			$tr.find('button.remover').trigger('click');
+		}
+	});
 }

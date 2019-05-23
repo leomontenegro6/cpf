@@ -5,6 +5,7 @@
 function orcamentoManutencao(){
 	
 	// Propriedades
+	this.tabelaComponenteAlterarExcluirFuncionalidades = $();
 	this.conteinerTabelaOrcamentoManutencao = $();
 	this.tabelaOrcamentoManutencao = $();
 	this.parametros = {
@@ -24,10 +25,13 @@ function orcamentoManutencao(){
 	
 	// Métodos
 	this.carregarRotinasPrincipais = function(){
+		this.tabelaComponenteAlterarExcluirFuncionalidades = $('#form_alterar_excluir_funcionalidades').children('table');
 		this.conteinerTabelaOrcamentoManutencao = $('#conteiner_tabela_orcamento_manutencao');
 		this.tabelaOrcamentoManutencao = this.conteinerTabelaOrcamentoManutencao.find('table');
 		
 		this.salvarParametros();
+		
+		this.instanciarDropdownsParametrosPersonalizacoes();
 		
 		chamarPagina('rel_orcamento_manutencao_tabela_linha.html', '', (r) => {
 			this.templateLinhaTabela = r;
@@ -154,6 +158,12 @@ function orcamentoManutencao(){
 		}
 	}
 	
+	this.instanciarDropdownsParametrosPersonalizacoes = function(){
+		$(document).on('click', '#botoes_parametros_personalizacoes .dropdown-menu', function (e) {
+			e.stopPropagation();
+		});
+	}
+	
 	this.toggleVisibilidadeTabela = function(exibir, nome_sistema, sigla_sistema){
 		if(typeof exibir == 'undefined') exibir = true;
 		
@@ -247,6 +257,47 @@ function orcamentoManutencao(){
 		});
 		
 		$tabela.attr('data-instanciado', 'true');
+	}
+	
+	this.buscarComponenteAlteracaoExclusaoFuncionalidades = function(inputBusca, evento){
+		var $inputBusca = $(inputBusca);
+		var $tabela = this.tabelaComponenteAlterarExcluirFuncionalidades;
+		
+		var busca = normalize( $.trim( $inputBusca.val() ) ).toLowerCase();
+		var tecla_digitada = evento.which;
+		
+		var teclas_invalidas = [9, 16, 17, 18, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 91, 92, 93, 144, 145, 225];
+		var checkTeclaInvalida = ($.inArray(tecla_digitada, teclas_invalidas) !== -1);
+		if(checkTeclaInvalida){
+			return;
+		}
+		
+		var $trsNaoAdicionados = $tabela.children('tbody').children("tr").not('.d-none');
+		
+		if(busca != ''){
+			$trsNaoAdicionados.hide();
+			$trsNaoAdicionados.filter("[role='row']").each(function(){
+				var $trComponente = $(this);
+				var $trAgrupamentoFuncionalidades = $trComponente.prevUntil('tr.dtrg-level-1').last().prev();
+				if($trAgrupamentoFuncionalidades.length == 0) $trAgrupamentoFuncionalidades = $trComponente.prev();
+				var $trAgrupamentoPrimeiraFuncionalidade = $trComponente.siblings('tr.dtrg-level-1').first();
+				var $trAgrupamentoModulos = $trAgrupamentoPrimeiraFuncionalidade.prev();
+				
+				var $labelModulo = $trAgrupamentoModulos.children('td').first().find('label.custom-control-label');
+				var $labelFuncionalidade = $trAgrupamentoFuncionalidades.children('td').first().find('label.custom-control-label');
+				var $labelComponente = $trComponente.children('td.componente').find('label.custom-control-label');
+				
+				var nome_modulo = normalize( $.trim( $labelModulo.html() ) ).toLowerCase();
+				var nome_funcionalidade = normalize( $.trim( $labelFuncionalidade.html() ) ).toLowerCase();
+				var nome_componente = normalize( $.trim( $labelComponente.html() ) ).toLowerCase();
+				
+				if((nome_modulo.indexOf(busca) != -1) || (nome_funcionalidade.indexOf(busca) != -1) || (nome_componente.indexOf(busca) != -1)){
+					$trAgrupamentoModulos.add($trAgrupamentoFuncionalidades).add($trComponente).show();
+				}
+			})
+		} else {
+			$trsNaoAdicionados.show();
+		}
 	}
 	
 	this.calcularValorComponenteFuncionalidade = function(elemento){
@@ -356,6 +407,151 @@ function orcamentoManutencao(){
 		return custo;
 	}
 	
+	this.confirmarCarregamentoComponentesInclusaoFuncionalidadeByTipo = function(selectTemplateFuncionalidade){
+		var $selectTemplateFuncionalidade = $(selectTemplateFuncionalidade);
+		
+		var tipo_funcionalidade_anterior = select.obterOpcaoAnterior($selectTemplateFuncionalidade);
+		var tipo_funcionalidade_atual = $selectTemplateFuncionalidade.val();
+		
+		if(tipo_funcionalidade_anterior == '' && tipo_funcionalidade_atual != ''){
+			this.carregarComponentesInclusaoFuncionalidadeByTipo(selectTemplateFuncionalidade);
+		} else {
+			jConfirm('Se você modificar o template da funcionalidade, os componentes abaixo serão resetados e alterações poderão ser perdidas.<br /><br />Tem certeza que quer continuar?', undefined, (r) => {
+				if(r){
+					this.carregarComponentesInclusaoFuncionalidadeByTipo(selectTemplateFuncionalidade);
+				} else {
+					select.setarValor($selectTemplateFuncionalidade, tipo_funcionalidade_anterior);
+				}
+			});
+		}
+	}
+	
+	this.carregarComponentesInclusaoFuncionalidadeByTipo = function(selectTemplateFuncionalidade){
+		var $selectTemplateFuncionalidade = $(selectTemplateFuncionalidade);
+		var $divCamposComponentes = $('#campos_componentes');
+		var $tabelaCamposComponentes = $divCamposComponentes.children('table');
+		
+		var tipo_funcionalidade = $selectTemplateFuncionalidade.val();
+		var id_campo_componentes = $divCamposComponentes.attr('id');
+		
+		var valores_campos = [];
+		if(tipo_funcionalidade == 1){
+			// CRUD Simples
+			valores_campos = [
+				{
+					"tipo_componente": 1, // Formulário de Pesquisa
+					"possui_acoes": true,
+					"possui_mensagens": false,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				},
+				{
+					"tipo_componente": 2, // Tabela de Listagem
+					"possui_acoes": true,
+					"possui_mensagens": true,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				},
+				{
+					"tipo_componente": 3, // Formulário de Cadastro / Edição
+					"possui_acoes": true,
+					"possui_mensagens": true,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				}
+			];
+		} else if(tipo_funcionalidade == 2){
+			// CRUD Complexo
+			valores_campos = [
+				{
+					"tipo_componente": 1, // Formulário de Pesquisa
+					"possui_acoes": true,
+					"possui_mensagens": false,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				},
+				{
+					"tipo_componente": 6, // Página de Detalhes
+					"possui_acoes": true,
+					"possui_mensagens": false,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				},
+				{
+					"tipo_componente": 2, // Tabela de Listagem
+					"possui_acoes": true,
+					"possui_mensagens": true,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				},
+				{
+					"tipo_componente": 3, // Formulário de Cadastro / Edição
+					"possui_acoes": true,
+					"possui_mensagens": true,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				}
+			];
+		} else if(tipo_funcionalidade == 3){
+			// Processo
+			valores_campos = [
+				{
+					"tipo_componente": 9, // Formulário de Execução
+					"possui_acoes": true,
+					"possui_mensagens": true,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				}
+			];
+		} else if(tipo_funcionalidade == 4){
+			// Relatório
+			valores_campos = [
+				{
+					"tipo_componente": 1, // Formulário de Pesquisa
+					"possui_acoes": true,
+					"possui_mensagens": false,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				},
+				{
+					"tipo_componente": 2, // Tabela de Listagem
+					"possui_acoes": true,
+					"possui_mensagens": true,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				},
+				{
+					"tipo_componente": 7, // Exportação para PDF
+					"possui_acoes": false,
+					"possui_mensagens": false,
+					"campos": 1,
+					"arquivos_referenciados": 1
+				}
+			];
+		}
+		
+		// Limpando campos, antes de populá-los com os valores dos campos acima
+		campoMultiplo.limpar(id_campo_componentes);
+		
+		// Caso exista pelo menos um campo a inserir, então iterar pelos valores
+		// e adicioná-los um a um
+		var total_campos_inserir = valores_campos.length;
+		if(total_campos_inserir > 0){
+			for(var i in valores_campos){
+				var valores_campo = valores_campos[i];
+				if(i == 0){
+					campoMultiplo.adicionar(id_campo_componentes, true, valores_campo);
+				} else {
+					campoMultiplo.adicionar(id_campo_componentes, false, valores_campo);
+				}
+			}
+		}
+		
+		// Chamando evento 'onchange' do campo "Tipo de Componente", de modo a concatenar
+		// o optgroup ao nome da opção selecionada, e atualizar a coluna "Valor (PF)
+		$tabelaCamposComponentes.children('tbody').find("[name$='[tipo_componente]']").trigger('change');
+	}
+	
 	this.incluirFuncionalidade = function(formInclusaoFuncionalidades){
 		if(this.validaSistema() && validaForm(formInclusaoFuncionalidades, false)){
 			var $formInclusaoFuncionalidades = $(formInclusaoFuncionalidades);
@@ -398,6 +594,7 @@ function orcamentoManutencao(){
 				var $checkboxPossuiMensagens = $tr.find("[name$='[possui_mensagens]']");
 				var $campoCampos = $tr.find("[name$='[campos]']");
 				var $campoArquivosReferenciados = $tr.find("[name$='[arquivos_referenciados]']");
+				var $campoDetalhes = $tr.find("[name$='[detalhes]']");
 				var $divValorPF = $tr.find('div.valor_pf');
 				
 				var id_componente = 'ic_' + iterador_componentes;
@@ -416,6 +613,7 @@ function orcamentoManutencao(){
 					'possui_mensagens': $checkboxPossuiMensagens.is(':checked'),
 					'campos': parseInt($campoCampos.val(), 10),
 					'arquivos_referenciados': parseInt($campoArquivosReferenciados.val(), 10),
+					'detalhes': $campoDetalhes.val(),
 					'valor_pf_original': valor_pf_original,
 					'valor_pf_ajustado': valor_pf_ajustado,
 					'tempo': tempo,
@@ -455,7 +653,7 @@ function orcamentoManutencao(){
 			this.toggleColunasTabela();
 
 			// Resetando formulário após a inclusão da funcionalidade
-			$formInclusaoFuncionalidades.trigger('reset');
+			$formInclusaoFuncionalidades.removeClass('was-validated').trigger('reset');
 			this.limparValoresComponenteFuncionalidade();
 		}
 		
@@ -527,7 +725,7 @@ function orcamentoManutencao(){
 	this.toggleCamposComponenteAlteracaoExclusaoFuncionalidades = function(){
 		var $formAlterarExcluirFuncionalidades = $('#form_alterar_excluir_funcionalidades');
 		var $checkboxesComponentes = $formAlterarExcluirFuncionalidades.find("input[type='checkbox'][name^='componentes']");
-		var $botaoAdicionarFuncionalidades = $formAlterarExcluirFuncionalidades.find("button[type='submit']")
+		var $botaoAdicionarFuncionalidades = $formAlterarExcluirFuncionalidades.find("button[type='submit']");
 		
 		var checkPeloMenosUmComponenteMarcado = false;
 		$checkboxesComponentes.each(function(){
@@ -535,16 +733,19 @@ function orcamentoManutencao(){
 			var $tr = $checkboxComponente.closest('tr');
 			var $selectTipoManutencao = $tr.find("[name$='[tipo_manutencao]']");
 			var $inputFatorImpacto = $tr.find("[name$='[fator_impacto]']");
+			var $textareaDetalhes = $tr.find("[name$='[detalhes]']");
 			
 			if($checkboxComponente.is(':checked')){
 				checkPeloMenosUmComponenteMarcado = true;
 				$selectTipoManutencao.removeAttr('disabled').find("option").first().hide();
 				$selectTipoManutencao.val('a');
 				$inputFatorImpacto.removeAttr('disabled').val(50);
+				$textareaDetalhes.removeAttr('disabled');
 			} else {
 				$selectTipoManutencao.find("option").first().show();
 				$selectTipoManutencao.val('').attr('disabled', 'disabled');
 				$inputFatorImpacto.val('').attr('disabled', 'disabled').removeAttr('readonly');
+				$textareaDetalhes.val('').attr('disabled', 'disabled');
 			}
 		});
 		
@@ -569,106 +770,111 @@ function orcamentoManutencao(){
 	}
 	
 	this.alterarExcluirFuncionalidades = function(formAlterarExcluirFuncionalidades){
-		var $formAlterarExcluirFuncionalidades = $(formAlterarExcluirFuncionalidades);
-		var $checkboxesComponentesMarcados = $formAlterarExcluirFuncionalidades.find("input[type='checkbox'][name^='componentes']").filter(':checked');
-		var $tabelaOrcamentoManutencao = this.tabelaOrcamentoManutencao;
-		var $tbody = $tabelaOrcamentoManutencao.children('tbody');
-		var $tfoot = $tabelaOrcamentoManutencao.children('tfoot');
-		var $thTotalValorPFAjustado = $tfoot.find('th.total_valor_pf_ajustado_formatado');
-		
-		var that = this;
-		var funcionalidades = [];
-		var total_valor_pf_ajustado = decodeMonetario( $thTotalValorPFAjustado.html() );
-		if(isNaN(total_valor_pf_ajustado)) total_valor_pf_ajustado = 0;
-		
-		$checkboxesComponentesMarcados.each(function(){
-			var $checkboxComponente = $(this);
-			var id_componente_banco = $checkboxComponente.val();
-			var $inputFatorImpacto = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][fator_impacto]']");
-			var $inputValorPF = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][valor_pf]']")
-			
-			var fator_impacto = parseInt($inputFatorImpacto.val(), 10);
-			var valor_pf_original = parseInt($inputValorPF.val(), 10);
-			var valor_pf_ajustado = ((valor_pf_original * fator_impacto) / 100);
-			total_valor_pf_ajustado += valor_pf_ajustado;
-		});
-		
-		$checkboxesComponentesMarcados.each(function(){
-			var $checkboxComponente = $(this);
-			var id_componente_banco = $checkboxComponente.val();
-			var $selectTipoManutencao = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][tipo_manutencao]']");
-			var $inputFatorImpacto = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][fator_impacto]']");
-			var $inputNomeModulo = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][modulo]']")
-			var $inputNomeFuncionalidade = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][funcionalidade]']")
-			var $inputIdFuncionalidade = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][id_funcionalidade]']")
-			var $inputTipoComponente = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][tipo_componente]']")
-			var $inputValorPF = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][valor_pf]']")
-			var id_funcionalidade_banco = $inputIdFuncionalidade.val();
-			
-			// Obtendo parâmetros da funcionalidade
-			var tipo_manutencao = $selectTipoManutencao.val();
-			var fator_impacto = parseInt($inputFatorImpacto.val(), 10);
-			var nome_modulo = $inputNomeModulo.val();
-			var nome_funcionalidade = $inputNomeFuncionalidade.val();
-			var id_funcionalidade = ('aef_' + id_funcionalidade_banco);
-			
-			if(typeof funcionalidades[id_funcionalidade] == 'undefined') funcionalidades[id_funcionalidade] = [];
-			if(typeof funcionalidades[id_funcionalidade]['componentes'] == 'undefined') funcionalidades[id_funcionalidade]['componentes'] = [];
-			
-			funcionalidades[id_funcionalidade]['id'] = id_funcionalidade;
-			funcionalidades[id_funcionalidade]['funcionalidade'] = nome_funcionalidade;
-			funcionalidades[id_funcionalidade]['modulo'] = nome_modulo;
-			
-			var id_componente = ('aec_' + id_componente_banco);
-			var nome_tipo_componente = $inputTipoComponente.val();
-			var nome_tipo_manutencao = ((tipo_manutencao == 'a') ? ('Alteração') : ('Exclusão')) + ' (' + fator_impacto + '%' + ')';
-			var valor_pf_original = parseInt($inputValorPF.val(), 10);
-			var valor_pf_ajustado = ((valor_pf_original * fator_impacto) / 100);
-			var tempo = that.calcularTempoDesenvolvimento(valor_pf_ajustado, total_valor_pf_ajustado);
-			var custo = that.calcularCustoDesenvolvimento(valor_pf_ajustado, total_valor_pf_ajustado);
+		if(validaForm(formAlterarExcluirFuncionalidades, false)){
+			var $formAlterarExcluirFuncionalidades = $(formAlterarExcluirFuncionalidades);
+			var $checkboxesComponentesMarcados = $formAlterarExcluirFuncionalidades.find("input[type='checkbox'][name^='componentes']").filter(':checked');
+			var $tabelaOrcamentoManutencao = this.tabelaOrcamentoManutencao;
+			var $tbody = $tabelaOrcamentoManutencao.children('tbody');
+			var $tfoot = $tabelaOrcamentoManutencao.children('tfoot');
+			var $thTotalValorPFAjustado = $tfoot.find('th.total_valor_pf_ajustado_formatado');
 
-			funcionalidades[id_funcionalidade]['componentes'].push({
-				'id': id_componente,
-				'componente': nome_tipo_componente,
-				'tipo_manutencao': nome_tipo_manutencao,
-				'valor_pf_original': valor_pf_original,
-				'valor_pf_ajustado': valor_pf_ajustado,
-				'tempo': tempo,
-				'custo': custo
+			var that = this;
+			var funcionalidades = [];
+			var total_valor_pf_ajustado = decodeMonetario( $thTotalValorPFAjustado.html() );
+			if(isNaN(total_valor_pf_ajustado)) total_valor_pf_ajustado = 0;
+
+			$checkboxesComponentesMarcados.each(function(){
+				var $checkboxComponente = $(this);
+				var id_componente_banco = $checkboxComponente.val();
+				var $inputFatorImpacto = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][fator_impacto]']");
+				var $inputValorPF = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][valor_pf]']");
+
+				var fator_impacto = parseInt($inputFatorImpacto.val(), 10);
+				var valor_pf_original = parseInt($inputValorPF.val(), 10);
+				var valor_pf_ajustado = ((valor_pf_original * fator_impacto) / 100);
+				total_valor_pf_ajustado += valor_pf_ajustado;
 			});
-			
-			that.toggleLinhaComponenteAlterarExcluirFuncionalidades(id_componente_banco, false);
-		});
-		
-		var ids_funcionalidades = [];
-		for(var id_funcionalidade in funcionalidades){
-			var funcionalidade = funcionalidades[id_funcionalidade];
-			var template = $.templates(this.templateLinhaTabela);
-			var trs = template.render(funcionalidade, true);
-			
-			ids_funcionalidades.push(id_funcionalidade);
-			$tbody.append(trs);
+
+			$checkboxesComponentesMarcados.each(function(){
+				var $checkboxComponente = $(this);
+				var id_componente_banco = $checkboxComponente.val();
+				var $selectTipoManutencao = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][tipo_manutencao]']");
+				var $inputFatorImpacto = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][fator_impacto]']");
+				var $textareaDetalhes = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][detalhes]']");
+				var $inputNomeModulo = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][modulo]']")
+				var $inputNomeFuncionalidade = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][funcionalidade]']")
+				var $inputIdFuncionalidade = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][id_funcionalidade]']")
+				var $inputTipoComponente = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][tipo_componente]']")
+				var $inputValorPF = $formAlterarExcluirFuncionalidades.find("[name^='componentes[" + id_componente_banco + "][valor_pf]']")
+				var id_funcionalidade_banco = $inputIdFuncionalidade.val();
+
+				// Obtendo parâmetros da funcionalidade
+				var tipo_manutencao = $selectTipoManutencao.val();
+				var fator_impacto = parseInt($inputFatorImpacto.val(), 10);
+				var detalhes = $textareaDetalhes.val();
+				var nome_modulo = $inputNomeModulo.val();
+				var nome_funcionalidade = $inputNomeFuncionalidade.val();
+				var id_funcionalidade = ('aef_' + id_funcionalidade_banco);
+
+				if(typeof funcionalidades[id_funcionalidade] == 'undefined') funcionalidades[id_funcionalidade] = [];
+				if(typeof funcionalidades[id_funcionalidade]['componentes'] == 'undefined') funcionalidades[id_funcionalidade]['componentes'] = [];
+
+				funcionalidades[id_funcionalidade]['id'] = id_funcionalidade;
+				funcionalidades[id_funcionalidade]['funcionalidade'] = nome_funcionalidade;
+				funcionalidades[id_funcionalidade]['modulo'] = nome_modulo;
+
+				var id_componente = ('aec_' + id_componente_banco);
+				var nome_tipo_componente = $inputTipoComponente.val();
+				var nome_tipo_manutencao = ((tipo_manutencao == 'a') ? ('Alteração') : ('Exclusão')) + ' (' + fator_impacto + '%' + ')';
+				var valor_pf_original = parseInt($inputValorPF.val(), 10);
+				var valor_pf_ajustado = ((valor_pf_original * fator_impacto) / 100);
+				var tempo = that.calcularTempoDesenvolvimento(valor_pf_ajustado, total_valor_pf_ajustado);
+				var custo = that.calcularCustoDesenvolvimento(valor_pf_ajustado, total_valor_pf_ajustado);
+
+				funcionalidades[id_funcionalidade]['componentes'].push({
+					'id': id_componente,
+					'componente': nome_tipo_componente,
+					'tipo_manutencao': nome_tipo_manutencao,
+					'detalhes': detalhes,
+					'valor_pf_original': valor_pf_original,
+					'valor_pf_ajustado': valor_pf_ajustado,
+					'tempo': tempo,
+					'custo': custo
+				});
+
+				that.toggleLinhaComponenteAlterarExcluirFuncionalidades(id_componente_banco, false);
+			});
+
+			var ids_funcionalidades = [];
+			for(var id_funcionalidade in funcionalidades){
+				var funcionalidade = funcionalidades[id_funcionalidade];
+				var template = $.templates(this.templateLinhaTabela);
+				var trs = template.render(funcionalidade, true);
+
+				ids_funcionalidades.push(id_funcionalidade);
+				$tbody.append(trs);
+			}
+			ids_funcionalidades = removeDuplicates(ids_funcionalidades);
+
+			// Caso tenha sido adicionado um componente a uma funcionalidade já existente
+			// na tabela, poderá ser preciso reformatar as células de suas linhas
+			this.reformatarLinhasComponentesIguaisAdicionadosEmAvulso(ids_funcionalidades);
+
+			// Formatar valores de tempo e custo, nas últimas colunas da tabela
+			this.formatarValoresCorpoTabela();
+
+			// Atualizando totais no rodapé da tabela
+			this.calcularTotaisRodapeTabela();
+
+			// Atualizando visibilidade de linhas na tabela, em função dos
+			// parâmetros de personalização
+			this.toggleColunasTabela();
+
+			// Resetando formulário após a inclusão da funcionalidade
+			$formAlterarExcluirFuncionalidades.find("input[type='checkbox']").prop('checked', false);
+			$formAlterarExcluirFuncionalidades.removeClass('was-validated').find('div.invalid-feedback').remove();
+			this.toggleCamposComponenteAlteracaoExclusaoFuncionalidades();
 		}
-		ids_funcionalidades = removeDuplicates(ids_funcionalidades);
-		
-		// Caso tenha sido adicionado um componente a uma funcionalidade já
-		// existente na tabela, poderá ser preciso reformatar as células de suas
-		// linhas
-		this.reformatarLinhasComponentesIguaisAdicionadosEmAvulso(ids_funcionalidades);
-
-		// Formatar valores de tempo e custo, nas últimas colunas da tabela
-		this.formatarValoresCorpoTabela();
-
-		// Atualizando totais no rodapé da tabela
-		this.calcularTotaisRodapeTabela();
-		
-		// Atualizando visibilidade de linhas na tabela, em função dos
-		// parâmetros de personalização
-		this.toggleColunasTabela();
-
-		// Resetando formulário após a inclusão da funcionalidade
-		$formAlterarExcluirFuncionalidades.find("input[type='checkbox']").prop('checked', false);
-		this.toggleCamposComponenteAlteracaoExclusaoFuncionalidades();
 		
 		return false;
 	}
@@ -738,9 +944,9 @@ function orcamentoManutencao(){
 		var $trsAgrupamentos = $trAgrupamentoFuncionalidades.add($trAgrupamentoModulos); 
 		
 		if(exibir){
-			$trComponenteAtual.add($trsAgrupamentos).show();
+			$trComponenteAtual.add($trsAgrupamentos).removeClass('d-none');
 		} else {
-			$trComponenteAtual.hide();
+			$trComponenteAtual.addClass('d-none');
 		
 			var checkTodosComponentesVizinhosOcultados = true;
 			var checkTodosComponentesMesmoModuloOcultados = true;
@@ -748,7 +954,7 @@ function orcamentoManutencao(){
 			$trsComponentesVizinhos.each(function(){
 				var $tr = $(this);
 
-				if($tr.is(':visible')){
+				if(!$tr.hasClass('d-none')){
 					checkTodosComponentesVizinhosOcultados = false;
 					return false; // Sair do $.each
 				}
@@ -758,17 +964,17 @@ function orcamentoManutencao(){
 			$trsOutrosComponentesMesmoModulo.each(function(){
 				var $tr = $(this);
 
-				if($tr.is(':visible')){
+				if(!$tr.hasClass('d-none')){
 					checkTodosComponentesMesmoModuloOcultados = false;
 					return false; // Sair do $.each
 				}
 			})
 
 			if(checkTodosComponentesVizinhosOcultados){
-				$trAgrupamentoFuncionalidades.hide();
+				$trAgrupamentoFuncionalidades.addClass('d-none');
 			}
 			if(checkTodosComponentesMesmoModuloOcultados){
-				$trAgrupamentoModulos.hide();
+				$trAgrupamentoModulos.addClass('d-none');
 			}
 		}
 	}
@@ -953,6 +1159,7 @@ function orcamentoManutencao(){
 		var $selectMostrarValorPF = $('#mostrar_valor');
 		var $checkboxMostrarTempo = $('#mostrar_tempo');
 		var $checkboxMostrarCusto = $('#mostrar_custo');
+		var $checkboxMostrarDetalhes = $('#mostrar_detalhes');
 		var $conteinerTabelaOrcamentoManutencao = this.conteinerTabelaOrcamentoManutencao;
 		var $tabelaOrcamentoManutencao = this.tabelaOrcamentoManutencao;
 		var $thead = $tabelaOrcamentoManutencao.children('thead');
@@ -964,18 +1171,22 @@ function orcamentoManutencao(){
 		var $thValorPFAjustadoCabecalho = $thead.find('th.valor_pf_ajustado');
 		var $thTempoCabecalho = $thead.find('th.tempo');
 		var $thCustoCabecalho = $thead.find('th.custo');
+		var $thDetalhesCabecalho = $thead.find('th.detalhes');
 		var $tdsValorPFOriginalCorpo = $tbody.find('td.valor_pf_original_formatado');
 		var $tdsValorPFAjustadoCorpo = $tbody.find('td.valor_pf_ajustado_formatado');
 		var $tdsTempoCorpo = $tbody.find('td.tempo_formatado');
 		var $tdsCustoCorpo = $tbody.find('td.custo_formatado');
+		var $tdsDetalhesCorpo = $tbody.find('td.detalhes');
 		var $thValorPFOriginalRodape = $tfoot.find('th.total_valor_pf_original_formatado');
 		var $thValorPFAjustadoRodape = $tfoot.find('th.total_valor_pf_ajustado_formatado');
 		var $thTempoRodape = $tfoot.find('th.total_tempo_formatado');
 		var $thCustoRodape = $tfoot.find('th.total_custo_formatado');
+		var $thDetalhesRodape = $tfoot.find('th.detalhes');
 		
 		var $inputMostrarValoresPF = $conteinerTabelaOrcamentoManutencao.find('input.mostrar_valores_pf');
 		var $inputMostrarTempo = $conteinerTabelaOrcamentoManutencao.find('input.mostrar_tempo');
 		var $inputMostrarCusto = $conteinerTabelaOrcamentoManutencao.find('input.mostrar_custo');
+		var $inputMostrarDetalhes = $conteinerTabelaOrcamentoManutencao.find('input.mostrar_detalhes');
 		
 		var mostrar_valor_pf = $selectMostrarValorPF.val();
 		
@@ -1010,6 +1221,14 @@ function orcamentoManutencao(){
 		} else {
 			$thCustoCabecalho.add($tdsCustoCorpo).add($thCustoRodape).addClass('d-none');
 			$inputMostrarCusto.val('false');
+		}
+		
+		if($checkboxMostrarDetalhes.is(':checked')){
+			$thDetalhesCabecalho.add($tdsDetalhesCorpo).add($thDetalhesRodape).removeClass('d-none');
+			$inputMostrarDetalhes.val('true');
+		} else {
+			$thDetalhesCabecalho.add($tdsDetalhesCorpo).add($thDetalhesRodape).addClass('d-none');
+			$inputMostrarDetalhes.val('false');
 		}
 	}
 	

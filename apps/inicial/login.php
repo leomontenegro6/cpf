@@ -1,9 +1,12 @@
 <?php
+session_start();
 require_once 'cabecalho.php';
 
 $usuario = new usuario();
 
-session_start();
+$login = (isset($_POST['login'])) ? ($_POST['login']) : ('');
+$senha = (isset($_POST['senha'])) ? ($_POST['senha']) : ('');
+$dispositivo_usuario = (isset($_POST['dispositivo_usuario'])) ? ($_POST['dispositivo_usuario']) : ('xl');
 
 if(isset($_POST['login']) && isset($_POST['senha'])){
 	$usuario_row = $usuario->getLogin($_POST['login'], $_POST['senha']);

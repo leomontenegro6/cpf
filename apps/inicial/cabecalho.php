@@ -16,6 +16,7 @@ require_once '../../utils/autoload.php';
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<title>CPF | Log in</title>
+		<link rel="shortcut icon" type="image/x-icon" href="../common/img/favicon.ico" />
 		<!-- Tell the browser to be responsive to screen width -->
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -25,5 +26,6 @@ require_once '../../utils/autoload.php';
 		<link rel="stylesheet" href="../common/css/adminlte.min.css">
 		<!-- Custom CSS -->
 		<link rel="stylesheet" href="../common/css/css.css?<?php echo filemtime('../common/css/css.css') ?>">
+		<link rel="stylesheet" href="../common/css/css-xs.css?<?php echo filemtime('../common/css/css-xs.css') ?>">
 	</head>
 	<body class="hold-transition login-page">
