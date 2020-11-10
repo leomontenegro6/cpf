@@ -1,5 +1,7 @@
 <?php
-function __autoload($class_name) {
+// Incluindo classes customizadas da aplicação, dentro das pastas
+// "persistence", "business" e "utils"
+function novo_autoload($class_name) {
 	$pastas = array('persistence', 'business', 'utils');
 	$prefixo = '../';
 	for($i=0; $i<3; $i++){
@@ -20,3 +22,7 @@ function __autoload($class_name) {
 		}
 	}
 }
+spl_autoload_register('novo_autoload');
+
+// Incluindo bibliotecas instaladas globalmente via Composer
+require_once('../../vendor/autoload.php');

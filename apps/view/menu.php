@@ -13,6 +13,12 @@
 
 				<!-- Right navbar links -->
 				<ul class="navbar-nav ml-auto">
+					<li class="nav-item">
+						<a id="toggle_tema_escuro" class="nav-link" href="#"
+						   title="Mudar para tema claro" onclick="toggleTemaVisual(event)">
+							<i class="fas fa-moon"></i>
+						</a>
+					</li>
 					<!-- User Dropdown Menu -->
 					<li class="nav-item dropdown user-menu">
 						<a class="nav-link" data-toggle="dropdown" href="#">

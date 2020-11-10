@@ -54,12 +54,11 @@
 #corpo{
 	/* padding-top: 10px */
 }
-/* Estilizações da dashboard da tela inicial */
-div.cpf_dashboard_logo{
-	background-image: url('../img/cpf_dashboard_logo.png');
-	background-size: 100% 100%;
-	width: 75px;
-	height: 50px;
+div.card.card-padding-reduzido-xs div.card-header{
+	padding: 12px 20px;
+}
+div.card.card-padding-reduzido-xs div.card-body{
+	padding: 20px;
 }
 /* Estilizações do componente "Bootstrap Float Label" */
 .has-float-label .form-control:placeholder-shown:not(:focus) + *{
@@ -101,6 +100,106 @@ div.cpf_dashboard_logo{
 }
 .was-validated select.select:invalid + span.select2 span.select2-selection{
 	border-color: #dc3545;
+}
+/* Estilizações adicionais do Bootstrap Timepicker */
+div.conteiner_timepicker div.form-group{
+	margin: 0;
+}
+div.conteiner_timepicker label{
+	font-weight: normal;
+	min-width: 30px;
+	text-align: center;
+}
+div.conteiner_timepicker{
+	white-space: nowrap;
+}
+div.conteiner_timepicker span.input-group-addon{
+	background-color: #f4f4f4;
+	color: #444;
+	border: 1px solid #ddd;
+	border-left: 0;
+	vertical-align: top;
+	padding: 6px 9px;
+	border-radius: 0 .25rem .25rem 0;
+	opacity: 1 !important;
+}
+div.conteiner_timepicker span.input-group-addon:hover{
+	background-color: #e7e7e7;
+}
+div.conteiner_timepicker span.input-group-addon:focus{
+	outline: 0;
+	box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25)
+}
+div.conteiner_timepicker span.input-group-addon:active{
+	background-image: none;
+	box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+}
+div.conteiner_timepicker.intervalo div.timepicker{
+	width: 77.5%;
+}
+div.conteiner_timepicker.intervalo div.form-group.inicial,
+div.conteiner_timepicker.intervalo div.form-group.final{
+	width: 44.5%;
+}
+/* Estilizações adicionais do Bootstrap Daterangepicker */
+div.conteiner_calendario div.form-group{
+	margin: 0;
+}
+div.conteiner_calendario label{
+	font-weight: normal;
+	min-width: 30px;
+	text-align: center;
+}
+div.conteiner_calendario{
+	white-space: nowrap;
+}
+div.conteiner_calendario.comum div.form-group{
+	flex: 1 1;
+}
+div.conteiner_calendario.comum input.form-control{
+	width: 100%;
+	border-radius: .25rem 0 0 .25rem;
+}
+div.conteiner_calendario button.botao_calendario i.fa{
+	vertical-align: baseline;
+}
+div.conteiner_calendario button.botao_calendario[disabled]{
+	font-weight: bold;
+	color: #4f4f4f;
+	text-shadow: 0px 1px 0px rgba(255, 255, 255,0.7);
+	border-color: #AAA;
+	background: rgb(244,244,244);
+}
+div.conteiner_calendario.comum button.botao_calendario{
+	padding: 6px 9px;
+	border-radius: 0 .25rem .25rem 0;
+	margin-left: -1px;
+}
+div.conteiner_calendario.intervalo{
+	display: table;
+}
+div.conteiner_calendario.intervalo label.inicial,
+div.conteiner_calendario.intervalo label.final,
+div.conteiner_calendario.intervalo span.input-group-addon{
+	display: table-cell;
+	vertical-align: top;
+}
+div.conteiner_calendario.intervalo label.inicial>input{
+	border-right: 0;
+	border-radius: 4px 0 0 4px;
+}
+div.conteiner_calendario.intervalo label.final>input{
+	border-right: 0;
+	border-radius: 0;
+}
+div.conteiner_calendario.intervalo span.input-group-addon>button{
+	border-radius: 0 4px 4px 0;
+}
+div.conteiner_calendario .has-float-label .form-control:placeholder-shown:not(:focus) + * {
+	font-size: 75%;
+	top: -0.3em;
+	left: 0.75rem;
+	opacity: 1;
 }
 /* Estilizações adicionais do jQuery DataTables */
 .tabelaaberta.oculta{
@@ -318,6 +417,9 @@ body.modal-open{
 	font-weight: bold;
 	color: #444;
 	font-size: 14px;
+}
+.tema_escuro .janela_modal .modal-body td.mensagem_modal{
+	color: #ddd;
 }
 .janela_modal .modal-body i.fas{
 	margin-right: 10px;
@@ -616,6 +718,14 @@ div.slider-handle.custom{
 .was-validated select[data-role='tagsinput']:invalid~div.bootstrap-tagsinput{
 	border-color: #dc3545;
 }
+.was-validated select.select~div.invalid-feedback{
+	color: #e699a1;
+	opacity: .5;	
+	font-size: 100%;
+}
+.was-validated label:not(.form-check-label):not(.custom-file-label){
+	font-weight: normal;
+}
 
 /* Estilizações de pseudo-tabelas feitas com grid layout */
 div.grid-table.header{
@@ -655,9 +765,15 @@ ol.lista_hierarquica li:before {
 }
 
 /* Componentes de funcionalidades, no formulário de cadastro de funcionalidades */
+div.componente_funcionalidade{
+	border: 0;
+}
 div.componente_funcionalidade>div[class^="col"]{
 	border: 1px solid #dee2e6;
 	padding: 5px;
+}
+.tema_escuro div.componente_funcionalidade>div[class^="col"]{
+	border-color: #363636;
 }
 div.componente_funcionalidade:nth-child(even){
 	background: rgba(0,0,0,.075);
@@ -687,8 +803,17 @@ div.componente_inclusao_funcionalidade_orcamento_manutencao textarea[name^='comp
 #tabela_orcamento_desenvolvimento>thead>tr>th{
 	background-color: #fafafa;
 }
+.tema_escuro #tabela_contagem_pontos>thead>tr>th,
+.tema_escuro #tabela_prazos_desenvolvimento>thead>tr>th,
+.tema_escuro #tabela_orcamento_desenvolvimento>thead>tr>th{
+	background-color: transparent;
+}
 /* Estilizações da tabela de listagem, no relatório de Orçamento de Manutenção */
 #tabela_orcamento_manutencao>thead>tr>th,
 #tabela_orcamento_manutencao>tfoot>tr>th{
 	background-color: #fafafa;
+}
+.tema_escuro #tabela_orcamento_manutencao>thead>tr>th,
+.tema_escuro #tabela_orcamento_manutencao>tfoot>tr>th{
+	background-color: transparent;
 }

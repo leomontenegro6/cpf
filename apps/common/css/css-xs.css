@@ -4,6 +4,10 @@
 		white-space: nowrap;
 		overflow: hidden;
 	}
+	div.card.card-padding-reduzido-xs div.card-header,
+	div.card.card-padding-reduzido-xs div.card-body{
+		padding: 10px;
+	}
 	/* Campos de formulário agrupados */
 	div.input-group.with-float-label div.input-group-prepend,
 	div.modal-body div.input-group.with-float-label div.input-group-prepend{
@@ -82,5 +86,12 @@
 	}
 	div.acoes_mobile a.mobile-danger{
 		background-color: #f2dede;
+	}
+	/* Componentes de funcionalidades, no formulário de cadastro de funcionalidades */
+	div.componente_funcionalidade{
+		border: 1px solid #dee2e6;
+	}
+	div.componente_funcionalidade>div[class^="col"]{
+		border-color: transparent;
 	}
 }

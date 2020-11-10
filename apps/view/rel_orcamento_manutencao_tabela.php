@@ -11,6 +11,7 @@ if(is_numeric($sistema_lista)){
 	$sigla_sistema = $sistema_row['sigla'];
 	$descricao_sistema = $sigla_sistema . ' - ' . $nome_sistema;
 } else {
+	$sigla_sistema = '';
 	$descricao_sistema = '...';
 }
 ?>

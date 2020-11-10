@@ -12,7 +12,7 @@ $tipoComponenteTipoDado_rs = $tipoComponente->getForSelect();
 $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormularioCadastroFuncionalidades($id_tipo_funcionalidade, $nome_funcionalidade);
 ?>
 <b>Componentes</b>
-<div class="row d-flex d-sm-none">
+<div class="row cabecalho_componente_funcionalidade">
 	<div class="col-3" style="border: 1px solid #dee2e6"><b>Tipo</b></div>
 	<div class="col-3" style="border: 1px solid #dee2e6"><b>Campos</b></div>
 	<div class="col-3" style="border: 1px solid #dee2e6"><b>Arquivos Referenciados</b></div>
@@ -21,7 +21,7 @@ $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormulario
 </div>
 <?php foreach($componenteTipoFuncionalidade_rs as $i=>$componenteTipoFuncionalidade_row){ ?>
 	<div class="row componente_funcionalidade">
-		<div class="col-3">
+		<div class="col-md-3 col-xs-12">
 			<select id="tipo_componente<?php echo $i ?>" class="select form-control"
 				name="componentes[<?php echo $i ?>][tipo_componente]" required
 				onchange="concatenarLabelOptgroupParaTemplateSelection(this); calcularComplexidadeEValorComponenteFuncionalidade(this)">
@@ -62,7 +62,8 @@ $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormulario
 				</div>
 			</div>
 		</div>
-		<div class="col-3">
+		<div class="col-md-3 col-xs-12">
+			<div class='d-block d-sm-none' style='font-size: 15px'><b>Campos</b></div>
 			<div class="d-inline-block">
 				<div class="custom-control custom-radio">
 					<input type="radio" class="custom-control-input" id="modo_preenchimento_campo_quantidade<?php echo $i ?>"
@@ -91,7 +92,8 @@ $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormulario
 				multiple placeholder="Digite o nome dos campos" class="tagsinput d-none"
 				onchange="calcularComplexidadeEValorComponenteFuncionalidade(this)"></select>
 		</div>
-		<div class="col-3">
+		<div class="col-md-3 col-xs-12">
+			<div class='d-block d-sm-none' style='font-size: 15px'><b>Arquivos Referenciados</b></div>
 			<div class="d-inline-block">
 				<div class="custom-control custom-radio">
 					<input type="radio" class="custom-control-input" id="modo_preenchimento_arquivo_quantidade<?php echo $i ?>"
@@ -120,14 +122,20 @@ $componenteTipoFuncionalidade_rs = $tipoFuncionalidade->getComponentesFormulario
 				multiple placeholder="Digite o nome dos arquivos" class="tagsinput d-none"
 				onchange="calcularComplexidadeEValorComponenteFuncionalidade(this)"></select>
 		</div>
-		<div class="col complexidade">---</div>
-		<div class="col valor">---</div>
+		<div class="col-md col-6">
+			<div class='d-block d-sm-none'>Complexidade:</div>
+			<span class='complexidade'>---</span>
+		</div>
+		<div class="col-md col-6">
+			<div class='d-block d-sm-none'>Valor (PF):</div>
+			<span class='valor'>---</span>
+		</div>
 	</div>
 <?php } ?>
 <div class="row">
-	<div class="col-3">&nbsp;</div>
-	<div class="col-3">&nbsp;</div>
-	<div class="col-3">&nbsp;</div>
+	<div class="col-md-3 col-1">&nbsp;</div>
+	<div class="col-md-3 col-1">&nbsp;</div>
+	<div class="col-md-3 col-1">&nbsp;</div>
 	<div class="col" style="border: 1px solid #dee2e6; text-align: right"><b>Total:</b></div>
 	<div class="col" style="border: 1px solid #dee2e6"><b id="valor_total">---</b></div>
 </div>

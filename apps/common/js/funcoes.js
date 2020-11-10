@@ -143,6 +143,8 @@ function instanciarComponentes(campo, escopo){
 	campoMultiplo.instanciar(campo, escopo);
 	tabela.instanciar(campo, escopo);
 	select.instanciar(campo, escopo);
+	calendario.instanciar(campo, escopo);
+	timepicker.instanciar(campo, escopo);
 	fileUploader.instanciar(campo, escopo);
 	mascara.instanciar(campo, escopo);
 	instanciarComponenteBootstrapTagsinput(campo, escopo);
@@ -741,14 +743,14 @@ function validaFormAbas(form, mostra_modal, mostra_aviso){
 	}
 }
 
-function confirma(pagina, parametros, mensagem, ajax, callback_sucesso, callback_erro) {
+function confirma(pagina, parametros, mensagem, ajax, callback_sucesso, callback_erro, tem_modal, tem_animacao) {
     if (!mensagem)
         mensagem = 'Deseja realizar esta operação?';
-    ajax = (typeof ajax != 'undefined' && ajax == 'true');
-    jConfirmSimNao(mensagem, 'Confirmação', function (valor) {
+    ajax = (typeof ajax != 'undefined' && (ajax == 'true' || ajax === true));
+    return jConfirmSimNao(mensagem, 'Confirmação', function (valor) {
         if (valor) {
             if (ajax) {
-                mostraCarregando();
+                mostraCarregando(tem_modal, tem_animacao);
                 chamarPagina(pagina, parametros, function (r) {
                     // Callback de sucesso
                     if (callback_sucesso)
@@ -1147,6 +1149,8 @@ function carregarComponentesByTipoFuncionalidade(campoTipoFuncionalidade){
 		instanciarComponentes(null, $divRowComponentes);
 		
 		$divRowComponentes.find('select.select').trigger('change');
+		
+		if(getDispositivo() == 'xs') $divRowComponentes.find('div.cabecalho_componente_funcionalidade').hide();
 	});
 }
 
@@ -1387,8 +1391,8 @@ function calcularComplexidadeEValorComponenteFuncionalidade(elemento){
 	var $radiobuttonModoPreenchimentoArquivosReferenciados = $divComponenteFuncionalidade.find("[name$='[modo_preenchimento_arquivos_referenciados]']:checked");
 	var $inputQuantidadeArquivosReferenciados = $divComponenteFuncionalidade.find("[name$='[quantidade_arquivos_referenciados]']");
 	var $selectNomesArquivosReferenciados = $divComponenteFuncionalidade.find("[name$='[nomes_arquivos_referenciados][]']");
-	var $divComplexidade = $divComponenteFuncionalidade.find('div.complexidade');
-	var $divValor = $divComponenteFuncionalidade.find('div.valor');
+	var $spanComplexidade = $divComponenteFuncionalidade.find('span.complexidade');
+	var $spanValor = $divComponenteFuncionalidade.find('span.valor');
 	var $bValorTotal = $('#valor_total');
 	
 	// Obtendo parâmetros adicionais
@@ -1471,16 +1475,16 @@ function calcularComplexidadeEValorComponenteFuncionalidade(elemento){
 	}
 	
 	// Exibindo informações na página
-	$divComplexidade.html(complexidade_formatada);
-	$divValor.html(valor);
+	$spanComplexidade.html(complexidade_formatada);
+	$spanValor.html(valor);
 	
 	// Contabilizando total de pontos de função, no rodapé.
 	var valor_total = 0;
 	$divComponentesFuncionalidade.each(function(){
 		var $divComponenteFuncionalidade = $(this);
-		var $divValor = $divComponenteFuncionalidade.find('div.valor');
+		var $spanValor = $divComponenteFuncionalidade.find('span.valor');
 		
-		var valor = parseInt($divValor.html(), 10);
+		var valor = parseInt($spanValor.html(), 10);
 		if(isNaN(valor)) valor = 0;
 		
 		valor_total += valor;
@@ -1710,6 +1714,27 @@ function validaFormOrcamentoDesenvolvimento(form){
 	return false;
 }
 
+function validaFormCronogramaDesenvolvimento(form){
+	if(validaFormAbas(form, false)){
+		var $form = $(form);
+		var $divTabelaCronogramaDesenvolvimento = $('#conteiner_tabela_cronograma_desenvolvimento');
+		
+		mostraCarregando(true, false);
+		
+		var parametros_formulario = $form.serialize();
+		var parametros_historico = parametros_formulario;
+		parametros_formulario += '&ajax=true';
+		parametros_historico += '&Submit=true';
+		chamarPagina('rel_cronograma_desenvolvimento_tabela.php?' + parametros_formulario, '', function(r){
+			ocultaCarregando();
+			$divTabelaCronogramaDesenvolvimento.html(r);
+			history.pushState(parametros_historico, '', '?' + parametros_historico);
+		});
+	}
+	
+	return false;
+}
+
 function filtrarOpcoesCheckboxRadioMenu(input){
 	var $input = $(input);
 	var $divCheckboxMenuParent = $input.parent().next();
@@ -1748,5 +1773,135 @@ function marcarCheckboxMenuNoEnterOuEspaco(campo, evento){
 			$checkbox.prop('checked', true);
 		}
 		$checkbox.trigger('change');
+	}
+}
+
+function cadastrarNovoFeriadoCustomizado(){
+	var $divFiltros = $('#filtros');
+	var $selectAno = $divFiltros.find("select[name='ano_lista']");
+	
+	var ano = $selectAno.val();
+	
+	var parametros = '';
+	if(ano != '') parametros += '&ano=' + ano;
+	return jForm('feriado_customizado_form.php?' + parametros);
+}
+
+function pesquisarTabelaFeriados(form){
+	if(validaForm(form)){
+		atualizarTabelaFeriados();
+	}
+	
+	return false;
+}
+
+function atualizarTabelaFeriados(){
+	var $formularioPesquisaFeriados = $('#form_lista');
+	var $divFeriadoTabela = $('#feriado_tabela');
+	
+	var parametros = $formularioPesquisaFeriados.serialize();
+	
+	chamarPagina('feriado_tabela.php?' + parametros, '', function(r){
+		$divFeriadoTabela.html(r);
+		instanciarComponentes(null, $divFeriadoTabela);
+		ocultaCarregando();
+	});
+}
+
+function toggleCampoDataParaIntervalo(){
+	var $checkboxIntervalo = $('#intervalo');
+	var $campoData = $('#data');
+	var $labelData = $("label[for='data']");
+	var $divConteinerCalendario = $campoData.closest('div.conteiner_calendario');
+	var $divFormGroup = $divConteinerCalendario.parent();
+	
+	var data = $campoData.val();
+	
+	$campoData.insertAfter($divConteinerCalendario);
+	
+	$divConteinerCalendario.remove();
+	
+	$campoData.removeAttr('placeholder maxlength data-instanciado data-intervalo data-rotulo-flutuante-inicial data-rotulo-flutuante-final value').val('').off('change keydown');
+	
+	if($checkboxIntervalo.is(':checked')){
+		$campoData.attr({
+			'data-intervalo': 'true',
+			'data-rotulo-flutuante-inicial': 'Período Inicial:',
+			'data-rotulo-flutuante-final': 'Período Final:',
+			'data-valor-inicial': data,
+			'data-valor-final': data
+		});
+		$divFormGroup.removeClass('has-float-label');
+		$labelData.hide();
+	} else {
+		var nome = $campoData.attr('name');
+		nome = nome.replace('[inicial]', '');
+		$campoData.attr('name', nome).val(data);
+		$divFormGroup.addClass('has-float-label');
+		$labelData.show();
+	}
+	
+	instanciarComponentes(null, $('#form_feriado'));
+}
+
+function validaFormFeriadoCustomizado(form){
+	return validaForm(form, undefined, undefined, function(){
+		mostraCarregando(true, false);
+		atualizarTabelaFeriados();
+	});
+}
+
+function apagarFeriadoCustomizado(id){
+	var pagina = 'feriado_customizado_crud.php';
+	var parametros = 'id=' + id + '&acao=excluir';
+	var $modalConfirmacao = confirma(pagina, parametros, 'Deseja excluir este registro?', true, function(dados){
+		dados = interpretarJSON(dados);
+		if(dados.tipo_modal == '' || dados.tipo_modal == 'informacao'){
+			exibirAvisoNotify(dados.msg_modal, 'info');
+			atualizarTabelaFeriados();
+		} else {
+			ocultaCarregando();
+			jError(dados.msg_modal);
+		}
+	}, function(){
+		ocultaCarregando();
+		jError('Erro ao excluir registro!');
+	}, true, false);
+	
+	$modalConfirmacao.find('div.modal-header').removeClass('bg-primary').addClass('bg-danger');
+	$modalConfirmacao.find('button.btn-ok').removeClass('btn-primary').addClass('btn-danger');
+	
+	return $modalConfirmacao;
+}
+
+function setTemaVisual(tema, event){
+	var $body = $('body');
+	var $a = $('#toggle_tema_escuro');
+	var $i = $a.children('i');
+	var $navbar = $a.closest('nav.main-header');
+	
+	localStorage.setItem('cpf.tema', tema);
+	if(tema == 'escuro'){	
+		$body.addClass('tema_escuro');
+		$a.attr('title', 'Mudar para tema claro');
+		$i.addClass('fas text-warning');
+		$navbar.removeClass('bg-white navbar-light').addClass('navbar-dark');
+	} else {
+		$body.removeClass('tema_escuro');
+		$a.attr('title', 'Mudar para tema escuro');
+		$i.removeClass('text-warning');
+		$navbar.removeClass('navbar-dark').addClass('bg-white navbar-light');
+	}
+	
+	if(event) event.preventDefault();
+}
+
+function toggleTemaVisual(event){
+	var tema = localStorage.getItem('cpf.tema');
+	
+	if(tema == 'escuro'){
+		setTemaVisual('claro', event);
+	} else {
+		setTemaVisual('escuro', event);
 	}
 }

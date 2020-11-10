@@ -295,11 +295,6 @@ tabela.instanciar = function(seletor_tabela, escopo){
 				"<'row'<'col-sm-12'tr>>" +
 				"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 		} else {
-			$.fn.dataTable.Buttons.swfPath = '../common/datatables.net-buttons/swf/flashExport.swf';
-			
-			if(relatorio){
-				parametros['dom'] = 'B';
-			}
 			// Desativa exibição de informações, na paginação
 			parametros['info'] = false;
 		}

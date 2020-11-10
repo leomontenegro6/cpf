@@ -27,5 +27,6 @@ require_once '../../utils/autoload.php';
 		<!-- Custom CSS -->
 		<link rel="stylesheet" href="../common/css/css.css?<?php echo filemtime('../common/css/css.css') ?>">
 		<link rel="stylesheet" href="../common/css/css-xs.css?<?php echo filemtime('../common/css/css-xs.css') ?>">
+		<link rel="stylesheet" href="../common/css/css-tema-escuro.css?<?php echo filemtime('../common/css/css-tema-escuro.css') ?>">
 	</head>
 	<body class="hold-transition login-page">

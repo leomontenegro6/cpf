@@ -132,10 +132,14 @@ class funcoes{
 		}
 		return $extenso;
 	}
-	public static function formataDiaSemanaPorData($data){
+	public static function formataDiaSemanaPorData($data, $extenso=false){
 		$dia_semana = date('w', strtotime($data)) + 1;
 		
-		return self::formataDiaSemana($dia_semana);
+		if($extenso){
+			return self::formataDiaSemanaCompleto($dia_semana);
+		} else {
+			return self::formataDiaSemana($dia_semana);
+		}
 	}
 
 	public static function formataDiaSemanaCompleto($dia){ //recebe dia em valor numérico e retorna por extenso
@@ -375,8 +379,10 @@ class funcoes{
 	public static function decodeData($data){
 		$data_decode = $data;
 		if(!empty ($data)){
-			$d = explode("/",$data);
-			$data_decode = $d[2]."-". $d[1] ."-".$d[0];
+            if(substr($data, 2, 1) == '/'){
+                $d = explode('/',$data);
+                $data_decode = $d[2].'-'. $d[1] .'-'.$d[0];
+			}
 		}
 		return $data_decode;
 	}
@@ -1224,5 +1230,9 @@ class funcoes{
 		} else {
 			return '';
 		}
+	}
+	
+	public static function getAnosForSelect() {
+		return range(2013, 2099);
 	}
 }

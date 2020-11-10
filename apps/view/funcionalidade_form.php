@@ -35,7 +35,7 @@ if(isset($_POST['id'])){
 
 $tipoFuncionalidade_rs = $tipoFuncionalidade->getAll();
 ?>
-<div class="card <?php if($acao == 'editar') echo 'card-success'; else echo 'card-primary'; ?>">
+<div class="card <?php if($acao == 'editar') echo 'card-success'; else echo 'card-primary'; ?> card-padding-reduzido-xs">
 	<div class="card-header">
 		<h3 class="card-title"><?php echo funcoes::formatarTituloFormularioPorAcao($acao, 'f') ?> Funcionalidade</h3>
 	</div>

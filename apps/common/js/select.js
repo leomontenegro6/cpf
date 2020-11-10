@@ -28,7 +28,7 @@ select.instanciar = function(seletor_campo, escopo){
 	var dispositivo = getDispositivo();
 	busca.each(function(){
 		var $select = $(this);
-		var temPaginaAjax, pagina, limite_registros, temFiltro, temTags, campoMultiplo, limite_caracteres, naoTemLimite, checkDentroCardVerde;
+		var temPaginaAjax, pagina, limite_registros, temFiltro, temTags, campoMultiplo, limite_caracteres, naoTemLimite, larguraTotal, checkDentroCardVerde;
 		
 		// Obtenção da página ao qual o componente fará requisições Ajax, para obter registros.
 		// Se não existir, o componente utilizará as próprias opções como fonte de dados.
@@ -87,6 +87,15 @@ select.instanciar = function(seletor_campo, escopo){
 			limite_caracteres = 3;
 		}
 		
+		// Obtendo parâmetro de detecção de largura total
+		if($select.is("[data-largura-total='false']")){
+			larguraTotal = false;
+		} else {
+			larguraTotal = true;
+		}
+		
+		// Realizando alterações visuais no componente, se estiver dentro de um
+		// card com coloração verde		
 		if($select.closest('div.card-success').length > 0){
 			checkDentroCardVerde = true;
 		} else {
@@ -363,7 +372,7 @@ select.instanciar = function(seletor_campo, escopo){
 		
 		// Definir largura do campo via tags style, para
 		// apoiar design responsivo.
-		$select.css('width', '100%');
+		if(larguraTotal) $select.css('width', '100%');
 		
 		// Inserindo eventos adicionais
 		$select.on({

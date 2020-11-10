@@ -44,6 +44,10 @@ if(!$ajax){
 
 			<!-- Font Awesome -->
 			<link rel="stylesheet" href="../common/css/fontawesome5-all.min.css">
+			<!-- bootstrap-daterangepicker -->
+			<link href="../common/css/daterangepicker.css" rel="stylesheet">
+			<!-- bootstrap-timepicker -->
+			<link href="../common/css/bootstrap-timepicker.min.css" rel="stylesheet">
 			<!-- Select2 -->
 			<link rel="stylesheet" href="../common/css/select2.min.css">
 			<!-- Theme style -->
@@ -62,5 +66,6 @@ if(!$ajax){
 			<!-- Custom CSS -->
 			<link rel="stylesheet" href="../common/css/css.css?<?php echo filemtime('../common/css/css.css') ?>">
 			<link rel="stylesheet" href="../common/css/css-xs.css?<?php echo filemtime('../common/css/css-xs.css') ?>">
+			<link rel="stylesheet" href="../common/css/css-tema-escuro.css?<?php echo filemtime('../common/css/css-tema-escuro.css') ?>">
 		</head>
 <?php } ?>

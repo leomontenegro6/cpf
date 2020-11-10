@@ -16,6 +16,11 @@
 <script src="../common/js/tagsinput.js"></script>
 <!-- bootstrap-daterangepicker -->
 <script src="../common/js/moment.min.js"></script>
+<script src="../common/js/daterangepicker.js"></script>
+<!-- bootstrap-timepicker -->
+<script src="../common/js/bootstrap-timepicker.js"></script>
+<!-- bootstrap-daterangepicker -->
+<script src="../common/js/moment.min.js"></script>
 <!-- jQuery Mask -->
 <script src="../common/js/jquery.mask.min.js"></script>
 <!-- Bootstrap Slider -->
@@ -38,6 +43,8 @@
 <script src="../common/js/aviso.js?<?php echo filemtime('../common/js/aviso.js') ?>"></script>
 <script src="../common/js/aba.js?<?php echo filemtime('../common/js/aba.js') ?>"></script>
 <script src="../common/js/select.js?<?php echo filemtime('../common/js/select.js') ?>"></script>
+<script src="../common/js/calendario.js?<?php echo filemtime('../common/js/calendario.js') ?>"></script>
+<script src="../common/js/timepicker.js?<?php echo filemtime('../common/js/timepicker.js') ?>"></script>
 <script src="../common/js/fileUploader.js?<?php echo filemtime('../common/js/fileUploader.js') ?>"></script>
 <script src="../common/js/mascara.js?<?php echo filemtime('../common/js/mascara.js') ?>"></script>
 <script src="../common/js/campoMultiplo.js?<?php echo filemtime('../common/js/campoMultiplo.js') ?>"></script>
@@ -47,8 +54,10 @@
 	var menu_minimizado = <?php echo ($_SESSION['menu_minimizado']) ? ('true') : ('false') ?>;
 	var data_servidor = new Date(<?php echo strtotime('now') * 1000 ?>);
 	var ambiente = '<?php echo $ambiente ?>';
+	var tema = localStorage.getItem('cpf.tema');
 	$(function(){
 		instanciarBuscaMenu();
 		instanciarComponentes();
+		setTemaVisual(tema, event);
 	})
 </script>

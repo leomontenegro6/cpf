@@ -28,6 +28,11 @@ class menu{
 						'pagina' => 'componente_lista.php',
 					),
 					array(
+						'nome' => 'Feriados',
+						'icone' => 'fa-calendar-times',
+						'pagina' => 'feriado_lista.php',
+					),
+					array(
 						'nome' => 'Usuários',
 						'icone' => 'fa-user',
 						'pagina' => 'usuario_lista.php',
@@ -47,6 +52,11 @@ class menu{
 						'nome' => 'Prazos de Desenvolvimento',
 						'icone' => 'fa-history',
 						'pagina' => 'rel_prazos_desenvolvimento_lista.php',
+					),
+					array(
+						'nome' => 'Cronograma de Desenvolvimento',
+						'icone' => 'fa-calendar-alt',
+						'pagina' => 'rel_cronograma_desenvolvimento_lista.php',
 					),
 					array(
 						'nome' => 'Orçamento de Desenvolvimento',

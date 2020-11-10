@@ -164,7 +164,7 @@ class componente extends abstractBusiness{
 				JOIN modulos m ON (f.modulo = m.id)
 				JOIN sistemas s ON (m.sistema = s.id)
 			WHERE $sql_where
-			ORDER BY 2, 3, 1");
+			ORDER BY 2, 3, f.ordem, co.ordem");
 		
 		// Iterando pelos resultados uma vez, para obter os campos, arquivo referenciados
 		// e calcular os valores para posterior união vertical de linhas (rowspan)
@@ -233,6 +233,114 @@ class componente extends abstractBusiness{
 			$componente_rs[$i]['rowspan_componente'] = $rowspans['componentes'][$id_componente];
 			$componente_rs[$i]['complexidade'] = funcoes::capitaliza($complexidade);
 			$componente_rs[$i]['valor_pf'] = $valor_pf;
+		}
+		
+		// Retornando resultados ao fim do processo
+		return $componente_rs;
+	}
+	
+	public function getByPlanilhaCronogramaDesenvolvimento($id_sistema, $id_modulo, $id_funcionalidade, $metodo_estimativa_prazo, $recursos, $tempo_dedicacao, $indice_produtividade, $expoente_capers_jones, $percentual_reducao, $formato_tempo, $arredondarZeros, $ordenacao){
+		$sql_where = 'TRUE';
+		
+		// Filtro por sistema
+		if(is_numeric($id_sistema)){
+			$sql_where .= " AND s.id = $id_sistema";
+		}
+		
+		// Filtro por módulo
+		if(is_numeric($id_modulo)){
+			$sql_where .= " AND m.id = $id_modulo";
+		}
+		
+		// Filtro por funcionalidade
+		if(is_numeric($id_funcionalidade)){
+			$sql_where .= " AND f.id = $id_funcionalidade";
+		}
+		
+		$recursos = (int)$recursos;
+		$tempo_dedicacao = (float)$tempo_dedicacao;
+		$indice_produtividade = (float)$indice_produtividade;
+		$expoente_capers_jones = (float)$expoente_capers_jones;
+		if($percentual_reducao > 100) $percentual_reducao = 100;
+		$string_ordenacao = '';
+		foreach($ordenacao as $i=>$o){
+			if($i > 0) $string_ordenacao .= ', ';
+			$string_ordenacao .= $o['ordenacao'];
+		}
+		if(empty($string_ordenacao)) $string_ordenacao = '2, 3, 1';
+		
+		$componente_rs = $this->getFieldsByParameter("s.nome AS sistema, m.nome AS modulo, f.nome AS funcionalidade,
+			tco.descricao AS componente, co.id, f.id AS id_funcionalidade,
+			f.ordem AS ordem_funcionalidade, co.ordem AS ordem_componente, m.id AS id_modulo", "co
+				JOIN tipos_componentes tco ON (co.tipo_componente = tco.id)
+				JOIN funcionalidades f ON (co.funcionalidade = f.id)
+				JOIN modulos m ON (f.modulo = m.id)
+				JOIN sistemas s ON (m.sistema = s.id)
+			WHERE $sql_where
+			ORDER BY $string_ordenacao");
+		
+		// Iterando pelos resultados uma vez, para calcular os valores para
+		// posterior união vertical de linhas (rowspan)
+		$rowspans = array();
+		foreach($componente_rs as $i=>$componente_row){
+			$id_funcionalidade = $componente_row['id_funcionalidade'];
+			
+			if(isset($rowspans[$id_funcionalidade])){
+				if($i > 0){
+					$componenteAnterior_row = $componente_rs[$i - 1];
+
+					if($componente_row['id_funcionalidade'] == $componenteAnterior_row['id_funcionalidade']){
+						$rowspans[$id_funcionalidade]++;
+					}
+				}
+			} else {
+				$rowspans[$id_funcionalidade] = 1;
+			}
+		}
+		
+		// Iterando pelos resultados outra vez, para formatar valores e calcular
+		// complexidade e valor de cada componente, em pontos de função
+		$total_pf = 0;
+		foreach($componente_rs as $i=>$componente_row){
+			$id_componente = $componente_row['id'];
+			$id_funcionalidade = $componente_row['id_funcionalidade'];
+			
+			$complexidade_valor = $this->calcularComplexidadeValorPF($id_componente);
+			
+			$complexidade = $complexidade_valor['complexidade'];
+			$valor_pf = $complexidade_valor['valor'];
+			
+			// Calculando tempo de desenvolvimento, caso o método de estimativa
+			// de prazo selecionado seja o de "Estimativa de Esforço"
+			if($metodo_estimativa_prazo == 'e'){
+				$tempo_total = cpf::calcularTempoDesenvolvimentoPorEstimativaEsforco($valor_pf, $recursos, $tempo_dedicacao, $indice_produtividade, $formato_tempo);
+			
+				$tempo = ($tempo_total * $percentual_reducao) / 100;
+			} else {
+				$total_pf += $valor_pf;
+				$tempo = 0;
+			}
+			
+			$componente_rs[$i]['rowspan'] = $rowspans[$id_funcionalidade];
+			$componente_rs[$i]['complexidade'] = funcoes::capitaliza($complexidade);
+			$componente_rs[$i]['valor_pf'] = $valor_pf;
+			$componente_rs[$i]['tempo'] = $tempo;
+		}
+		
+		// Se o método de estimativa de prazo selecionado for o da "Fórmula de Capers Jones",
+		// então recalcular os valores em uma terceira iteração
+		if($metodo_estimativa_prazo == 'cj'){
+			// Calculando o tempo de desenvolvimento geral, em função do total de pontos de função.
+			// Necessário porque a fórmula de Capers Jones só funciona corretamente com o todo.
+			$tempo_total_geral = cpf::calcularTempoDesenvolvimentoPorFormulaCapersJones($total_pf, $expoente_capers_jones, $formato_tempo);
+			foreach($componente_rs as $i=>$componente_row){
+				$valor_pf = $componente_row['valor_pf'];
+				$percentual_ajuste_capers_jones = ($valor_pf * 100) / $total_pf;
+				
+				$tempo = ((($tempo_total_geral * $percentual_ajuste_capers_jones) / 100) * $percentual_reducao) / 100;
+				
+				$componente_rs[$i]['tempo'] = $tempo;
+			}
 		}
 		
 		// Retornando resultados ao fim do processo
